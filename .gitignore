@@ -1,0 +1,5 @@
+.vagrant
+get-pip.py
+tmp
+maestro
+docker/**/Dockerfile

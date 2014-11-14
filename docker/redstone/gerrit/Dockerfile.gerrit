@@ -1,0 +1,36 @@
+# Copyright (C) 2011-2013 OpenStack Foundation
+# Copyright 2013 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# Meta-data for the build process
+# DOCKER-NAME forj/redstone:gerrit
+# DOCKER-VERSION 0.3.4
+# build a puppet based image
+
+FROM  forj/ubuntu:precise
+MAINTAINER forj.io, cdkdev@groups.hp.com
+
+WORKDIR /opt/workspace
+ADD . /opt/workspace
+# Setup Minimal running system
+RUN set -x -v; echo "docker operations for gerrit"; lsb_release -a ; \
+    cd /opt/git/forj-oss/redstone; \
+    git reset --hard origin/master; \
+    git pull origin master;
+
+# bash /opt/git/forj-oss/maestro/hiera/hiera.sh
+
+VOLUME [ "/data" ]
+
+EXPOSE 22 80 443
