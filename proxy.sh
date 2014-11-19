@@ -13,16 +13,30 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
+# relies on environment option PROXY being configured
 echo "setting up proxy"
-export _PROXY=${1:-'http://web-proxy.corp.hp.com:8080'}
-if [ ! -z "$_PROXY" ] ; then
-    export http_proxy=$_PROXY
+if [ ! -z "$PROXY" ] ; then
+    export http_proxy=$PROXY
     export https_proxy=$http_proxy
     export HTTP_PROXY=$http_proxy
     export HTTPS_PROXY=$http_proxy
-    export ftp_proxy=$http_proxy
+    export ftp_proxy=$(echo $http_proxy | sed 's/^http/ftp/g')
+    export socks_proxy=$(echo $http_proxy | sed 's/^http/socks/g')
     export no_proxy=localhost,127.0.0.1,10.0.0.0/16,169.254.169.254
+    if [ "$(id -u)" = "0" ] ; then # should only be done by root
+    # clear out previous setting
+    [ -f /etc/apt/apt.conf ] && cat /etc/apt/apt.conf | grep -v '::proxy' > /etc/apt/apt.conf
+    # reset the apt.conf
+      cat >> /etc/apt/apt.conf <<APT_CONF
+Acquire::http::proxy "${http_proxy}";
+Acquire::https::proxy "${http_proxy}";
+Acquire::ftp::proxy "${ftp_proxy}";
+Acquire::socks::proxy "${socks_proxy}";
+APT_CONF
+fi
+
 else
+    unset PROXY
     unset http_proxy
     unset https_proxy
     unset HTTP_PROXY
@@ -30,6 +44,6 @@ else
     unset ftp_proxy
     unset socks_proxy
     unset no_proxy
+    cat /etc/apt/apt.conf | grep -v '::proxy' > /etc/apt.conf
     echo "skiping proxy settings"
 fi
-

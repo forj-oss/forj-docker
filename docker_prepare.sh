@@ -36,6 +36,8 @@ function DOCKER_BUILD {
     [ -z "${1}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 1st argument, the docker file name in DOCKER_HOME." 2
     [ -z "${2}" ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD requires 2nd argument, the docker image name." 2
     [ -z "${DOCKER_HOME}" ] && ERROR_EXIT  ${LINENO} "no DOCKER_HOME defined" 2
+    DOCKER_FILE_NAME="${1}"
+    DOCKER_FILE_DIR="$(dirname "${DOCKER_FILE_NAME}")"
     DOCKER_NAME=$2
     # use sg
     # workaround to error:
@@ -43,10 +45,28 @@ function DOCKER_BUILD {
     _CWD=$(pwd)
     cd "${DOCKER_HOME}"
     [ -f Dockerfile ] && rm -f Dockerfile
-    ln -s "$1" Dockerfile
+    # Setup docker source folder
+    ln -s "${DOCKER_FILE_NAME}" Dockerfile
+    if [ -e "${DOCKER_FILE_DIR}/setup_sources.sh" ] ; then
+      chmod a+x "${DOCKER_FILE_DIR}/setup_sources.sh"
+      bash -c "${DOCKER_FILE_DIR}/setup_sources.sh ${SCRIPT_FULL_DIR}"
+      [ ! $? -eq 0 ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD ${DOCKER_FILE_DIR}/setup_sources.sh failed to execute." 2
+    fi
+
+    # validate we can run docker commands
     if ! groups | grep docker > /dev/null 2<&1 ; then
       ERROR_EXIT ${LINENO} "The current user is not a member of the docker group" 2
     fi
+    #
+    # setup build time configuration
+    cat > build/build_00.sh << BUILD_SETTINGS
+    [ ! -z "${PROXY}" ] && export PROXY="${PROXY}"
+    [ ! -z "${http_proxy}" ] && export PROXY="${http_proxy}"
+    echo "build settings done."
+BUILD_SETTINGS
+    chmod a+x build/build_00.sh
+
+    # build and check the docker image
     sg docker -c "docker build -t '${DOCKER_NAME}' '${DOCKER_HOME}'"
     DOCKER_REPO=$(echo "${DOCKER_NAME}"|awk -F: '{print $1}')
     DOCKER_TAG=$(echo "${DOCKER_NAME}"|awk -F: '{print $2}')
@@ -70,7 +90,7 @@ for i in $(find "${SCRIPT_FULL_DIR}/docker" -type f -name 'Dockerfile.*' ); do
       #TODO: lets implement a DOCKER_TAG function so we can give the build
       #      alternate tag names that include the version and latest, like
       #      forj/redstone:gerrit-latest -> forj/redstone:gerrit-1.0.1 -> forj/redstone:gerrit
-      # goal is to be able to have 
+      # goal is to be able to have
     else
       echo "Could not find DOCKER-NAME for $i, skipping"
     fi

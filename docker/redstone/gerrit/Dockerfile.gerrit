@@ -23,14 +23,35 @@ MAINTAINER forj.io, cdkdev@groups.hp.com
 
 WORKDIR /opt/workspace
 ADD . /opt/workspace
+
+# setup so we can have a property that specifies the PROXY env when we docker_up it.
+ENV PROXY ""
+ENV http_proxy ""
+ENV https_proxy ""
+ENV HTTP_PROXY ""
+ENV HTTPS_PROXY ""
+ENV ftp_proxy ""
+ENV socks_proxy ""
+ENV no_proxy ""
+
+COPY build/proxy_??.sh /etc/profile.d/
+COPY runit.sh /etc/runit.sh
 # Setup Minimal running system
 RUN set -x -v; echo "docker operations for gerrit"; lsb_release -a ; \
+    [ -f /opt/workspace/build/build_00.sh ] && . /opt/workspace/build/build_00.sh;\
+    . /etc/profile; \
+    [ -f /etc/runit.sh ] && chmod a+x /etc/runit.sh; \
     cd /opt/git/forj-oss/redstone; \
     git reset --hard origin/master; \
-    git pull origin master;
+    git pull origin master; \
+    apt-get update;
 
 # bash /opt/git/forj-oss/maestro/hiera/hiera.sh
 
 VOLUME [ "/data" ]
 
 EXPOSE 22 80 443
+
+# TODO: test with entry points to learn how this works.
+# ENTRYPOINT [ "/bin/bash", "-c", "/etc/runit.sh" ]
+# CMD ["-l"]

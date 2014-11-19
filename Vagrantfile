@@ -149,13 +149,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ###
   # lets only setup proxies when our local ip is 15.255.x.x
   # we might change this later to not be hardcoded.
+  DEBUG=( ENV['DEBUG'] != '' and ENV['DEBUG'] != nil ) ? ENV['DEBUG'] : ''
+  puts "working on #{local_ip}"
   if local_ip =~ /^15.255.*/
-    proxy_cmd = "[ -e /vagrant/proxy.sh ] && . /vagrant/proxy.sh"
-    proxyln_cmd = "[ -e /vagrant/proxy.sh ] && ln -s /etc/profile.d/proxy.sh /vagrant/proxy.sh"
-    proxychmod_cmd = "[ -e /vagrant/proxy.sh ] && chmod a+x /vagrant/proxy.sh"
     http_proxy=( ENV['http_proxy'] != '' and ENV['http_proxy'] != nil ) ? ENV['http_proxy'] : ''
+    proxy_cmd = "[ -e /vagrant/proxy.sh ] && echo 'export PROXY=\"#{http_proxy}\"' > /etc/profile.d/proxy_00.sh"
+    proxyln_cmd = "[ -e /vagrant/proxy.sh ] && cp /vagrant/proxy.sh /etc/profile.d/proxy_01.sh"
+    proxychmod_cmd = "[ -e /vagrant/proxy.sh ] && chmod a+x /etc/profile.d/proxy_??.sh"
+    proxyexec_cmd = "[ -e /etc/profile.d/proxy_00.sh ] && . /etc/profile.d/proxy_00.sh && . /etc/profile.d/proxy_01.sh"
   else
-    proxyln_cmd = "[ -f /etc/profile.d/proxy.sh ] && rm -f /etc/profile.d/proxy.sh"
+    proxyexec_cmd = "[ -f /etc/profile.d/proxy.sh ] && rm -f /etc/profile.d/proxy_??.sh"
   end
 
   ###
@@ -163,6 +166,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #
   # grant current user access to docker
   #
+  [ "$DEBUG" = "1" ] && set -x -v
   export AS_ROOT=${AS_ROOT:-0}
   function DO_SUDO {
     if [ $AS_ROOT -eq 0 ] ; then
@@ -185,13 +189,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   mkdir -p /vagrant/tmp
   date > /vagrant/tmp/vagrant_provisioned_at
   # [ -e /vagrant/proxy.sh ] && . /vagrant/proxy.sh
-  echo 'running command: #{proxy_cmd} #{http_proxy}'
-  #{proxy_cmd} #{http_proxy}
+  echo 'running command: #{proxy_cmd}'
+  #{proxy_cmd}
   #{proxyln_cmd}
   #{proxychmod_cmd}
+  #{proxyexec_cmd}
   apt-get update
   apt-get -y install git curl wget
-  cd /vagrant
+  [ ! -d /vagrant/git ] && mkdir -p /vagrant/git
+  cd /vagrant/git
   git clone https://review.forj.io/forj-oss/maestro
   bash maestro/puppet/install_puppet.sh
   puppet --version

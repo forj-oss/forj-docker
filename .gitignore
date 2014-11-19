@@ -1,5 +1,11 @@
+*.swp
 .vagrant
+git/**
 get-pip.py
 tmp
+tmp/**
 maestro
 docker/**/Dockerfile
+build
+build/**
+Gemfile.lock
