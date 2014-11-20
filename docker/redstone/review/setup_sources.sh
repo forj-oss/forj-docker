@@ -13,11 +13,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-echo "setup sources gerrit"
+echo "setup sources"
 _ARGS_PROJECT_HOME="${1}"
 export PROJECT_HOME=${_ARGS_PROJECT_HOME:-""}
 if [ -z "${PROJECT_HOME}" ] ; then
-  echo "skippping gerrit sources because first argument is empty for PROJECT_HOME"
+  echo "skippping sources because first argument is empty for PROJECT_HOME"
   exit 1
 fi
 SCRIPT_NAME=$0

@@ -14,7 +14,7 @@
 # under the License.
 #
 # Meta-data for the build process
-# DOCKER-NAME forj/redstone:gerrit
+# DOCKER-NAME forj/redstone:review
 # DOCKER-VERSION 0.3.4
 # build a puppet based image
 
@@ -33,15 +33,19 @@ ENV HTTPS_PROXY ""
 ENV ftp_proxy ""
 ENV socks_proxy ""
 ENV no_proxy ""
+ENV PUPPET_MODULES "/etc/puppet/modules:/opt/git/forj-oss/maestro/puppet/modules:/opt/git/forj-oss/redstone/puppet/modules"
 
 COPY build/proxy_??.sh /etc/profile.d/
 COPY runit.sh /etc/runit.sh
 # Setup Minimal running system
-RUN set -x -v; echo "docker operations for gerrit"; lsb_release -a ; \
+RUN set -x -v; echo "docker operations for review"; lsb_release -a ; \
     [ -f /opt/workspace/build/build_00.sh ] && . /opt/workspace/build/build_00.sh;\
     . /etc/profile; \
     [ -f /etc/runit.sh ] && chmod a+x /etc/runit.sh; \
     cd /opt/git/forj-oss/redstone; \
+    git reset --hard origin/master; \
+    git pull origin master; \
+    cd /opt/git/forj-oss/maestro; \
     git reset --hard origin/master; \
     git pull origin master; \
     apt-get update;

@@ -2,7 +2,7 @@
 We are experimenting with vagrant.  This project will use maestro and redstone to setup docker images locally that can be used to start/stop docker images for each node.  Currently redstone requires 4 nodes.  We will use one container for each node.
 
 * maestro - provies a ui that allows you to navigate to each node.
-* gerrit  - provides an scm service for git
+* review  - provides an scm service for git
 * ci      - provides a jenkins build service
 * util    - provides for utility services like paste and logstash
 
@@ -13,9 +13,9 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
 * prepare all docker images in the docker folder
    vagrant ssh
    docker_prepare.sh
-* Start a gerrit server
+* Start a review server
    vagrant ssh
-   dockerup -a gerrit -t forj/redstone:gerrit -n gerrit.42.localhost
+   dockerup -a review -t forj/redstone:review -n review.42.localhost
 
 ## Developer getting started
 * Install rake tools
@@ -34,19 +34,37 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
 ```
 * looking at a docker image after a build step to interrogate it.
 ```shell
-  # in this example we connect to the redstone blueprint with the gerrit tag.
+  # in this example we connect to the redstone blueprint with the review tag.
   rake connect
-  dockerup -t forj/redstone:gerrit -c
+  dockerup -t forj/redstone:review -c
 ```
 
 * example dockerup without a proxy configured
 ```shell
   rake connect
-  dockerup -t forj/redstone:gerrit --opts "--env PROXY=" -n "gerrit.42.localhost" -c
+  dockerup -t forj/redstone:review --opts "--env PROXY=" -n "review.42.localhost" -c
   # observice the fqdn
   facter fqdn
 ```
 
+* experiment 1: can we stand up the review instance without maestro or a puppetmaster?
+```shell
+  rake connect
+  dockerup -t forj/redstone:review -n "review.42.localhost" -c
+  # TODO: test for puppet, facter, and hiera
+  # note PUPPET_MODULES is already setup by Docker image
+  # lets setup the hiera data.
+
+# TODO investigate long execution times, factors??
+    puppet apply --modulepath=$PUPPET_MODULES \
+                 --debug --verbose  \
+                 -e "
+ include pip::python2
+ class {'hiera': data_class => 'hiera::data' } ->
+ class {'runtime_project::hiera_setup':}
+ "
+
+```
 ## Using dockerup
 dockerup is a shell alias used on vm's for making it easier to interact with
 docker and the images we'll create with blueprints.

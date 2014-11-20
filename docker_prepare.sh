@@ -78,7 +78,8 @@ BUILD_SETTINGS
 
 #
 # for every Dockerfile.* in the docker directory create a DOCKER_BUILD
-for i in $(find "${SCRIPT_FULL_DIR}/docker" -type f -name 'Dockerfile.*' ); do
+DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}"}
+for i in $(find "${DOCKER_WORKAREA}/docker" -type f -name 'Dockerfile.*' ); do
     echo "Working on => $i"
     # get the DOCKER-NAME from the Dockerfile.* file, otherwise skip it.
     DOCKER_NAME=$(grep DOCKER-NAME $i | awk '{print $3}')
