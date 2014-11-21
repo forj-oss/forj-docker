@@ -17,6 +17,7 @@ if ENV['RAKE_DEBUG'] == 'true'
 end
 require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet-lint/tasks/puppet-lint'
+require 'yaml'
 
 # disable the puppet build task
 Rake::Task["build"].clear
@@ -33,9 +34,48 @@ PuppetLint.configuration.send('disable_class_parameter_defaults')
 PuppetLint.configuration.ignore_paths = ["git/**","spec/fixtures/**","spec/**/*.rb","spec/**/*.pp", "pkg/**/*.pp"]
 
 #
+# configure provisioners, to give us the option for creating docker
+# image on as many host targets as possible, we are enabling the
+# normal build task to be possible to execute on vagrant or bare systems.
+#
+def get_current_provisioner
+  temp_dir = File.join(File.dirname(__FILE__),"tmp")
+  Dir.mkdir(temp_dir) unless File.exist?(temp_dir)
+  config_file = File.join(temp_dir,"config.yaml")
+  config = {:provisioner => :vagrant}
+  if File.exist? config_file
+    config = config.merge(YAML::load_file(config_file))
+  else
+    File.open(config_file, 'w') {|f| f.write config.to_yaml }
+  end
+  return config[:provisioner]
+end
+
+def set_current_provisioner(prov_target)
+  temp_dir = File.join(File.dirname(__FILE__),"tmp")
+  Dir.mkdir(temp_dir) unless Dir.exist?(temp_dir)
+  config_file = File.join(temp_dir,"config.yaml")
+  config = {}
+  if File.exist? config_file
+    config = config.merge(YAML::load_file(config_file))
+  end
+  config[:provisioner] = prov_target
+  File.open(config_file, 'w') {|f| f.write config.to_yaml }
+end
+PROVISIONER = get_current_provisioner
+DOCKER_WORKAREA = (ENV['DOCKER_WORKAREA'] != '' and ENV['DOCKER_WORKAREA'] != nil) ? ENV['DOCKER_WORKAREA'] : 'docker'
+
+desc "configure the provisioner for this rake project [bare|vagrant]"
+task :configure,[:provisioner] do |t,args|
+  args = {:provisioner => get_current_provisioner}.merge(args)
+  set_current_provisioner(args[:provisioner])
+  puts "configured provisioner ==> #{get_current_provisioner}"
+end
+
+#
 # start vagrant file
 #
-desc "vagrant build step"
+desc "vagrant build steps"
 task :vagrant,[:action] do |t, args|
     args = {:action => :dev}.merge(args)
     puts "running vagrant action ==> #{args}"
@@ -67,37 +107,70 @@ task :vagrant,[:action] do |t, args|
 end
 
 #
+# start bare file
+#
+desc "bare build steps"
+task :bare,[:action] do |t, args|
+    args = {:action => :dev}.merge(args)
+    puts "running bare action ==> #{args}"
+    case args[:action].to_sym
+    when :help
+      puts "These are the supported options for vagrant task:
+      rake 'bare[clean]'  : perform any local clean operations.
+      rake 'bare[dev]'    : no-op.
+      rake 'bare[build]'  : prepare the docker containers found.
+      rake 'bare[connect]': no-op."
+    when :clean
+      puts "Cleanup for docker bulid steps"
+      sh("find #{DOCKER_WORKAREA} -name 'Dockerfile' -type l|xargs -i rm -f {}")
+      sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
+      sh("rm -fr git")
+    when :dev
+      puts "no-op"
+    when :build
+      puts "Build all the docker images locally"
+      sh("bash docker_prepare.sh")
+    when :connect
+      puts "no-op"
+    else
+      puts "You gave me #{args[:action]} -- I have no idea what to do with that."
+    end
+end
+
+#
+
+#
 # default the clean task to vagrant clean
 #
-desc "run vagrant[clean]"
+desc "run #{PROVISIONER}[clean]"
 task :clean do
-  Rake::Task['vagrant'].invoke('clean')
+  Rake::Task[PROVISIONER].invoke('clean')
 end
 
 #
 # default the dev | development task to vagrant dev
 #
-desc "run vagrant[dev]"
+desc "run #{PROVISIONER}[dev]"
 task :dev do
-  Rake::Task['vagrant'].invoke('dev')
+  Rake::Task[PROVISIONER].invoke('dev')
 end
-desc "run vagrant[dev]"
+desc "run PROVISIONER[dev]"
 task :development do
-  Rake::Task['vagrant'].invoke('dev')
+  Rake::Task['dev']
 end
 #
 # connect to the provisioner
 #
-desc "run vagrant[connect]"
+desc "run #{PROVISIONER}[connect]"
 task :connect do
-  Rake::Task['vagrant'].invoke('connect')
+  Rake::Task[PROVISIONER].invoke('connect')
 end
 #
 # build with the provisioner
 #
-desc "run vagrant[build]"
+desc "run #{PROVISIONER}[build]"
 task :build do
-  Rake::Task['vagrant'].invoke('build')
+  Rake::Task[PROVISIONER].invoke('build')
 end
 
 #
