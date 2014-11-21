@@ -151,8 +151,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # we might change this later to not be hardcoded.
   DEBUG=( ENV['DEBUG'] != '' and ENV['DEBUG'] != nil ) ? ENV['DEBUG'] : ''
   puts "working on #{local_ip}"
-  if local_ip =~ /^15.255.*/
-    http_proxy=( ENV['http_proxy'] != '' and ENV['http_proxy'] != nil ) ? ENV['http_proxy'] : ''
+  if ENV['http_proxy'] != '' and ENV['http_proxy'] != nil then
+    http_proxy= ENV['http_proxy']
     proxy_cmd = "[ -e /vagrant/proxy.sh ] && echo 'export PROXY=\"#{http_proxy}\"' > /etc/profile.d/proxy_00.sh"
     proxyln_cmd = "[ -e /vagrant/proxy.sh ] && cp /vagrant/proxy.sh /etc/profile.d/proxy_01.sh"
     proxychmod_cmd = "[ -e /vagrant/proxy.sh ] && chmod a+x /etc/profile.d/proxy_??.sh"

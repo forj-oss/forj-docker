@@ -35,7 +35,7 @@ ENV socks_proxy ""
 ENV no_proxy ""
 ENV PUPPET_MODULES "/etc/puppet/modules:/opt/git/forj-oss/maestro/puppet/modules:/opt/git/forj-oss/redstone/puppet/modules"
 
-COPY build/proxy_??.sh /etc/profile.d/
+COPY build/proxy_01.sh /etc/profile.d/
 COPY runit.sh /etc/runit.sh
 # Setup Minimal running system
 RUN set -x -v; echo "docker operations for review"; lsb_release -a ; \
