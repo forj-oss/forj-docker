@@ -17,18 +17,6 @@
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
-require 'socket'
-
-def local_ip
-  orig = Socket.do_not_reverse_lookup
-  Socket.do_not_reverse_lookup =true # turn off reverse DNS resolution temporarily
-  UDPSocket.open do |s|
-    s.connect '64.233.187.99', 1 #google
-    s.addr.last
-  end
-ensure
-  Socket.do_not_reverse_lookup = orig
-end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # All Vagrant configuration is done here. The most common configuration
@@ -150,7 +138,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # lets only setup proxies when our local ip is 15.255.x.x
   # we might change this later to not be hardcoded.
   DEBUG=( ENV['DEBUG'] != '' and ENV['DEBUG'] != nil ) ? ENV['DEBUG'] : ''
-  puts "working on #{local_ip}"
   if ENV['http_proxy'] != '' and ENV['http_proxy'] != nil then
     http_proxy= ENV['http_proxy']
     proxy_cmd = "[ -e /vagrant/proxy.sh ] && echo 'export PROXY=\"#{http_proxy}\"' > /etc/profile.d/proxy_00.sh"
@@ -167,28 +154,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # grant current user access to docker
   #
   [ "$DEBUG" = "1" ] && set -x -v
-  export AS_ROOT=${AS_ROOT:-0}
-  function DO_SUDO {
-    if [ $AS_ROOT -eq 0 ] ; then
-      sudo "$@"
-    else
-      eval "$@"
-    fi
-  }
-  function DOCKER_GRANT_ACCESS {
-      if [ -z $1 ] ; then
-        CURRENT_USER=$(facter id)
-      else
-        CURRENT_USER=$1
-      fi
-      [ -z $CURRENT_USER ] && ERROR_EXIT ${LINENO} "failed to get current user with facter id" 2
-      DO_SUDO puppet apply $PUPPET_DEBUG \
-                  -e 'user {'"'${CURRENT_USER}'"': ensure => present, gid => "docker" }'
-  }
   echo I am provisioning...
   mkdir -p /vagrant/tmp
   date > /vagrant/tmp/vagrant_provisioned_at
-  # [ -e /vagrant/proxy.sh ] && . /vagrant/proxy.sh
   echo 'running command: #{proxy_cmd}'
   #{proxy_cmd}
   #{proxyln_cmd}
@@ -196,31 +164,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #{proxyexec_cmd}
   apt-get update
   apt-get -y install git curl wget
-  [ ! -d /vagrant/git ] && mkdir -p /vagrant/git
-  cd /vagrant/git
-  git clone https://review.forj.io/forj-oss/maestro
-  bash maestro/puppet/install_puppet.sh
-  puppet --version
-  puppet module install garethr-docker
-  [ ! -z "${http_proxy}" ] && proxy_str="proxy => '${http_proxy}',  no_proxy => '${no_proxy}',"
-  echo "running command : puppet apply --modulepath=/etc/puppet/modules \
-               --debug --verbose \
-              -e class{'docker':
-                    ${proxy_str}
-                  }"
-  puppet apply --modulepath=/etc/puppet/modules \
-               --debug --verbose \
-              -e "class{'docker':
-                    ${proxy_str}
-                  }"
-  docker --version
-  docker pull ubuntu:precise
-  docker pull forj/ubuntu:precise
-  docker pull forj/ubuntu:trusty
-  DOCKER_GRANT_ACCESS
-  DOCKER_GRANT_ACCESS vagrant
-  echo "alias dockerup=/vagrant/docker_up.sh" > /etc/profile.d/dockerup.sh
-  chmod a+x /etc/profile.d/dockerup.sh
+  bash /vagrant/src/docker_install.sh vagrant
 SCRIPT
 
    config.vm.provision "shell", inline: $script

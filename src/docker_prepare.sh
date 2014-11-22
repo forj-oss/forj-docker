@@ -16,10 +16,11 @@
 SCRIPT_NAME=$0
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
+DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/.."}
 #
 # source all common script functions
 #
-for i in ${SCRIPT_FULL_DIR}/src/common/*.sh; do
+for i in ${SCRIPT_FULL_DIR}/common/*.sh; do
     if [ -r $i ]; then
       . $i
     fi
@@ -49,7 +50,7 @@ function DOCKER_BUILD {
     ln -s "${DOCKER_FILE_NAME}" Dockerfile
     if [ -e "${DOCKER_FILE_DIR}/setup_sources.sh" ] ; then
       chmod a+x "${DOCKER_FILE_DIR}/setup_sources.sh"
-      bash -c "${DOCKER_FILE_DIR}/setup_sources.sh ${SCRIPT_FULL_DIR}"
+      bash -c "${DOCKER_FILE_DIR}/setup_sources.sh ${SCRIPT_FULL_DIR}/.."
       [ ! $? -eq 0 ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD ${DOCKER_FILE_DIR}/setup_sources.sh failed to execute." 2
     fi
 
@@ -78,7 +79,6 @@ BUILD_SETTINGS
 
 #
 # for every Dockerfile.* in the docker directory create a DOCKER_BUILD
-DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}"}
 for i in $(find "${DOCKER_WORKAREA}/docker" -type f -name 'Dockerfile.*' ); do
     echo "Working on => $i"
     # get the DOCKER-NAME from the Dockerfile.* file, otherwise skip it.

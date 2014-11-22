@@ -97,7 +97,7 @@ task :vagrant,[:action] do |t, args|
     when :build
       puts "Build all the docker images in vagrant"
       sh("vagrant up")
-      sh("vagrant ssh --command 'bash -c \"/vagrant/docker_prepare.sh\"'")
+      sh("vagrant ssh --command 'bash -c \"/vagrant/src/docker_prepare.sh\"'")
     when :connect
       puts "Vagrant perform connection to box"
       sh("vagrant ssh")
@@ -124,12 +124,13 @@ task :bare,[:action] do |t, args|
       puts "Cleanup for docker bulid steps"
       sh("find #{DOCKER_WORKAREA} -name 'Dockerfile' -type l|xargs -i rm -f {}")
       sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
-      sh("rm -fr git")
+      sh("[[ -d git ]] && rm -fr git")
+      sh("[[ -d src/git ]] && rm -fr src/git")
     when :dev
       puts "no-op"
     when :build
       puts "Build all the docker images locally"
-      sh("bash docker_prepare.sh")
+      sh("bash ./src/docker_prepare.sh")
     when :connect
       puts "no-op"
     else
