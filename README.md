@@ -100,6 +100,9 @@ To get help run: ```dockerup -h```
   communicate metadata configured by forj cli.   We'll need the same to help
   our docker containers define host specific configuration that the docker images
   will need to communicate with each other.  We need to investigate this area.
+* implement docker_clean.sh
+  rake clean should call docker_clean.sh so that all the docker images configured
+  by DOCKER_WORKAREA are removed from the host machine. 
 ## DONE
 * we need to extract the docker_install.sh script from the Vagrantfile and call it as a provisioner script.
   rake build and dev targets for vagrant provisioner will now do this automatically.
