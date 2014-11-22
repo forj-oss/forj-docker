@@ -15,7 +15,7 @@
 #
 # relies on environment option PROXY being configured
 echo "setting up proxy"
-if [ ! -z "$PROXY" ] ; then
+if [ ! -z "$PROXY" ] &&  [ ! "$PROXY" = '"nil"' ]; then
     export http_proxy=$PROXY
     export https_proxy=$http_proxy
     export HTTP_PROXY=$http_proxy
@@ -44,6 +44,6 @@ else
     unset ftp_proxy
     unset socks_proxy
     unset no_proxy
-    cat /etc/apt/apt.conf | grep -v '::proxy' > /etc/apt.conf
+    [ -f /etc/apt/apt.conf ] && cat /etc/apt/apt.conf | grep -v '::proxy' > /etc/apt.conf
     echo "skiping proxy settings"
 fi

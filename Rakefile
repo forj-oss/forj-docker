@@ -109,6 +109,7 @@ end
 #
 # start bare file
 #
+require 'rake/clean'
 desc "bare build steps"
 task :bare,[:action] do |t, args|
     args = {:action => :dev}.merge(args)
@@ -124,8 +125,7 @@ task :bare,[:action] do |t, args|
       puts "Cleanup for docker bulid steps"
       sh("find #{DOCKER_WORKAREA} -name 'Dockerfile' -type l|xargs -i rm -f {}")
       sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
-      sh("[[ -d git ]] && rm -fr git")
-      sh("[[ -d src/git ]] && rm -fr src/git")
+      CLEAN.include('git/*', 'src/git/*')
     when :dev
       puts "no-op"
     when :build
