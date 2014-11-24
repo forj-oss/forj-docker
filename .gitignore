@@ -10,3 +10,5 @@ docker/**/Dockerfile
 build
 build/**
 Gemfile.lock
+spec/fixtures
+spec/fixtures/*
