@@ -11,16 +11,6 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-#
-require 'puppetlabs_spec_helper/module_spec_helper'
-require 'puppet_facts'
-require 'hiera'
-include PuppetFacts
-
-#
-# configure rspec
-#
-RSpec.configure do |c|
-    c.formatter = :documentation
-    c.filter_run :default => true
-end
+$LOAD_PATH << File.dirname(__FILE__)
+require 'provisioner/bare/task'
+require 'provisioner/vagrant/task'
