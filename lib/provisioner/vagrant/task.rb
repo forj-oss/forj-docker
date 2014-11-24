@@ -46,4 +46,18 @@ namespace :vagrant do
       puts "You gave me #{args[:action]} -- I have no idea what to do with that."
     end
   end
+
+  #
+  # we should verify that we can do things with vagrant
+  #
+  desc "basic check for docker execution in vagrant"
+  task :check do
+    puts "Verifying vagrant..."
+    Rake::Task["spec"].clear
+    RSpec::Core::RakeTask.new(:spec) do |t|
+      t.pattern = 'spec/{check_vagrant}/**/*_spec.rb'
+    end
+    Rake::Task["spec"].execute
+  end
+
 end

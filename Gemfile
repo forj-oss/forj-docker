@@ -14,6 +14,7 @@
 
 source ENV['GEM_SOURCE'] || "https://rubygems.org"
 # setup : bundle install   or bundle update
+# serverspec docs: http://serverspec.org/
 group :development, :test do
   gem 'debugger',                :require => false
   gem 'rake',                    :require => false
@@ -36,5 +37,3 @@ if puppetversion = ENV['PUPPET_GEM_VERSION']
 else
   gem 'puppet', '2.7.25', :require => false
 end
-
-

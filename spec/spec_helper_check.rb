@@ -12,23 +12,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-require 'spec_helper_check'
-require 'rubygems'
+# using this as a way to do some spec testing for local system
+# to make sure we resolve any system issues before executing builds.
+require 'serverspec'
+include SpecInfra::Helper::Exec
+include SpecInfra::Helper::DetectOS
+# v2... puppet specs are using v1
+# Set backend type
+#set :backend, :ssh
+#set :backend, :exec
 
-describe 'docker version check', :check => true do
-  sh = <<-EOS
-    docker --version | \
-    awk -F, '{print $1}'| \
-    awk '{print $3}'
-  EOS
-  subject { command(sh) }
-
-  it 'should be version 1.3.1 or higher' do
-    expect(Gem::Version.new(subject.stdout) >= Gem::Version.new('1.3.1')).to be_truthy
-  end
-end
-
-describe service('docker'), :check => true do
-  it { should be_enabled   }
-  it { should be_running   }
+#
+# configure rspec
+#
+RSpec.configure do |c|
+    c.formatter = :documentation
+    c.filter_run :check => true
 end

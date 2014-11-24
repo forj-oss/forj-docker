@@ -44,4 +44,17 @@ namespace :bare do
       puts "You gave me #{args[:action]} -- I have no idea what to do with that."
     end
   end
+
+  #
+  # we should verify that we can do things with our local bare system
+  #
+  desc "basic check for local execution of docker"
+  task :check do
+    puts "Verifying bare..."
+    Rake::Task["spec"].clear
+    RSpec::Core::RakeTask.new(:spec) do |t|
+      t.pattern = 'spec/{check_docker}/**/*_spec.rb'
+    end
+    Rake::Task["spec"].execute
+  end
 end

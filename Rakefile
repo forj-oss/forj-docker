@@ -19,12 +19,13 @@ require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet-lint/tasks/puppet-lint'
 require 'yaml'
 
+# disable the puppet build task
+Rake::Task["build"].clear
+
 # load relative libs
 $LOAD_PATH << File.dirname(__FILE__)
 require 'lib/tasks/forj-docker'
 
-# disable the puppet build task
-Rake::Task["build"].clear
 
 #
 # puppet lint

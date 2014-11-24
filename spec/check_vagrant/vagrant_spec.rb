@@ -15,20 +15,18 @@
 require 'spec_helper_check'
 require 'rubygems'
 
-describe 'docker version check', :check => true do
+describe 'vagrant binary', :check => true do
   sh = <<-EOS
-    docker --version | \
-    awk -F, '{print $1}'| \
-    awk '{print $3}'
+    which vagrant
   EOS
   subject { command(sh) }
 
-  it 'should be version 1.3.1 or higher' do
-    expect(Gem::Version.new(subject.stdout) >= Gem::Version.new('1.3.1')).to be_truthy
+  it 'should exist' do
+    expect(subject.return_stdout?(/vagrant/)).to be_truthy
   end
 end
 
-describe service('docker'), :check => true do
+describe service('virtualbox'), :check => true do
   it { should be_enabled   }
   it { should be_running   }
 end

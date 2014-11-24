@@ -36,13 +36,14 @@ end
 # default the dev | development task to vagrant dev
 #
 desc "run dev for: #{PROVISIONER}:provision[dev]"
-task :dev do
+task :dev => [:check] do
   Rake::Task["#{PROVISIONER}:provision"].invoke('dev')
 end
 desc "run development for alias for dev"
 task :development do
   Rake::Task['dev']
 end
+
 #
 # connect to the provisioner
 #
@@ -50,10 +51,19 @@ desc "run connect for: #{PROVISIONER}:provision[connect]"
 task :connect do
   Rake::Task["#{PROVISIONER}:provision"].invoke('connect')
 end
+
 #
 # build with the provisioner
 #
 desc "run build for: #{PROVISIONER}:provision[build]"
-task :build do
+task :build => [:check] do
   Rake::Task["#{PROVISIONER}:provision"].invoke('build')
+end
+
+#
+# check
+#
+desc "run checks for: #{PROVISIONER}:check"
+task :check do
+  Rake::Task["#{PROVISIONER}:check"].invoke
 end
