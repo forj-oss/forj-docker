@@ -140,9 +140,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   DEBUG=( ENV['DEBUG'] != '' and ENV['DEBUG'] != nil ) ? ENV['DEBUG'] : ''
   if ENV['http_proxy'] != '' and ENV['http_proxy'] != nil then
     http_proxy= ENV['http_proxy']
-    proxy_cmd = "[ -e /vagrant/proxy.sh ] && echo 'export PROXY=\"#{http_proxy}\"' > /etc/profile.d/proxy_00.sh"
-    proxyln_cmd = "[ -e /vagrant/proxy.sh ] && cp /vagrant/proxy.sh /etc/profile.d/proxy_01.sh"
-    proxychmod_cmd = "[ -e /vagrant/proxy.sh ] && chmod a+x /etc/profile.d/proxy_??.sh"
+    proxy_cmd = "[ -e /vagrant/bin/scripts/proxy.sh ] && echo 'export PROXY=\"#{http_proxy}\"' > /etc/profile.d/proxy_00.sh"
+    proxyln_cmd = "[ -e /vagrant/bin/scripts/proxy.sh ] && cp /vagrant/bin/scripts/proxy.sh /etc/profile.d/proxy_01.sh"
+    proxychmod_cmd = "[ -e /vagrant/bin/scripts/proxy.sh ] && chmod a+x /etc/profile.d/proxy_??.sh"
     proxyexec_cmd = "[ -e /etc/profile.d/proxy_00.sh ] && . /etc/profile.d/proxy_00.sh && . /etc/profile.d/proxy_01.sh"
   else
     proxyexec_cmd = "[ -f /etc/profile.d/proxy.sh ] && rm -f /etc/profile.d/proxy_??.sh"
@@ -164,7 +164,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #{proxyexec_cmd}
   apt-get update
   apt-get -y install git curl wget
-  bash /vagrant/src/docker_install.sh vagrant
+  bash /vagrant/bin/scripts/docker_install.sh vagrant
 SCRIPT
 
    config.vm.provision "shell", inline: $script

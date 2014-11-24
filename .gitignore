@@ -1,7 +1,7 @@
 *.swp
 .vagrant
 git/**
-src/git/**
+bin/scripts/git/**
 get-pip.py
 tmp
 tmp/**

@@ -17,6 +17,9 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
    vagrant ssh
    dockerup -a review -t forj/redstone:review -n review.42.localhost
 
+## Building forj-docker gem
+
+
 ## Developer getting started
 * Install rake tools
 ```shell
@@ -102,7 +105,7 @@ To get help run: ```dockerup -h```
   will need to communicate with each other.  We need to investigate this area.
 * implement docker_clean.sh
   rake clean should call docker_clean.sh so that all the docker images configured
-  by DOCKER_WORKAREA are removed from the host machine. 
+  by DOCKER_WORKAREA are removed from the host machine.
 ## DONE
 * we need to extract the docker_install.sh script from the Vagrantfile and call it as a provisioner script.
   rake build and dev targets for vagrant provisioner will now do this automatically.

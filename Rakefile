@@ -23,8 +23,8 @@ require 'yaml'
 Rake::Task["build"].clear
 
 # load relative libs
-$LOAD_PATH << File.dirname(__FILE__)
-require 'lib/tasks/forj-docker'
+$LOAD_PATH << File.join(File.dirname(__FILE__),"lib")
+require 'forj-docker/tasks/forj-docker'
 
 
 #
@@ -37,22 +37,3 @@ PuppetLint.configuration.send('disable_class_parameter_defaults')
 #PuppetLint.configuration.send('disable_documentation')
 #PuppetLint.configuration.send('disable_single_quote_string_with_variables')
 PuppetLint.configuration.ignore_paths = ["git/**","spec/fixtures/**","spec/**/*.rb","spec/**/*.pp", "pkg/**/*.pp"]
-
-
-
-#
-# beaker testing
-#  use BEAKER_destroy=no env to stop from destroying containers
-# connect with ssh root@localhost -p <the port of the container>
-# password root
-#desc "do beaker based spec testing"
-#task :acceptance,:platform do |t, args|
-#  args.acceptance(:platform => :default)
-#  puts "running acceptance test : #{args}"
-#  if args.count > 0 && args[0].to_sym != :default
-#    ENV['BEAKER_node'] = args[0]
-#  end
-#  Rake::Task['spec_prep'].invoke
-#  Rake::Task['beaker'].invoke
-#  Rake::Task['spec_clean'].invoke
-#end

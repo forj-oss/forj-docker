@@ -45,3 +45,4 @@ end
 
 PROVISIONER = get_current_provisioner
 DOCKER_WORKAREA = (ENV['DOCKER_WORKAREA'] != '' and ENV['DOCKER_WORKAREA'] != nil) ? ENV['DOCKER_WORKAREA'] : 'docker'
+FORJ_DOCKER_BIN = File.join(File.dirname(__FILE__),"..","bin")

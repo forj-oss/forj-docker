@@ -37,7 +37,7 @@ namespace :bare do
       puts "no-op"
     when :build
       puts "Build all the docker images locally"
-      sh("bash ./src/docker_prepare.sh")
+      sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_prepare.sh")
     when :connect
       puts "no-op"
     else

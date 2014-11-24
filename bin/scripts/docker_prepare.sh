@@ -16,7 +16,7 @@
 SCRIPT_NAME=$0
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
-DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/.."}
+DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/../.."}
 #
 # source all common script functions
 #
@@ -50,7 +50,7 @@ function DOCKER_BUILD {
     ln -s "${DOCKER_FILE_NAME}" Dockerfile
     if [ -e "${DOCKER_FILE_DIR}/setup_sources.sh" ] ; then
       chmod a+x "${DOCKER_FILE_DIR}/setup_sources.sh"
-      bash -c "${DOCKER_FILE_DIR}/setup_sources.sh ${SCRIPT_FULL_DIR}/.."
+      bash -c "${DOCKER_FILE_DIR}/setup_sources.sh ${SCRIPT_FULL_DIR}"
       [ ! $? -eq 0 ] && ERROR_EXIT  ${LINENO} "DOCKER_BUILD ${DOCKER_FILE_DIR}/setup_sources.sh failed to execute." 2
     fi
 

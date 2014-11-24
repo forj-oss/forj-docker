@@ -38,7 +38,7 @@ namespace :vagrant do
     when :build
       puts "Build all the docker images in vagrant"
       sh("vagrant up")
-      sh("vagrant ssh --command 'bash -c \"/vagrant/src/docker_prepare.sh\"'")
+      sh("vagrant ssh --command 'bash -c \"/vagrant/bin/scripts/docker_prepare.sh\"'")
     when :connect
       puts "Vagrant perform connection to box"
       sh("vagrant ssh")

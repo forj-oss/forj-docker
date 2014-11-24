@@ -66,7 +66,7 @@ docker --version
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execut docker --version" 2
 [ ! "$(id -u)" -eq "0" ] && DOCKER_GRANT_ACCESS
 [ ! -z "$1" ] && DOCKER_GRANT_ACCESS $1
-DO_SUDO echo '"'alias dockerup=${SCRIPT_FULL_DIR}/src/docker_up.sh'"' > /etc/profile.d/dockerup.sh
+DO_SUDO echo '"'alias dockerup=${SCRIPT_FULL_DIR}/bin/scripts/docker_up.sh'"' > /etc/profile.d/dockerup.sh
 DO_SUDO chmod a+x /etc/profile.d/dockerup.sh
 
 #
