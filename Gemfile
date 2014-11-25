@@ -13,10 +13,17 @@
 #   limitations under the License.
 
 source ENV['GEM_SOURCE'] || "https://rubygems.org"
+
+$:.push File.expand_path(File.join('..','lib'), __FILE__)
+require 'rbconfig'
+ruby_conf = defined?(RbConfig) ? RbConfig::CONFIG : Config::CONFIG
+less_than_one_nine = ruby_conf['MAJOR'].to_i == 1 && ruby_conf['MINOR'].to_i < 9
+
 # setup : bundle install   or bundle update
 # serverspec docs: http://serverspec.org/
 group :development, :test do
-  gem 'debugger',                :require => false
+  gem 'debugger',                :require => false unless less_than_one_nine
+  gem 'ruby-debug',              :require => false if less_than_one_nine
   gem 'rake',                    :require => false
   gem 'rspec-puppet',            :require => false
   gem 'puppetlabs_spec_helper',  :require => false
