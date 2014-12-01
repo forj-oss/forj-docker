@@ -31,6 +31,7 @@ namespace :vagrant do
       puts "Destroy this vagrant environment"
       sh("vagrant destroy -f")
     when :dev
+      Rake::Task["check"].execute
       puts "Vagrant setup dev environment and connect"
       sh("vagrant up --no-provision")
       sh("vagrant provision")
@@ -51,13 +52,25 @@ namespace :vagrant do
   # we should verify that we can do things with vagrant
   #
   desc "basic check for docker execution in vagrant"
-  task :check do
-    puts "Verifying vagrant..."
-    Rake::Task["spec"].clear
-    RSpec::Core::RakeTask.new(:spec) do |t|
-      t.pattern = 'spec/{check_vagrant}/**/*_spec.rb'
+  task :check,[:ignore] do  |t, args|
+    args = (args != nil ) ? {:ignore => false}.merge(args) : {:ignore => false}
+    if args[:ignore] != true
+      puts "Verifying vagrant..."
+      Rake::Task["spec"].clear
+      RSpec::Core::RakeTask.new(:spec) do |t2|
+        t2.pattern = 'spec/{check_vagrant}/**/*_spec.rb'
+      end
+      Rake::Task["spec"].execute
+    else
+      puts "Ignoring checks"
     end
-    Rake::Task["spec"].execute
   end
 
+  #
+  # execute runit on each docker container we know about
+  #
+  desc "runit for each docker workarea"
+  task :runit do
+    puts "does nothing atm"
+  end
 end

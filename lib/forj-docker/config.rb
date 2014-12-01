@@ -20,7 +20,7 @@
 
 def get_current_provisioner
   temp_dir = File.join(File.dirname(__FILE__),"tmp")
-  Dir.mkdir(temp_dir) unless File.exist?(temp_dir)
+  Dir.mkdir(temp_dir) unless File.directory?(temp_dir)
   config_file = File.join(temp_dir,"config.yaml")
   config = {:provisioner => :vagrant}
   if File.exist? config_file
@@ -33,7 +33,7 @@ end
 
 def set_current_provisioner(prov_target)
   temp_dir = File.join(File.dirname(__FILE__),"tmp")
-  Dir.mkdir(temp_dir) unless Dir.exist?(temp_dir)
+  Dir.mkdir(temp_dir) unless File.directory?(temp_dir)
   config_file = File.join(temp_dir,"config.yaml")
   config = {}
   if File.exist? config_file

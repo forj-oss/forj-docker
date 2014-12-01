@@ -34,14 +34,23 @@ end
 
 #
 # default the dev | development task to vagrant dev
+# NOTE: we don't do check here because provisioning checks are optional
 #
 desc "run dev for: #{PROVISIONER}:provision[dev]"
-task :dev => [:check] do
+task :dev do
   Rake::Task["#{PROVISIONER}:provision"].invoke('dev')
 end
+
+#
+# add a couple aliases to feal more natural
+#
 desc "run development for alias for dev"
 task :development do
-  Rake::Task['dev']
+  Rake::Task['dev'].invoke
+end
+desc "run provision for alias for dev"
+task :provision do
+  Rake::Task['dev'].invoke
 end
 
 #
@@ -64,6 +73,15 @@ end
 # check
 #
 desc "run checks for: #{PROVISIONER}:check"
-task :check do
-  Rake::Task["#{PROVISIONER}:check"].invoke
+task :check,[:ignore] do |t, args|
+  args = {:ignore => false}.merge(args)
+  Rake::Task["#{PROVISIONER}:check"].invoke(args[:ignore])
+end
+
+#
+# runit
+#
+desc "execute runit scripts for each container: #{PROVISIONER}:runit"
+task :runit => [:check] do
+  Rake::Task["#{PROVISIONER}:runit"].invoke
 end

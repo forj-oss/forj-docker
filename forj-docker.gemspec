@@ -23,8 +23,8 @@ Gem::Specification.new do |s|
   s.authors     = ["forj team"]
   s.email       = %w(forj@forj.io)
   s.homepage    = "https://github.com/forj-oss/forj-docker"
-  s.summary     = %q{Gem plugin for forj-cli to work with docker}
-  s.description = %q{Gem plugin for forj-cli to work with docker}
+  s.summary     = %q{Gem for docker on forj}
+  s.description = %q{Use this gem to create support for forj and docker, status is experimental.}
   s.license     = 'Apache License, Version 2.0.'
   s.post_install_message = 'Go to docs.forj.io for more information on how to use forj cli'
   s.required_ruby_version = '>= 1.8.5'
@@ -32,7 +32,8 @@ Gem::Specification.new do |s|
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-#  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
+
   s.require_paths = ["lib"]
 
   # Testing dependencies

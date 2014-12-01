@@ -34,7 +34,7 @@ namespace :bare do
       sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
       CLEAN.include('git/*', 'src/git/*')
     when :dev
-      puts "no-op"
+      sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_install.sh")
     when :build
       puts "Build all the docker images locally"
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_prepare.sh")
@@ -49,12 +49,25 @@ namespace :bare do
   # we should verify that we can do things with our local bare system
   #
   desc "basic check for local execution of docker"
-  task :check do
-    puts "Verifying bare..."
-    Rake::Task["spec"].clear
-    RSpec::Core::RakeTask.new(:spec) do |t|
-      t.pattern = 'spec/{check_docker}/**/*_spec.rb'
+  task :check,[:ignore] do |t, args|
+    args = (args != nil ) ? {:ignore => false}.merge(args) : {:ignore => false}
+    if args[:ignore] != true
+      puts "Verifying bare..."
+      Rake::Task["spec"].clear
+      RSpec::Core::RakeTask.new(:spec) do |t2|
+        t2.pattern = 'spec/{check_docker}/**/*_spec.rb'
+      end
+      Rake::Task["spec"].execute
+    else
+      puts "Ignoring checks"
     end
-    Rake::Task["spec"].execute
+  end
+
+  #
+  # execute runit on each docker container we know about
+  #
+  desc "runit for each docker workarea"
+  task :runit do
+     puts "does nothing atm"
   end
 end

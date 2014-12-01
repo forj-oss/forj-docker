@@ -14,7 +14,7 @@
 #
 require 'spec_helper_check'
 require 'rubygems'
-
+SUPPORTED_OSFAMS = ['redhat','debian','centos','ubuntu']
 describe 'vagrant binary', :check => true do
   sh = <<-EOS
     which vagrant
@@ -26,7 +26,14 @@ describe 'vagrant binary', :check => true do
   end
 end
 
-describe service('virtualbox'), :check => true do
+describe service('virtualbox'),:if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
+                                       package('virtualbox').version != nil),
+                               :check => true do
   it { should be_enabled   }
-  it { should be_running   }
+end
+
+describe service('vboxdrv'),:if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
+                                    package('virtualbox-4.3').version != nil),
+                            :check => true do
+  it { should be_enabled   }
 end

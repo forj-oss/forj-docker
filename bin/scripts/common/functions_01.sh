@@ -46,6 +46,6 @@ function DO_SUDO {
   if [[ ! $(id -u) -eq 0 && $AS_ROOT -eq 0 ]]; then
     sudo "$@"
   else
-    eval "$@"
+    "$@"
   fi
 }

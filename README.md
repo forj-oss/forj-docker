@@ -1,6 +1,29 @@
 #Introduction
-We are experimenting with vagrant.  This project will use maestro and redstone to setup docker images locally that can be used to start/stop docker images for each node.  Currently redstone requires 4 nodes.  We will use one container for each node.
+We are experimenting with docker.  This project will use maestro and redstone to setup docker images locally that can be used to start/stop docker images for each node.  Currently a forj blueprint might requires 4 nodes.  With docker we will use a container to represent these nodes.  Later we might move this concept of nodes to be more container specific to include smaller units of work or process ownership in the blueprint.  For example, a disk/network/db container that interacts with all other application service containers to produce the concept of a node.  
 
+This project offers us a way to deliver as a gem a new feature to a host operating system that can be incorporated into the existing blueprint layout.  From the blueprint layout you can then in theory execute container based commands designed to work with the blueprint.   Further we can create a provisioner for the forj cli that also interacts with these commands.
+
+Ideally, here are some of the commands we would have:
+
+##For building and developing images:
+
+  ```rake dev```   - stand up an environment with docker (we'll use vagrant or bare systems). This installs docker as well.
+
+  ```rake build``` - for the provided Rakefile, look for the docker folder to assign a DOCKER_WORKAREA and build all dockerfiles found in this subfolders of this workarea.  Images are stored locally in the host machine.
+
+## For managing docker images
+
+  ```rake registry``` - create a system that will host published images.  
+
+  ```rake pull``` - for the given Rakefile, pull the conatiner images to the host system for the given docker workarea.
+
+  ```rake push``` - in conjunction with a security file managed by ```rake configure```,and as provided by the Rakefile, publish the docker workarea containers that have been built.  If the containers, don't exist, error and ask for a ```rake build``` execution.
+
+##For running a cluster of nodes/containers on a given host
+  ```rake runit``` - for the provided Rakefile, find the blueprint config and run the containers for this image.  If the containers are not found locally, we will atempt to pull them.
+
+
+## Node descriptions
 * maestro - provies a ui that allows you to navigate to each node.
 * review  - provides an scm service for git
 * ci      - provides a jenkins build service
@@ -17,8 +40,18 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
    vagrant ssh
    dockerup -a review -t forj/redstone:review -n review.42.localhost
 
-## Building forj-docker gem
+ NOTE: registry, pull, push, and runit task need to be developed.
 
+## Building forj-docker gem
+* build the project gem file
+```shell
+ rake clean
+ rake build
+```
+* publish the project
+```shell
+ rake release
+```
 
 ## Developer getting started
 * Install rake tools
@@ -26,7 +59,7 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
   sudo -E gem1.9.1 install bundler --no-rdoc --no-ri
   ruby1.9.1 -S bundle install --gemfile Gemfile
 ```
-* Install vagrant for your OS
+* Install vagrant for your OS otherwise run bare with the command: ```rake 'configure[bare]'```
 * Start the dev vm with commad:
 ```shell
   rake dev
@@ -57,8 +90,9 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
   # TODO: test for puppet, facter, and hiera
   # note PUPPET_MODULES is already setup by Docker image
   # lets setup the hiera data.
-
-# TODO investigate long execution times, factors??
+```  
+ TODO investigate long execution times, factors??
+```shell
     puppet apply --modulepath=$PUPPET_MODULES \
                  --debug --verbose  \
                  -e "
@@ -66,14 +100,12 @@ We are experimenting with vagrant.  This project will use maestro and redstone t
  class {'hiera': data_class => 'hiera::data' } ->
  class {'runtime_project::hiera_setup':}
  "
-
 ```
-## Using dockerup
-dockerup is a shell alias used on vm's for making it easier to interact with
-docker and the images we'll create with blueprints.
 
-to get started either use ```rake dev``` where the dockerup alias is automatically
-setup, or setup the alias with the command ```alias dockerup=./docker_up.sh```
+## Using dockerup alias
+The ```dockerup``` alias is a bash shell alias used on host machines for making it easier to interact with docker and the images we'll create with blueprints.
+
+To get started either use ```rake dev``` where the dockerup alias is automatically setup, or setup the alias with the command ```alias dockerup=./docker_up.sh```
 
 To get help run: ```dockerup -h```
 
@@ -106,6 +138,7 @@ To get help run: ```dockerup -h```
 * implement docker_clean.sh
   rake clean should call docker_clean.sh so that all the docker images configured
   by DOCKER_WORKAREA are removed from the host machine.
+
 ## DONE
 * we need to extract the docker_install.sh script from the Vagrantfile and call it as a provisioner script.
   rake build and dev targets for vagrant provisioner will now do this automatically.
