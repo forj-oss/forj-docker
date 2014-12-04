@@ -19,13 +19,27 @@ if ENV['RAKE_DEBUG'] == 'true'
   require 'debugger'
   debugger
 end
-require 'rake/clean'
-require 'puppetlabs_spec_helper/rake_tasks'
-require 'puppet-lint/tasks/puppet-lint'
 require 'yaml'
+require 'rake/clean'
+begin
+  require 'puppetlabs_spec_helper/rake_tasks'
+  require 'puppet-lint/tasks/puppet-lint'
+  # disable the puppet build task
+  Rake::Task["build"].clear
+  #
+  # puppet lint
+  #
+  PuppetLint.configuration.fail_on_warnings = true
+  PuppetLint.configuration.send('disable_80chars')
+  PuppetLint.configuration.send('disable_class_inherits_from_params_class')
+  PuppetLint.configuration.send('disable_class_parameter_defaults')
+  #PuppetLint.configuration.send('disable_documentation')
+  #PuppetLint.configuration.send('disable_single_quote_string_with_variables')
+  PuppetLint.configuration.ignore_paths = ["git/**","spec/fixtures/**","spec/**/*.rb","spec/**/*.pp", "pkg/**/*.pp"]
+rescue LoadError
+  puts "missing pupptlabs-spec and puppet-lint, skipping..."
+end
 
-# disable the puppet build task
-Rake::Task["build"].clear
 
 # load relative libs
 if "#{ENV['FORJ_TEST']}" == "1"
@@ -33,7 +47,7 @@ if "#{ENV['FORJ_TEST']}" == "1"
   require 'forj-docker/tasks/forj-docker'
 else
   puts "Skipping any forj-docker task..."
-  puts "to enable in project, export FORJ_TEST=1"
+  puts "  to enable in project, export FORJ_TEST=1"
 end
 
 #
@@ -42,16 +56,6 @@ end
 CLEAN.include("#{GEM_NAME}*.gem")
 CLOBBER.include('*.tmp', 'build/*')
 
-#
-# puppet lint
-#
-PuppetLint.configuration.fail_on_warnings = true
-PuppetLint.configuration.send('disable_80chars')
-PuppetLint.configuration.send('disable_class_inherits_from_params_class')
-PuppetLint.configuration.send('disable_class_parameter_defaults')
-#PuppetLint.configuration.send('disable_documentation')
-#PuppetLint.configuration.send('disable_single_quote_string_with_variables')
-PuppetLint.configuration.ignore_paths = ["git/**","spec/fixtures/**","spec/**/*.rb","spec/**/*.pp", "pkg/**/*.pp"]
 
 desc "build a gem for #{GEM_NAME}-#{GEM_VERSION}"
 task :build do
@@ -63,7 +67,12 @@ task :release => :build do
   system "gem push #{GEM_NAME}-#{GEM_VERSION}"
 end
 
-desc "install gem from build for #{GEM_NAME}-#{GEM_VERSION}"
+desc "perform a local install of gem from build for #{GEM_NAME}-#{GEM_VERSION}"
 task :install => [:clean, :build] do
-  system "gem install #{GEM_NAME}-#{GEM_VERSION}.gem"
+  begin
+    system "sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri"
+  rescue
+    puts "Failed to install, try it manually: "
+    puts "sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri"
+  end
 end

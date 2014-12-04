@@ -32,7 +32,10 @@ Gem::Specification.new do |s|
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
+#TODO: need to think about this some more.
+#      for now we'll use the scripts from /var/lib/gems/<version>/gems/forj-doker-<version>/bin folder.
+#  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
+  s.executables   = `git ls-files -- bin/forj-docker`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
 
   s.require_paths = ["lib"]
 

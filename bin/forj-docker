@@ -15,7 +15,28 @@
 
 begin
   require 'forj-docker'
+  require 'serverspec'
+  include SpecInfra::Helper::Exec
+  include SpecInfra::Helper::DetectOS
 rescue LoadError
   require 'rubygems'
   require 'forj-docker'
+  require 'serverspec'
+  include SpecInfra::Helper::Exec
+  include SpecInfra::Helper::DetectOS
 end
+
+RT_GEM_HOME= File.expand_path(File.join(__FILE__,"..",".."))
+RT_GEM_BIN = File.join(RT_GEM_HOME,"bin")
+RT_VERSION_SPEC = File.join(RT_GEM_HOME,"VERSION")
+sh = <<-EOS
+cat '#{RT_VERSION_SPEC}'
+EOS
+RT_VERSION = command(sh).stdout.to_s
+puts "Welcome to forj-docker!!!"
+puts ""
+puts "  Get more info at https://docs.forj.io"
+puts ""
+puts "  Executing from  : #{RT_GEM_HOME}"
+puts "  Running version : #{RT_VERSION}"
+puts "  Setup your example : cp -R '#{RT_GEM_HOME}/test/bpnoop/.' ."

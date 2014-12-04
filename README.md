@@ -48,6 +48,14 @@ Ideally, here are some of the commands we would have:
  rake clean
  rake build
 ```
+
+* installing the gem from local .gem file
+```shell
+ sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri
+ # test it
+ forj-docker
+```
+
 * publish the project
 ```shell
  rake release
