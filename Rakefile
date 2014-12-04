@@ -42,12 +42,18 @@ end
 
 
 # load relative libs
-if "#{ENV['FORJ_TEST']}" == "1"
-  $LOAD_PATH << File.join(File.dirname(__FILE__),"lib")
-  require 'forj-docker/tasks/forj-docker'
+$LOAD_PATH << File.join(File.dirname(__FILE__))
+begin
+  require 'lib/forj-docker/tasks/config.rb'
+  do_loaddev = get_config(:forj_dev,  {:forj_dev => false})
+rescue
+  do_loaddev = false
+end
+if "#{ENV['FORJ_DEV']}" == "1" || do_loaddev
+  require 'lib/forj-docker/tasks/forj-docker'
 else
   puts "Skipping any forj-docker task..."
-  puts "  to enable in project, export FORJ_TEST=1"
+  puts "  to enable in project, export FORJ_DEV=1 or execute 'rake rundev'"
 end
 
 #
@@ -75,4 +81,16 @@ task :install => [:clean, :build] do
     puts "Failed to install, try it manually: "
     puts "sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri"
   end
+end
+
+desc "setup FORJ_DEV=1 so we can run in dev mode."
+task :rundev do
+  write_config(:forj_dev, true)
+  puts "new task will be loaded, check rake -T"
+end
+
+desc "setup FORJ_DEV off so we can just do builds."
+task :runbuild do
+  write_config(:forj_dev, false)
+  puts "disabling dev, only building gems, check rake -T"
 end

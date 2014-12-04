@@ -11,6 +11,11 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+# load relative libs
+$LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),"forj-docker")))
+require 'cli/init'
+require 'cli/cli'
 module ForjDocker
-  puts "forj-docker gem exist."
+  puts "Running forj-docker cli ..."
+  Logging.debug("Running forj-docker cli version '%s'" % [$RT_VERSION])
 end

@@ -42,6 +42,47 @@ Ideally, here are some of the commands we would have:
 
  NOTE: registry, pull, push, and runit task need to be developed.
 
+## General users getting started
+Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
+* Install ruby 1.9 for your OS.  Currently we're targeting support for execution within docker, vagrant, or bare using ubuntu 14.04.
+* Install forj-docker gem.
+```shell
+  sudo -i ruby -S gem install forj-docker
+  # Create a root folder for your blueprint project
+  mkdir -p ~/forj/myblueprint
+  cd ~/forj/myblueprint
+  forj-docker init
+```
+
+## Developer getting started
+If you plan to build this gem or install it within a docker or vagrant container, you'll need some ruby build tools.
+We'll use bundler and rake for ruby.
+
+### Develop with ruby 1.9+ on ubuntu
+We highly recommend developing on ubuntu using an editor like atom or vi.
+Install these base ruby packages to build and develop gems.
+```shell
+sudo apt-get -y update
+sudo apt-get install ruby1.9.1 ruby1.9.1-dev rubygems1.9.1 build-essential libopenssl-ruby1.9.1 libssl-dev zlib1g-dev libxml2-dev libxslt-dev git -y
+```
+
+### Install rake tools
+* Install with default ruby
+```shell
+  sudo -E gem install bundler --no-rdoc --no-ri
+  ruby -S bundle install --gemfile Gemfile
+```
+* Install with ruby1.9
+```shell
+  sudo -E gem1.9.1 install bundler --no-rdoc --no-ri
+  ruby1.9.1 -S bundle install --gemfile Gemfile
+```
+### Install vagrant for your OS otherwise run bare with the command: ```rake 'configure[bare]'```
+### Start the dev vm with commad:
+```shell
+  rake dev
+```
+
 ## Building forj-docker gem
 * build the project gem file
 ```shell
@@ -49,9 +90,9 @@ Ideally, here are some of the commands we would have:
  rake build
 ```
 
-* installing the gem from local .gem file
+* installing the gem from local .gem file your developing
 ```shell
- sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri
+ rake install
  # test it
  forj-docker
 ```
@@ -61,17 +102,6 @@ Ideally, here are some of the commands we would have:
  rake release
 ```
 
-## Developer getting started
-* Install rake tools
-```shell
-  sudo -E gem1.9.1 install bundler --no-rdoc --no-ri
-  ruby1.9.1 -S bundle install --gemfile Gemfile
-```
-* Install vagrant for your OS otherwise run bare with the command: ```rake 'configure[bare]'```
-* Start the dev vm with commad:
-```shell
-  rake dev
-```
 * Build the docker images in docker/**
 ```shell
   rake build

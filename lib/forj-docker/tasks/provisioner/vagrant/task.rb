@@ -39,7 +39,8 @@ namespace :vagrant do
     when :build
       puts "Build all the docker images in vagrant"
       sh("vagrant up")
-      sh("vagrant ssh --command 'bash -c \"/vagrant/bin/scripts/docker_prepare.sh\"'")
+      #TODO: need to think about this in gem state, should we copy the bin/scripts/** to the docker image instead?
+      sh("vagrant ssh --command 'bash -c \"export DOCKER_WORKAREA=/vagrant/docker;/vagrant/bin/scripts/docker_prepare.sh\"'")
     when :connect
       puts "Vagrant perform connection to box"
       sh("vagrant ssh")
@@ -56,11 +57,11 @@ namespace :vagrant do
     args = (args != nil ) ? {:ignore => false}.merge(args) : {:ignore => false}
     if args[:ignore] != true
       puts "Verifying vagrant..."
-      Rake::Task["spec"].clear
-      RSpec::Core::RakeTask.new(:spec) do |t2|
-        t2.pattern = 'spec/{check_vagrant}/**/*_spec.rb'
+      RSpec::Core::RakeTask.new(:check_spec) do |ct|
+        ct.pattern = File.join(FORJ_DOCKER_SPEC,'{check_vagrant}','**','*_spec.rb')
+        ct.rspec_opts = ['--color']
       end
-      Rake::Task["spec"].execute
+      Rake::Task[:check_spec].invoke
     else
       puts "Ignoring checks"
     end

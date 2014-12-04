@@ -13,3 +13,4 @@ build/**
 Gemfile.lock
 spec/fixtures
 spec/fixtures/*
+bpname/**

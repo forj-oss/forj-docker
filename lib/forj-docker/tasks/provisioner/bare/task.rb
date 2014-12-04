@@ -37,9 +37,12 @@ namespace :bare do
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_install.sh")
     when :build
       puts "Build all the docker images locally"
+      ENV['DOCKER_WORKAREA'] = DOCKER_WORKAREA
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_prepare.sh")
     when :connect
-      puts "no-op"
+      # mainly used for development so later we might enhance this to work with the gem as well.
+      # connect to this projects default box located in the docker folder
+      sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_up.sh -t 'forj/redstone:review' -a dev -n devcontainer.localhost")
     else
       puts "You gave me #{args[:action]} -- I have no idea what to do with that."
     end
@@ -53,11 +56,11 @@ namespace :bare do
     args = (args != nil ) ? {:ignore => false}.merge(args) : {:ignore => false}
     if args[:ignore] != true
       puts "Verifying bare..."
-      Rake::Task["spec"].clear
-      RSpec::Core::RakeTask.new(:spec) do |t2|
-        t2.pattern = 'spec/{check_docker}/**/*_spec.rb'
+      RSpec::Core::RakeTask.new(:check_spec) do |ct|
+        ct.pattern = File.join(FORJ_DOCKER_SPEC,'{check_docker}','**','*_spec.rb')
+        ct.rspec_opts = ['--color']
       end
-      Rake::Task["spec"].execute
+      Rake::Task[:check_spec].invoke
     else
       puts "Ignoring checks"
     end

@@ -11,6 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-$LOAD_PATH << File.dirname(__FILE__)
-require 'provisioner/bare/task'
-require 'provisioner/vagrant/task'
+
+# spec helper
+$LOAD_PATH << FORJ_DOCKER_SPEC
+require 'rspec/core/rake_task'

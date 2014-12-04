@@ -13,9 +13,10 @@
 #   limitations under the License.
 
 # load relative libs
-$LOAD_PATH << File.join(File.dirname(__FILE__),'..')
+$LOAD_PATH << File.join(File.dirname(__FILE__))
 require 'config'
 require 'provisioners'
+require 'helper'
 
 desc "configure the provisioner for this rake project [bare|vagrant]"
 task :configure,[:provisioner] do |t,args|

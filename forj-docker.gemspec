@@ -51,6 +51,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'thin'
 
   # Run time dependencies
+  s.add_runtime_dependency 'thor', '~>0.16.0'
+  s.add_runtime_dependency 'ansi', '>= 1.4.3'
   s.add_runtime_dependency 'rake', '~> 10.3.2'
   s.add_runtime_dependency 'rspec-its', '~> 1.0.1'
   s.add_runtime_dependency 'rspec', '~> 2.99.0'

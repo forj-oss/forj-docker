@@ -16,7 +16,8 @@
 SCRIPT_NAME=$0
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
-DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/../.."}
+[ ! -z "$DOCKER_WORKAREA" ] && "DOCKER_WORKAREA passed in ==> ${DOCKER_WORKAREA}"
+DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/../../docker"}
 #
 # source all common script functions
 #
@@ -79,7 +80,7 @@ BUILD_SETTINGS
 
 #
 # for every Dockerfile.* in the docker directory create a DOCKER_BUILD
-for i in $(find "${DOCKER_WORKAREA}/docker" -type f -name 'Dockerfile.*' ); do
+for i in $(find "${DOCKER_WORKAREA}" -type f -name 'Dockerfile.*' ); do
     echo "Working on => $i"
     # get the DOCKER-NAME from the Dockerfile.* file, otherwise skip it.
     DOCKER_NAME=$(grep DOCKER-NAME $i | awk '{print $3}')
