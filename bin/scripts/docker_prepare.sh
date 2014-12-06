@@ -16,7 +16,7 @@
 SCRIPT_NAME=$0
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
-[ ! -z "$DOCKER_WORKAREA" ] && "DOCKER_WORKAREA passed in ==> ${DOCKER_WORKAREA}"
+[ ! -z "$DOCKER_WORKAREA" ] && echo "DOCKER_WORKAREA passed in ==> ${DOCKER_WORKAREA}"
 DOCKER_WORKAREA=${DOCKER_WORKAREA:-"${SCRIPT_FULL_DIR}/../../docker"}
 #
 # source all common script functions
