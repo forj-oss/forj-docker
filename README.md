@@ -31,16 +31,19 @@ Ideally, here are some of the commands we would have:
 
 ##Status for this work is experimental.
 
-* setup a vm for docker images
-  vagrant up
-* prepare all docker images in the docker folder
-   vagrant ssh
-   docker_prepare.sh
-* Start a review server
-   vagrant ssh
+* setup a vm for docker images ```rake dev``` then ```rake build```
+
+* install the gem ```gem install forj-docker``` then ```forj-docker init``` inside an empty folder. After that you can use ```rake build``` in this new folder and develop your docker files.  Later we'll add ```rake runit``` to the rake task that we'll support from the gem.  Use ```rake dev``` to install docker.  Use ```rake check``` to verify your installation.
+
+* prepare all your docker images
+   ```rake build```
+* Test your images with dockerup, it remembers your sessions!
+   rake connect
+
+   or
+
    dockerup -a review -t forj/redstone:review -n review.42.localhost
 
- NOTE: registry, pull, push, and runit task need to be developed.
 
 ## General users getting started
 Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
@@ -80,12 +83,14 @@ sudo apt-get install ruby1.9.1 ruby1.9.1-dev rubygems1.9.1 build-essential libop
 ### Install vagrant for your OS otherwise run bare with the command: ```rake 'configure[bare]'```
 ### Start the dev vm with commad:
 ```shell
+  rake rundev
   rake dev
 ```
 
 ## Building forj-docker gem
 * build the project gem file
 ```shell
+ rake runbuild
  rake clean
  rake build
 ```
@@ -148,6 +153,8 @@ To get started either use ```rake dev``` where the dockerup alias is automatical
 To get help run: ```dockerup -h```
 
 ## TODO
+* registry, pull, push, and runit task need to be developed.
+* give dockerup abilities to forj-docker gem.
 * we need a docker_runit.sh script that will start all our containers.
   This script might need to be multiple steps to implement the instaler
   and configuration of the software managing all the containers on the host.
@@ -159,15 +166,6 @@ To get help run: ```dockerup -h```
   garether plugin has a nice way to setup and deploy a private registry.
   There should be a build target and script that can use this plugin to
   do that for us.
-* we need to start the ruby library to integrate forj-cli, and it's rake specs.
-  The ruby library should implement a pattern that allows us to simply
-  configure a blueprint workarea and allow it to define the DOCKER_WORKAREA.
-  The DOCKER_WORKAREA should be what is used to help identify the docker files
-  that will be managed on a host.  Having this as a ruby gem will make it
-  easier for us to integrate and use on several host systems.
-* we need test cases for each of the top level scripts.
-  Lets start with a check target that verifies docker is installed and the right version.
-  For vagrant systems verify vagrant and virtual box are installed.
 * thoughts about giving dockerup the ability to transfer meta.js to docker image using --env settings??
   One of the main functions being offered by cloud-init was the ability to
   communicate metadata configured by forj cli.   We'll need the same to help
@@ -178,6 +176,8 @@ To get help run: ```dockerup -h```
   by DOCKER_WORKAREA are removed from the host machine.
 
 ## DONE
+* forj-docker is now a gem, and forj-docker init is the first command to install rake task for custom projects.
+* use rake check to verify your environment
 * we need to extract the docker_install.sh script from the Vagrantfile and call it as a provisioner script.
   rake build and dev targets for vagrant provisioner will now do this automatically.
   On bare systems you can simply run src/docker_install.sh on the system you want to dockerize.
