@@ -19,13 +19,13 @@ include SpecInfra::Helper::Exec
 include SpecInfra::Helper::DetectOS
 # v2... puppet specs are using v1
 # Set backend type
-#set :backend, :ssh
-#set :backend, :exec
+# set :backend, :ssh
+# set :backend, :exec
 
 #
 # configure rspec
 #
 RSpec.configure do |c|
-    c.formatter = :documentation
-    c.filter_run :check => true
+  c.formatter = :documentation
+  c.filter_run :check => true
 end

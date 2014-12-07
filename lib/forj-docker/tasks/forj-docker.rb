@@ -18,11 +18,11 @@ require 'config'
 require 'provisioners'
 require 'helper'
 
-desc "configure the provisioner for this rake project [bare|vagrant]"
-task :configure,[:provisioner] do |t,args|
-  args = {:provisioner => get_current_provisioner}.merge(args)
-  set_current_provisioner(args[:provisioner])
-  puts "configured provisioner ==> #{get_current_provisioner}"
+desc 'configure the provisioner for this rake project [bare|vagrant]'
+task :configure, [:provisioner] do |_t, args|
+  args = { :provisioner => getcurrent_provisioner }.merge(args)
+  setcurrent_provisioner(args[:provisioner])
+  puts "configured provisioner ==> #{getcurrent_provisioner}"
 end
 
 #
@@ -45,11 +45,11 @@ end
 #
 # add a couple aliases to feal more natural
 #
-desc "run development for alias for dev"
+desc 'run development for alias for dev'
 task :development do
   Rake::Task['dev'].invoke
 end
-desc "run provision for alias for dev"
+desc 'run provision for alias for dev'
 task :provision do
   Rake::Task['dev'].invoke
 end
@@ -74,8 +74,8 @@ end
 # check
 #
 desc "run checks for: #{PROVISIONER}:check"
-task :check,[:ignore] do |t, args|
-  args = {:ignore => false}.merge(args)
+task :check, [:ignore] do | _t, args |
+  args = { :ignore => false }.merge(args)
   Rake::Task["#{PROVISIONER}:check"].invoke(args[:ignore])
 end
 

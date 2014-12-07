@@ -17,42 +17,40 @@
 
 require 'fileutils'
 
+#
+# Helper functions
+#
 module Helpers
-  def get_home_path
+  def gethome_path
     home_dir = File.expand_path('~')
-    if home_dir == '' or home_dir == nil
-      home_dir = (ENV['HOME'] != '' and ENV['HOME'] != nil) ? ENV['HOME'] : '.'
+    if home_dir == '' || home_dir.nil?
+      home_dir = (ENV['HOME'] != '' && !ENV['HOME'].nil?) ? ENV['HOME'] : '.'
       home_dir = File.expand_path(home_dir)
     end
-    return home_dir
+    home_dir
   end
 
   def create_directory(path)
-    unless File.directory?(path)
-      Dir.mkdir path
-    end
+    Dir.mkdir path unless File.directory?(path)
   end
 
   def dir_exists?(path)
-    if File.exists?(path)
-       if not File.directory?(path)
-          msg = "'%s' is not a directory. Please fix it." % path
-          if $FORJ_LOGGER
-             Logging.fatal(1, msg)
-          else
-             raise msg
-          end
-       end
-       if not File.readable?(path) or not File.writable?(path) or not File.executable?(path)
-          msg = "%s is not a valid directory. Check permissions and fix it." % path
-          if $FORJ_LOGGER
-             Logging.fatal(1, msg)
-          else
-             raise msg
-          end
-       end
-       return true
-    end
-    false
+    return false unless File.exist?(path)
+    validate_directory(path)
+    return true unless !File.readable?(path) ||
+                       !File.writable?(path) ||
+                       !File.executable?(path)
+    msg = format('%s is not a valid directory.' + \
+                 ' Check permissions and fix it.', path)
+    return msg unless $FORJ_LOGGER
+    Logging.fatal(1, msg)
+    true
+  end
+
+  def validate_directory(path)
+    return unless File.directory?(path)
+    msg = format("'%s' is not a directory. Please fix it.", path)
+    return fail msg unless $FORJ_LOGGER
+    Logging.fatal(1, msg)
   end
 end

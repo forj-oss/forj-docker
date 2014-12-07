@@ -12,18 +12,18 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 RELATIVE_ROOT_DIR = File.dirname(__FILE__)
-RELATIVE_INC_FOLDER = "provisioner"
+RELATIVE_INC_FOLDER = 'provisioner'
 $LOAD_PATH << RELATIVE_ROOT_DIR
 
 # we only look 1 level deep into the provisioner folder
 include_folders = Dir.entries(File.join(RELATIVE_ROOT_DIR, RELATIVE_INC_FOLDER))
-                    .select{ |f| !(f =~/\.+/)}
-                    .map{|f| RELATIVE_INC_FOLDER + "/" + f}
+                  .select { |f| !(f =~ /\.+/) }
+                  .map { |f| RELATIVE_INC_FOLDER + '/' + f }
 
 # find all the task.rb files and require them
-include_folders.each { | inc_folder |
-      Dir.entries(File.join(RELATIVE_ROOT_DIR, inc_folder))
-        .select { |f| ! File.directory? f }
-        .select { |f| f =~ /task.rb/ }
-        .select { |f| require inc_folder + "/" + f }
-}
+include_folders.each do | inc_folder |
+  Dir.entries(File.join(RELATIVE_ROOT_DIR, inc_folder))
+    .select { |f| !File.directory? f }
+    .select { |f| f =~ /task.rb/ }
+    .select { |f| require inc_folder + '/' + f }
+end

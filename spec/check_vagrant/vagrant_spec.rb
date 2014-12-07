@@ -12,10 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-$:<< File.join(File.dirname(__FILE__), '..')
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'spec_helper_check'
 require 'rubygems'
-SUPPORTED_OSFAMS = ['redhat','debian','centos','ubuntu']
+SUPPORTED_OSFAMS = %w{('redhat', 'debian', 'centos', 'ubuntu')}
 describe 'vagrant binary', :check => true do
   sh = <<-EOS
     which vagrant
@@ -27,14 +27,16 @@ describe 'vagrant binary', :check => true do
   end
 end
 
-describe service('virtualbox'),:if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
-                                       package('virtualbox').version != nil),
-                               :check => true do
+describe service('virtualbox'),
+         :if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
+                 !package('virtualbox').version.nil?),
+         :check => true do
   it { should be_enabled   }
 end
 
-describe service('vboxdrv'),:if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
-                                    package('virtualbox-4.3').version != nil),
-                            :check => true do
+describe service('vboxdrv'),
+         :if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
+                 !package('virtualbox-4.3').version.nil?),
+         :check => true do
   it { should be_enabled   }
 end

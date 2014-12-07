@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-$:<< File.join(File.dirname(__FILE__), '..')
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'spec_helper_check'
 require 'rubygems'
 
@@ -25,7 +25,8 @@ describe 'docker version check', :check => true do
   subject { command(sh) }
 
   it 'should be version 1.3.1 or higher' do
-    expect(Gem::Version.new(subject.stdout) >= Gem::Version.new('1.3.1')).to be_truthy
+    expect(Gem::Version.new(subject.stdout) >=
+           Gem::Version.new('1.3.1')).to be_truthy
   end
 end
 

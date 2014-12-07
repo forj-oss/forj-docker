@@ -1,3 +1,4 @@
+
 # -*- encoding: utf-8 -*-
 # (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
 #
@@ -12,37 +13,46 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-$:.push File.expand_path(File.join("..","lib"), __FILE__)
+$LOAD_PATH << File.expand_path(File.join(__FILE__, '..', 'lib'))
+
 require 'rbconfig'
 ruby_conf = defined?(RbConfig) ? RbConfig::CONFIG : Config::CONFIG
 less_than_one_nine = ruby_conf['MAJOR'].to_i == 1 && ruby_conf['MINOR'].to_i < 9
 
 Gem::Specification.new do |s|
-  s.name        = "forj-docker"
+  s.name        = 'forj-docker'
   s.version     = `cat VERSION`
-  s.authors     = ["forj team"]
+  s.authors     = ['forj team']
   s.email       = %w(forj@forj.io)
-  s.homepage    = "https://github.com/forj-oss/forj-docker"
-  s.summary     = %q{Gem for docker on forj}
-  s.description = %q{Use this gem to create support for forj and docker, status is experimental.}
+  s.homepage    = 'https://github.com/forj-oss/forj-docker'
+  s.summary     = 'Gem for docker on forj'
+  s.description = 'Use this gem to create support for forj and docker,
+                   status is experimental.'
   s.license     = 'Apache License, Version 2.0.'
-  s.post_install_message = 'Go to docs.forj.io for more information on how to use forj cli'
+  s.post_install_message = 'Go to docs.forj.io for more
+                               information on how to use forj cli'
   s.required_ruby_version = '>= 1.8.5'
 
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-#TODO: need to think about this some more.
-#      for now we'll use the scripts from /var/lib/gems/<version>/gems/forj-doker-<version>/bin folder.
-#  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
-  s.executables   = `git ls-files -- bin/forj-docker`.split("\n").map{ |f| f.gsub(/^bin[\/|\\]/,"") }
+# TODO: need to think about this some more.
+#      for now we'll use the scripts from
+#      /var/lib/gems/<version>/gems/forj-doker-<version>/bin folder.
+# s.executables   = `git ls-files -- bin/*`.split("\n").map {
+#                    |f| f.gsub(/^bin[\/|\\]/, '')
+# }
+  s.executables   = `git ls-files -- bin/forj-docker`.split("\n").map {
+                       |f| f.gsub(/^bin[\/|\\]/, '')
+  }
 
-  s.require_paths = ["lib"]
+  s.require_paths = ['lib']
 
   # Testing dependencies
   s.add_development_dependency 'minitest', '~> 4.0'
   s.add_development_dependency 'fakefs', '0.4'
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rake', '~> 10.4.0'
+  s.add_development_dependency 'rubocop', '~> 0.27.1'
   s.add_development_dependency 'simplecov' unless less_than_one_nine
 
   # Documentation dependencies
@@ -53,9 +63,7 @@ Gem::Specification.new do |s|
   # Run time dependencies
   s.add_runtime_dependency 'thor', '~>0.16.0'
   s.add_runtime_dependency 'ansi', '>= 1.4.3'
-  s.add_runtime_dependency 'rake', '~> 10.3.2'
-  s.add_runtime_dependency 'rspec-its', '~> 1.0.1'
-  s.add_runtime_dependency 'rspec', '~> 2.99.0'
-  s.add_runtime_dependency 'serverspec', '~> 1.16.0'
-  s.add_runtime_dependency 'specinfra', '~> 1.27.5'
+  s.add_runtime_dependency 'rake', '~> 10.4.0'
+  s.add_runtime_dependency 'rspec', '~> 3.1.0'
+  s.add_runtime_dependency 'serverspec', '~> 2.7.0'
 end

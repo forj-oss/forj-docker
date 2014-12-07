@@ -15,7 +15,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-
 # create a forj.log file in ~/.hpcloud/forj.log
 
 require 'logger'
@@ -25,96 +24,109 @@ require 'ansi/logger'
 require 'common/helpers.rb'
 include Helpers
 
-
 #
 # Logging module
 #
 module Logging
-
+  #
+  # Forj logging helper
+  #
   class ForjLog
-     # Class used to create 2 log object, in order to keep track of error in a log file and change log output to OUTPUT on needs (option flags).
+    # Class used to create 2 log object,
+    # in order to keep track of error in a log
+    # file and change log output to OUTPUT on needs (option flags).
 
-     attr_reader :level
+    attr_reader :level
 
-     def initialize(sLogFile = 'forj.log', level = Logger::WARN)
+    def initialize(sLogFile = 'forj.log', level = Logger::WARN)
+      unless $FORJ_DATA_PATH
+        fail 'Internal Error: Unable to initialize ForjLog
+               - global FORJ_DATA_PATH not set'
+      end
 
-        if not $FORJ_DATA_PATH
-           raise "Internal Error: Unable to initialize ForjLog - global FORJ_DATA_PATH not set"
+      unless Helpers.dir_exists?($FORJ_DATA_PATH)
+        fail format('Internal Error: Unable to ' + \
+                    "initialize ForjLog - '%s' doesn't exist.", $FORJ_DATA_PATH)
+      end
+
+      @file_logger = Logger.new(File.join($FORJ_DATA_PATH, sLogFile), 'weekly')
+      @file_logger.level = Logger::DEBUG
+      @file_logger.formatter = proc do |severity, datetime, progname, msg|
+        "#{progname} : #{datetime}: #{severity}: #{msg} \n"
+      end
+
+      @stdout_logger = Logger.new(STDOUT)
+      @level = level
+      @stdout_logger.level = @level
+      @stdout_logger.formatter = proc do |severity, _datetime, _progname, msg|
+        case severity
+        when 'ANY'
+          str = "#{msg} \n"
+        when 'ERROR', 'FATAL'
+          str = ANSI.bold(ANSI.red("#{severity}!!!")) + ": #{msg} \n"
+        when 'WARN'
+          str = ANSI.bold(ANSI.yellow('WARNING')) + ": #{msg} \n"
+        else
+          str = "#{severity}: #{msg} \n"
         end
+        str
+      end
+    end
 
-        if not Helpers.dir_exists?($FORJ_DATA_PATH)
-           raise "Internal Error: Unable to initialize ForjLog - '%s' doesn't exist." % $FORJ_DATA_PATH
-        end
+    def info?
+      @stdout_logger.info?
+    end
 
-        @oFileLogger = Logger.new(File.join($FORJ_DATA_PATH, sLogFile), 'weekly')
-        @oFileLogger.level = Logger::DEBUG
-        @oFileLogger.formatter = proc do |severity, datetime, progname, msg|
-            "#{progname} : #{datetime}: #{severity}: #{msg} \n"
-         end
+    def debug?
+      @stdout_logger.debug?
+    end
 
-        @oOutLogger = Logger.new(STDOUT)
-        @level = level
-        @oOutLogger.level = @level
-        @oOutLogger.formatter = proc do |severity, datetime, progname, msg|
-            case severity
-               when 'ANY'
-                  str = "#{msg} \n"
-               when "ERROR", "FATAL"
-                  str = ANSI.bold(ANSI.red("#{severity}!!!")) + ": #{msg} \n"
-               when "WARN"
-                  str = ANSI.bold(ANSI.yellow("WARNING")) + ": #{msg} \n"
-               else
-                  str = "#{severity}: #{msg} \n"
-            end
-            str
-         end
-     end
+    def error?
+      @stdout_logger.error?
+    end
 
-     def info?
-        return(@oOutLogger.info?)
-     end
-     def debug?
-        return(@oOutLogger.debug?)
-     end
-     def error?
-        return(@oOutLogger.error?)
-     end
-     def fatal?
-        return(@oOutLogger.fatal?)
-     end
+    def fatal?
+      @stdout_logger.fatal?
+    end
 
-     def info(message)
-        @oOutLogger.info(message + ANSI.clear_line)
-        @oFileLogger.info(message)
-     end
-     def debug(message)
-        @oOutLogger.debug(message + ANSI.clear_line)
-        @oFileLogger.debug(message)
-     end
-     def error(message)
-        @oOutLogger.error(message + ANSI.clear_line)
-        @oFileLogger.error(message)
-     end
-     def fatal(message, e)
-        @oOutLogger.fatal(message + ANSI.clear_line)
-        @oFileLogger.fatal("%s\n%s\n%s" % [message, e.message, e.backtrace.join("\n")]) if e
-      @oFileLogger.fatal(message)
-     end
+    def info(message)
+      @stdout_logger.info(message + ANSI.clear_line)
+      @file_logger.info(message)
+    end
 
-     def warn(message)
-        @oOutLogger.warn(message + ANSI.clear_line)
-        @oFileLogger.warn(message)
-     end
+    def debug(message)
+      @stdout_logger.debug(message + ANSI.clear_line)
+      @file_logger.debug(message)
+    end
 
-     def set_level(level)
-        @level = level
-        @oOutLogger.level = level
-     end
+    def error(message)
+      @stdout_logger.error(message + ANSI.clear_line)
+      @file_logger.error(message)
+    end
 
-     def unknown(message)
-        @oOutLogger.unknown(message + ANSI.clear_line)
-     end
+    def fatal(message, e)
+      @stdout_logger.fatal(message + ANSI.clear_line)
+      return @file_logger.fatal(message) unless e
+      err_message = format("%s\n%s\n%s",
+                           message,
+                           e.message,
+                           e.backtrace.join('\n'))
+      @file_logger.fatal(err_message)
+    end
 
+    def warn(message)
+      @stdout_logger.warn(message + ANSI.clear_line)
+      @file_logger.warn(message)
+    end
+
+    def setlevel(level)
+      @level = level
+      @stdout_logger.level = level
+    end
+
+    def unknown(message)
+      @stdout_logger.unknown(message + ANSI.clear_line)
+    end
   end
 
   def message(message)
@@ -143,17 +155,19 @@ module Logging
     exit rc
   end
 
-  def set_level(level)
-    $FORJ_LOGGER.set_level(level)
+  def setlevel(level)
+    $FORJ_LOGGER.setlevel(level)
   end
 
   def state(message)
-     print("%s ...%s\r" % [message, ANSI.clear_line]) if $FORJ_LOGGER.level <= Logger::INFO
+    return unless $FORJ_LOGGER.level <= Logger::INFO
+    state_message = format("%s ...%s\r", message, ANSI.clear_line)
+    print(state_message)
   end
 
   def high_level_msg(message)
-     # Not DEBUG and not INFO. Just printed to the output.
-     print ("%s" % [message]) if $FORJ_LOGGER.level > 1
+    # Not DEBUG and not INFO. Just printed to the output.
+    return unless $FORJ_LOGGER.level > 1
+    print(format('%s', message))
   end
-
 end

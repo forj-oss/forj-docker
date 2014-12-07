@@ -12,10 +12,16 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 # load relative libs
-$LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),"forj-docker")))
+$LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),
+                                                   'forj-docker')))
 require 'cli/init'
 require 'cli/cli'
+
+#
+# forj-docker cli entry point
+#
 module ForjDocker
-  puts "Running forj-docker cli ..."
-  Logging.debug("Running forj-docker cli version '%s'" % [$RT_VERSION])
+  puts 'Running forj-docker cli ...'
+  Logging.debug(format("Running forj-docker cli version '%s'",
+                       $RT_VERSION))
 end

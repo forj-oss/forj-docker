@@ -15,5 +15,4 @@
 # load relative libs
 require 'forj-docker/tasks/forj-docker'
 
-
 # Your rake task go down here

@@ -30,5 +30,4 @@ rescue LoadError
   include SpecInfra::Helper::DetectOS
 end
 
-
 ForjDocker::Cli::ForjDockerThor.start

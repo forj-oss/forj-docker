@@ -24,18 +24,23 @@ end
 
 module ForjDocker
   module Cli
+    #
+    #  cli forj-docker
     class ForjDockerThor < Thor
+      # TODO: talk with chris to find out how these are intended to work
+      # class_option :debug,   :aliases => '-d', :desc => 'Set debug mode'
+      # class_option :verbose, :aliases => '-v', :desc => 'Set verbose mode'
+      # class_option :config,  :aliases => '-c', :desc => 'Path to a different
+      #                forj config file. By default, use ~/.forj/config.yaml'
+      # class_option :libforj_debug,
+      #              :desc => 'Set lib-forj debug level verbosity.' + \
+      #                'verbosity. 1 to 5. Default is one.'
 
-# TODO: talk with chris to find out how these are intended to work
-#      class_option :debug,   :aliases => '-d', :desc => 'Set debug mode'
-#      class_option :verbose, :aliases => '-v', :desc => 'Set verbose mode'
-#      class_option :config,  :aliases => '-c', :desc => 'Path to a different forj config file. By default, use ~/.forj/config.yaml'
-#      class_option :libforj_debug,             :desc => "Set lib-forj debug level verbosity. 1 to 5. Default is one."
-      #
       # command: version
       # thor manage the help command.
       #
-      desc "help [action]", "Describe available FORJ actions or one specific action"
+      desc 'help [action]',
+           'Describe available FORJ actions or one specific action'
       def help(task = nil, subcommand = false)
         if task
           self.class.task_help(shell, task)
@@ -76,13 +81,11 @@ module ForjDocker
       # thor manage the version command
       #
       desc 'version', 'get GEM version of forj.'
-      def version()
-        if Gem.loaded_specs['forj-docker']
-          gem_version = Gem.loaded_specs['forj-docker'].version.to_s
-          Logging.debug("Running cli command '%s'" % [gem_version])
-          puts gem_version
-
-        end
+      def version
+        return unless Gem.loaded_specs['forj-docker']
+        gem_version = Gem.loaded_specs['forj-docker'].version.to_s
+        Logging.debug(format("Running cli command '%s'", gem_version))
+        puts gem_version
       end
 
       #
@@ -90,15 +93,18 @@ module ForjDocker
       # thor manage the init command
       #
       desc 'init', 'setup a working example in the current directory.'
-      def init()
-        _cwd = File.expand_path(".")
-        Logging.debug("Running init command for folder '%s'" % [_cwd])
+      def init
+        cwd = File.expand_path('.')
+        Logging.debug(format("Running init command for folder '%s'", cwd))
         puts "init is creating sample here: #{_cwd}"
-        FileUtils.cp_r "#{File.join($RT_GEM_HOME,'test','bpnoop','.')}",_cwd, :verbose => true
-        #init should configure the default to be bare sense this should be a docker system
+        FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'test', 'bpnoop', '.')}",
+                       cwd,
+                       :verbose => true)
+        # init should configure the default to be bare sense
+        # this should be a docker system
         system("rake \"configure[bare]\"")
-        puts "init complete"
-        Logging.debug "init complete"
+        puts 'init complete'
+        Logging.debug 'init complete'
       end
     end
   end

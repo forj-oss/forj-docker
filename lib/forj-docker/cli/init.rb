@@ -30,33 +30,44 @@ rescue LoadError
 end
 
 module ForjDocker
+  #
+  # initialize
   module Init
     def forj_initialize
-
       # Defining Global variables
-      $RT_GEM_HOME= File.expand_path(File.join(__FILE__,"..","..","..",".."))
-      $RT_GEM_BIN = File.join($RT_GEM_HOME,"bin")
-      $RT_VERSION_SPEC = File.join($RT_GEM_HOME,"VERSION")
+      $RT_GEM_HOME = File.expand_path(File.join(__FILE__,
+                                                '..',
+                                                '..',
+                                                '..',
+                                                '..'))
+      $RT_GEM_BIN = File.join($RT_GEM_HOME, 'bin')
+      $RT_VERSION_SPEC = File.join($RT_GEM_HOME, 'VERSION')
       sh = <<-EOS
       cat '#{$RT_VERSION_SPEC}'
       EOS
       $RT_VERSION = command(sh).stdout.to_s
 
-      $FORJ_DATA_PATH  = File.expand_path(File.join(get_home_path, '.config', 'forj-docker'))
-      $FORJ_CREDS_PATH = File.expand_path(File.join(get_home_path, '.cache',  'forj-docker'))
-      $FORJ_TEMP       = File.expand_path(File.join(get_home_path, '.config', 'forj-docker', 'temp'))
+      $FORJ_DATA_PATH  = File.expand_path(File.join(gethome_path,
+                                                    '.config',
+                                                    'forj-docker'))
+      $FORJ_CREDS_PATH = File.expand_path(File.join(gethome_path,
+                                                    '.cache',
+                                                    'forj-docker'))
+      $FORJ_TEMP       = File.expand_path(File.join(gethome_path,
+                                                    '.config',
+                                                    'forj-docker',
+                                                    'temp'))
 
-      ForjDocker::Init::ensure_dir_exists($FORJ_DATA_PATH)
-      ForjDocker::Init::ensure_dir_exists($FORJ_CREDS_PATH)
-      ForjDocker::Init::ensure_dir_exists($FORJ_TEMP)
+      ForjDocker::Init().ensure_dir_exists($FORJ_DATA_PATH)
+      ForjDocker::Init().ensure_dir_exists($FORJ_CREDS_PATH)
+      ForjDocker::Init().ensure_dir_exists($FORJ_TEMP)
 
-      $FORJ_LOGGER     = ForjLog.new()
+      $FORJ_LOGGER     = ForjLog.new
     end
 
     def ensure_dir_exists(path)
-      if not dir_exists?(path)
-        FileUtils.mkpath(path) if not File.directory?(path)
-      end
+      return if dir_exists?(path)
+      FileUtils.mkpath(path) unless File.directory?(path)
     end
   end
 end

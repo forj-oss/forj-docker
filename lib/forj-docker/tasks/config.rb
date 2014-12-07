@@ -19,56 +19,60 @@
 #
 require 'yaml'
 
-def get_configspec()
-  return File.expand_path(File.join(get_configfolder,"config.yaml"))
+def getconfig_spec
+  File.expand_path(File.join(getconfig_folder, 'config.yaml'))
 end
 
-def get_forjdatadir
-  root_data = (ENV['FORJ_DATA'] != nil and ENV['FORJ_DATA'] != '') ? ENV['FORJ_DATA']:
-              File.expand_path(File.join(ENV['HOME'],".config","forj-data"))
-  return root_data
+def getforj_datadir
+  if !ENV['FORJ_DATA'].nil? && ENV['FORJ_DATA'] != ''
+    ENV['FORJ_DATA']
+  else
+    File.expand_path(File.join(ENV['HOME'], '.config', 'forj-data'))
+  end
 end
 
-def get_configfolder()
-  config_dir = get_forjdatadir
+def getconfig_folder
+  config_dir = getforj_datadir
   config_dir = File.expand_path(config_dir)
   Dir.mkdir(config_dir) unless File.directory?(config_dir)
-  return  config_dir
+  config_dir
 end
 
 def get_config(property, defaults_hash = {})
-  config_file = get_configspec
+  config_file = getconfig_spec
   config = defaults_hash
   if File.exist? config_file
-    config = config.merge(YAML::load_file(config_file))
+    config = config.merge(YAML.load_file(config_file))
   else
-    File.open(config_file, 'w') {|f| f.write config.to_yaml }
+    File.open(config_file, 'w') { |f| f.write config.to_yaml }
   end
-  return config[property]
+  config[property]
 end
 
 def write_config(property, value, defaults_hash = {})
-  config_file = get_configspec
+  config_file = getconfig_spec
   config = defaults_hash
-  if File.exist? config_file
-    config = config.merge(YAML::load_file(config_file))
-  end
+  config = config.merge(YAML.load_file(config_file)) if File.exist? config_file
   config[property] = value
-  File.open(config_file, 'w') {|f| f.write config.to_yaml }
+  File.open(config_file, 'w') { |f| f.write config.to_yaml }
 end
 
-def get_current_provisioner
-  return get_config(:provisioner,  {:provisioner => :vagrant})
+def getcurrent_provisioner
+  get_config(:provisioner, :provisioner => :vagrant)
 end
 
-def set_current_provisioner(prov_target)
+def setcurrent_provisioner(prov_target)
   write_config(:provisioner, prov_target)
 end
 
-PROVISIONER = get_current_provisioner
-DOCKER_WORKAREA  = (ENV['DOCKER_WORKAREA'] != '' and ENV['DOCKER_WORKAREA'] != nil) ?
-                      ENV['DOCKER_WORKAREA'] :
-                      File.join(File.expand_path('.'),'docker')
+PROVISIONER = getcurrent_provisioner
+if ENV['DOCKER_WORKAREA'] != '' && !ENV['DOCKER_WORKAREA'].nil?
+  DOCKER_WORKAREA = ENV['DOCKER_WORKAREA']
+else
+  DOCKER_WORKAREA = File.join(File.expand_path('.'), 'docker')
+end
 puts "Docker work area => #{DOCKER_WORKAREA}"
-FORJ_DOCKER_BIN  = File.expand_path(File.join(File.dirname(__FILE__),"..","..","..","bin"))
-FORJ_DOCKER_SPEC = File.expand_path(File.join(File.dirname(__FILE__),"..","..","..","spec"))
+FORJ_DOCKER_BIN  = File.expand_path(
+                   File.join(File.dirname(__FILE__), '..', '..', '..', 'bin'))
+FORJ_DOCKER_SPEC = File.expand_path(
+                   File.join(File.dirname(__FILE__), '..', '..', '..', 'spec'))

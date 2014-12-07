@@ -17,9 +17,9 @@
 #
 require 'rake/clean'
 namespace :bare do
-  desc "bare::provision build steps"
-  task :provision,[:action] do |t, args|
-    args = {:action => :dev}.merge(args)
+  desc 'bare::provision build steps'
+  task :provision, [:action] do | _t, args |
+    args = { :action => :dev }.merge(args)
     puts "running bare action ==> #{args}"
     case args[:action].to_sym
     when :help
@@ -29,48 +29,54 @@ namespace :bare do
       rake 'bare[build]'  : prepare the docker containers found.
       rake 'bare[connect]': no-op."
     when :clean
-      puts "Cleanup for docker bulid steps"
+      puts 'Cleanup for docker bulid steps'
       sh("find #{DOCKER_WORKAREA} -name 'Dockerfile' -type l|xargs -i rm -f {}")
       sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
       CLEAN.include('git/*', 'src/git/*')
     when :dev
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_install.sh")
     when :build
-      puts "Build all the docker images locally"
+      puts 'Build all the docker images locally'
       ENV['DOCKER_WORKAREA'] = DOCKER_WORKAREA
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_prepare.sh")
     when :connect
-      # mainly used for development so later we might enhance this to work with the gem as well.
+      # mainly used for development so later we might enhance this to work
+      # with the gem as well.
       # connect to this projects default box located in the docker folder
-      sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_up.sh -t 'forj/redstone:review' -a dev -n devcontainer.localhost")
+      sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_up.sh \
+         -t 'forj/redstone:review' -a dev -n devcontainer.localhost")
     else
-      puts "You gave me #{args[:action]} -- I have no idea what to do with that."
+      puts "You gave me #{args[:action]} - I have no idea what to do with that."
     end
   end
 
   #
   # we should verify that we can do things with our local bare system
   #
-  desc "basic check for local execution of docker"
-  task :check,[:ignore] do |t, args|
-    args = (args != nil ) ? {:ignore => false}.merge(args) : {:ignore => false}
+  desc 'basic check for local execution of docker'
+  task :check, [:ignore] do | _t, args|
+    args = (!args.nil?) ? { :ignore => false }.merge(args) :
+                          { :ignore => false }
     if args[:ignore] != true
-      puts "Verifying bare..."
+      puts 'Verifying bare...'
       RSpec::Core::RakeTask.new(:check_spec) do |ct|
-        ct.pattern = File.join(FORJ_DOCKER_SPEC,'{check_docker}','**','*_spec.rb')
+        ct.pattern = File.join(FORJ_DOCKER_SPEC,
+                               '{check_docker}',
+                               '**',
+                               '*_spec.rb')
         ct.rspec_opts = ['--color']
       end
       Rake::Task[:check_spec].invoke
     else
-      puts "Ignoring checks"
+      puts 'Ignoring checks'
     end
   end
 
   #
   # execute runit on each docker container we know about
   #
-  desc "runit for each docker workarea"
+  desc 'runit for each docker workarea'
   task :runit do
-     puts "does nothing atm"
+    puts 'does nothing atm'
   end
 end

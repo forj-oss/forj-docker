@@ -21,6 +21,6 @@ include PuppetFacts
 # configure rspec
 #
 RSpec.configure do |c|
-    c.formatter = :documentation
-    c.filter_run :default => true
+  c.formatter = :documentation
+  c.filter_run :default => true
 end

@@ -1,3 +1,4 @@
+#
 # (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,21 +12,29 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-VERSION_FILE = File.join(File.expand_path(File.join(__FILE__,"..")),"VERSION")
-GEM_VERSION=(File.exist?(VERSION_FILE)) ? `cat "#{VERSION_FILE}"` : "0.0.1"
-GEM_NAME=`cat *.gemspec|grep 's.name' | awk -F= '{print $2}'|sed -e 's/^\s"//' -e 's/"$//'`.gsub("\n","")
+VERSION_FILE = File.join(File.expand_path(File.join(__FILE__, '..')), 'VERSION')
+GEM_VERSION = (File.exist?(VERSION_FILE)) ? `cat "#{VERSION_FILE}"` : '0.0.1'
+gem_name_script = <<GEM_NAME_SCRIPT
+    cat *.gemspec | \
+    grep 's.name' | \
+    awk -F= '{print $2}' | \
+    sed -e 's/^\s"//' -e 's/"$//'
+GEM_NAME_SCRIPT
+GEM_NAME = `#{gem_name_script}`.gsub("\n", '')
 
 if ENV['RAKE_DEBUG'] == 'true'
   require 'debugger'
-  debugger
+  debugger # rubocop:disable Lint/Debugger
 end
 require 'yaml'
 require 'rake/clean'
+require 'rubocop/rake_task'
+
 begin
   require 'puppetlabs_spec_helper/rake_tasks'
   require 'puppet-lint/tasks/puppet-lint'
   # disable the puppet build task
-  Rake::Task["build"].clear
+  Rake::Task['build'].clear
   #
   # puppet lint
   #
@@ -33,26 +42,41 @@ begin
   PuppetLint.configuration.send('disable_80chars')
   PuppetLint.configuration.send('disable_class_inherits_from_params_class')
   PuppetLint.configuration.send('disable_class_parameter_defaults')
-  #PuppetLint.configuration.send('disable_documentation')
-  #PuppetLint.configuration.send('disable_single_quote_string_with_variables')
-  PuppetLint.configuration.ignore_paths = ["git/**","spec/fixtures/**","spec/**/*.rb","spec/**/*.pp", "pkg/**/*.pp"]
+  # PuppetLint.configuration.send('disable_documentation')
+  # PuppetLint.configuration.send('disable_single_quote_string_with_variables')
+  PuppetLint.configuration.ignore_paths = ['git/**',
+                                           'spec/fixtures/**',
+                                           'spec/**/*.rb',
+                                           'spec/**/*.pp',
+                                           'pkg/**/*.pp']
+  # spec filter
+  desc 'Run all but the check specs'
+  RSpec::Core::RakeTask.new(:spec_no_checks) do |t|
+    t.exclude_pattern = 'spec/check_*/**/*_spec.rb'
+  end
+
 rescue LoadError
-  puts "missing pupptlabs-spec and puppet-lint, skipping..."
+  puts 'missing pupptlabs-spec and puppet-lint, skipping...'
 end
 
+#
+# rubocop testing
+#
+desc 'do some RuboCop lint testing'
+RuboCop::RakeTask.new(:lint)
 
 # load relative libs
 $LOAD_PATH << File.join(File.dirname(__FILE__))
 begin
   require 'lib/forj-docker/tasks/config.rb'
-  do_loaddev = get_config(:forj_dev,  {:forj_dev => false})
+  do_loaddev = get_config(:forj_dev, :forj_dev => false)
 rescue
   do_loaddev = false
 end
-if "#{ENV['FORJ_DEV']}" == "1" || do_loaddev
+if "#{ENV['FORJ_DEV']}" == '1' || do_loaddev
   require 'lib/forj-docker/tasks/forj-docker'
 else
-  puts "Skipping any forj-docker task..."
+  puts 'Skipping any forj-docker task...'
   puts "  to enable in project, export FORJ_DEV=1 or execute 'rake rundev'"
 end
 
@@ -61,7 +85,6 @@ end
 #
 CLEAN.include("#{GEM_NAME}*.gem")
 CLOBBER.include('*.tmp', 'build/*')
-
 
 desc "build a gem for #{GEM_NAME}-#{GEM_VERSION}"
 task :build do
@@ -76,21 +99,24 @@ end
 desc "perform a local install of gem from build for #{GEM_NAME}-#{GEM_VERSION}"
 task :install => [:clean, :build] do
   begin
-    system "sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri"
+    system 'sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri'
   rescue
-    puts "Failed to install, try it manually: "
-    puts "sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri"
+    puts 'Failed to install, try it manually: '
+    puts 'sudo -i gem install $(pwd)/forj-docker-*.gem --no-rdoc --no-ri'
   end
 end
 
-desc "setup FORJ_DEV=1 so we can run in dev mode."
+desc 'setup FORJ_DEV=1 so we can run in dev mode.'
 task :rundev do
   write_config(:forj_dev, true)
-  puts "new task will be loaded, check rake -T"
+  puts 'new task will be loaded, check rake -T'
 end
 
-desc "setup FORJ_DEV off so we can just do builds."
+desc 'setup FORJ_DEV off so we can just do builds.'
 task :runbuild do
   write_config(:forj_dev, false)
-  puts "disabling dev, only building gems, check rake -T"
+  puts 'disabling dev, only building gems, check rake -T'
 end
+
+desc 'standard spec config'
+task :spec => [:spec_no_checks]
