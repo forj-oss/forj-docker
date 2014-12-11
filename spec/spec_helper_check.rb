@@ -15,12 +15,7 @@
 # using this as a way to do some spec testing for local system
 # to make sure we resolve any system issues before executing builds.
 require 'serverspec'
-include SpecInfra::Helper::Exec
-include SpecInfra::Helper::DetectOS
-# v2... puppet specs are using v1
-# Set backend type
-# set :backend, :ssh
-# set :backend, :exec
+set :backend, :exec
 
 #
 # configure rspec

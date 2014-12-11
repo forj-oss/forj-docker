@@ -15,16 +15,25 @@
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'spec_helper_check'
 require 'rubygems'
-SUPPORTED_OSFAMS = %w{('redhat', 'debian', 'centos', 'ubuntu')}
-describe 'vagrant binary', :check => true do
+
+SUPPORTED_OSFAMS = %w(redhat debian centos ubuntu)
+
+describe 'check for vagrant binary', :check => true do
   sh = <<-EOS
     which vagrant
   EOS
   subject { command(sh) }
+  its(:stdout) { should match(/vagrant/) }
+  its(:exit_status) { should eq 0 }
+end
 
-  it 'should exist' do
-    expect(subject.return_stdout?(/vagrant/)).to be_truthy
-  end
+describe 'check for virtualbox binary', :check => true do
+  sh = <<-EOS
+    which virtualbox
+  EOS
+  subject { command(sh) }
+  its(:stdout) { should match(/virtualbox/) }
+  its(:exit_status) { should eq 0 }
 end
 
 describe service('virtualbox'),

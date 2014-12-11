@@ -14,7 +14,7 @@
 # load relative libs
 $LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),
                                                    'forj-docker')))
-require 'cli/init'
+require 'cli/appinit'
 require 'cli/cli'
 
 #

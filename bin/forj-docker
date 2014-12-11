@@ -15,19 +15,9 @@
 
 begin
   require 'forj-docker'
-  require 'thor'
-  require 'ansi'
-  require 'serverspec'
-  include SpecInfra::Helper::Exec
-  include SpecInfra::Helper::DetectOS
 rescue LoadError
   require 'rubygems'
-  require 'thor'
-  require 'ansi'
   require 'forj-docker'
-  require 'serverspec'
-  include SpecInfra::Helper::Exec
-  include SpecInfra::Helper::DetectOS
 end
 
 ForjDocker::Cli::ForjDockerThor.start

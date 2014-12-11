@@ -48,9 +48,9 @@ module Helpers
   end
 
   def validate_directory(path)
-    return unless File.directory?(path)
+    return if File.directory?(path)
     msg = format("'%s' is not a directory. Please fix it.", path)
-    return fail msg unless $FORJ_LOGGER
-    Logging.fatal(1, msg)
+    Logging.fatal(1, msg) if $FORJ_LOGGER
+    fail msg
   end
 end

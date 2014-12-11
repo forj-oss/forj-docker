@@ -94,12 +94,11 @@ module ForjDocker
       #
       desc 'init', 'setup a working example in the current directory.'
       def init
-        cwd = File.expand_path('.')
-        Logging.debug(format("Running init command for folder '%s'", cwd))
-        puts "init is creating sample here: #{_cwd}"
-        FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'test', 'bpnoop', '.')}",
-                       cwd,
-                       :verbose => true)
+        if exist_blueprint?
+          ForjDocker::AppInit.init_blueprint
+        else
+          ForjDocker::AppInit.init_vanilla
+        end
         # init should configure the default to be bare sense
         # this should be a docker system
         system("rake \"configure[bare]\"")
