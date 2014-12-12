@@ -79,4 +79,43 @@ namespace :bare do
   task :runit do
     puts 'does nothing atm'
   end
+
+  #
+  # TODO: needs to implement a pull from docker registry
+  # implement configure option to prompt and setup
+  # a default docker registry with credentials config and url.
+  #
+  desc 'TODO: do a docker registry pull for the docker workarea'
+  task :pull do
+    puts 'not implemented.'
+  end
+
+  #
+  # TODO: needs to implment a push from docker registry
+  # implement configure option to prompt and setup
+  # a default docker registry with credentials config and url.
+  desc 'TODO: do a docker registry push for the docker workarea'
+  task :push do
+    puts 'not implemented'
+  end
+
+  #
+  # TODO: needs to implment a registry server install for docker.
+  # implement this using a default docker container.
+  # The container config should lib in config/default/registry.
+  # name it forj/docker:registry
+  # should expose a data folder with mount points at /opt/docker/data
+  #
+  desc 'TODO: build the docker registry container'
+  task :registry_build do
+    puts 'implement a registry container build'
+  end
+
+  #
+  # TODO: implements running a docker registry server
+  #
+  desc 'TODO: start and run the docker registry container'
+  task :registry do
+    puts 'implement the start of forj/docker:registry'
+  end
 end

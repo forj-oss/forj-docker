@@ -153,8 +153,11 @@ To get started either use ```rake dev``` where the dockerup alias is automatical
 To get help run: ```dockerup -h```
 
 ## TODO
+* forj-docker should build the docker workarea based
+  on the blueprint layout, and pre-pend the require task for an existing Rakefile.
+* forj-docker docker workarea should support a docker file configuration where a scripts/bash folder is supported.  Each script in the scripts/bash folder will be executed in sequence, as named.
+* forj-docker/lib folder needs complete spec testing.
 * registry, pull, push, and runit task need to be developed.
-* give dockerup abilities to forj-docker gem.
 * we need a docker_runit.sh script that will start all our containers.
   This script might need to be multiple steps to implement the instaler
   and configuration of the software managing all the containers on the host.
@@ -174,6 +177,7 @@ To get help run: ```dockerup -h```
 * implement docker_clean.sh
   rake clean should call docker_clean.sh so that all the docker images configured
   by DOCKER_WORKAREA are removed from the host machine.
+* publish the forj-docker gem as a part for review.forj.io process for publishing step.
 
 ## DONE
 * forj-docker is now a gem, and forj-docker init is the first command to install rake task for custom projects.

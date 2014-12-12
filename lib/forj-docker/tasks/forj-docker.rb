@@ -86,3 +86,38 @@ desc "execute runit scripts for each container: #{PROVISIONER}:runit"
 task :runit => [:check] do
   Rake::Task["#{PROVISIONER}:runit"].invoke
 end
+
+#
+# pull
+#
+desc 'TODO: do a docker registry pull for the docker workarea -' \
+     " #{PROVISIONER}:pull"
+task :pull do
+  Rake::Task["#{PROVISIONER}:pull"].invoke
+end
+
+#
+# push
+#
+desc 'TODO: do a docker registry push for the docker workarea -' \
+     " #{PROVISIONER}:push"
+task :push do
+  Rake::Task["#{PROVISIONER}:push"].invoke
+end
+
+#
+# registry_build
+#
+desc 'TODO: build the docker registry container -' \
+     " #{PROVISIONER}:registry_build"
+task :registry_build do
+  Rake::Task["#{PROVISIONER}:registry_build"].invoke
+end
+
+#
+# TODO: implements running a docker registry server
+#
+desc 'TODO: start and run the docker registry container'
+task :registry do
+  puts 'implement the start of forj/docker:registry'
+end
