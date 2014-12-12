@@ -17,7 +17,13 @@ begin
   require 'forj-docker'
 rescue LoadError
   require 'rubygems'
-  require 'forj-docker'
+  begin
+    require 'forj-docker'
+  rescue LoadError
+    puts '... running from source ...'
+    $LOAD_PATH << File.expand_path(File.join(__FILE__, '..', '..', 'lib'))
+    require 'forj-docker'
+  end
 end
 
 ForjDocker::Cli::ForjDockerThor.start

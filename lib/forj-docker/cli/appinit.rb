@@ -17,14 +17,18 @@
 # Base Logging system started and loaded.
 begin
   require 'yaml'
-  require 'common/log.rb' # Load default loggers
-  require 'common/specinfra_helper'
+  require 'erb'
+  require 'forj-docker/common/log' # Load default loggers
+  require 'forj-docker/common/specinfra_helper'
+  require 'forj-docker/common/erb_data'
   include Logging
 rescue LoadError
   require 'rubygems'
   require 'yaml'
-  require 'common/log.rb' # Load default loggers
-  require 'common/specinfra_helper'
+  require 'erb'
+  require 'forj-docker/common/log' # Load default loggers
+  require 'forj-docker/common/specinfra_helper'
+  require 'forj-docker/common/erb_data'
 end
 
 module ForjDocker
@@ -93,47 +97,166 @@ module ForjDocker
       Logging.debug(format("Running init vanilla command for folder '%s'",
                            cwd))
       puts "init is creating sample here: #{cwd}"
-      FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'test', 'bpnoop', '.')}",
+      FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'template', 'bpnoop', '.')}",
                      cwd,
                      :verbose => true)
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'Vagrantfile')}",
                      cwd,
                      :verbose => true)
+    end
+
+    #
+    # find all blueprint files
+    #
+    def find_blueprints
+      cwd = File.expand_path('.')
+      Dir.entries(File.join(cwd, 'forj'))
+        .select { |f| !File.directory? f }
+        .select { |f| f =~ /.*-layout.yaml/ }
+    end
+
+    #
+    # blueprint_nodes
+    #
+    def find_blueprint_nodes
+      nodes = []
+      cwd = File.expand_path('.')
+      find_blueprints.each do | bps_file |
+        blueprint = YAML.load_file(File.join(cwd,
+                                             'forj',
+                                             bps_file))
+        begin
+          nodes << blueprint['blueprint-deploy']['servers']
+            .map { |n| n['name'] }
+        rescue e
+          Logger.error(e)
+        end
+      end
+      nodes.flatten.uniq
+    end
+
+    #
+    # blueprint_name
+    #
+    def find_blueprint_name
+      blueprint_name = 'none'
+      cwd = File.expand_path('.')
+      find_blueprints.each do | bps_file |
+        blueprint = YAML.load_file(File.join(cwd,
+                                             'forj',
+                                             bps_file))
+        begin
+          blueprint_name = blueprint['blueprint-deploy']['layout']
+        rescue e
+          Logger.error(e)
+        end
+      end
+      blueprint_name
+    end
+
+    #
+    # process docker file erb
+    #
+    def process_dockerfile(fdocker_erb, fdocker_dest, vals = {})
+      erb = ERB.new(File.read(fdocker_erb))
+      erb.def_method(ErbData, 'render', fdocker_erb)
+      begin
+        File.open(fdocker_dest, 'w') do |fw|
+          fw.write ErbData.new(vals).render
+          fw.close
+        end
+      rescue StandardError => e
+        Logging.error(format('failed to process dockerfile for %s : %s',
+                             vals[:node], e.message))
+      end
+    end
+
+    #
+    # Rakefile processing
+    #
+    def process_rake(fsrc, fdest)
+      rake_file = File.join(fdest, 'Rakefile')
+      if File.exist? rake_file
+        # edit the file
+        is_include = false
+        File.read(rake_file).each_line do |line|
+          if line.downcase =~ %r{require 'forj-docker/tasks/forj-docker'}
+            is_include = true
+            break
+          end
+        end
+        unless is_include
+          File.open("#{rake_file}.tmp", 'w') do |rake_file_tmp|
+            File.read(rake_file).each_line do |line|
+              if line.downcase =~ /.*require .*/
+                rake_file_tmp << "require 'forj-docker/tasks/forj-docker'\n"
+                is_include = true
+              end
+              rake_file_tmp << line
+            end
+            unless is_include
+              rake_file_tmp << "require 'forj-docker/tasks/forj-docker'\n"
+            end
+          end
+
+          FileUtils.mv("#{rake_file}.tmp", rake_file)
+        end
+      else
+        FileUtils.cp_r(fsrc,
+                       fdest,
+                       :verbose => true)
+      end
     end
 
     #
     # init_blueprint
     # initialize the current folder based on blueprint layout
     #
-    def init_blueprint
+    def init_blueprint(docker_data = {})
+      docker_data = docker_data.merge(
+        :blueprint_name => find_blueprint_name,
+        :repo_name => 'forj',
+        :VERSION => '0.0.0'
+      )
       cwd = File.expand_path('.')
-      bps = Dir.entries(File.join(cwd, 'forj'))
-            .select { |f| !File.directory? f }
-            .select { |f| f =~ /.*-layout.yaml/ }
-      blueprint = YAML.load_file(File.join(cwd,
-                                           'forj',
-                                           bps[0]))
-      nodes = blueprint['blueprint-deploy']['servers'].map { |n| n['name'] }
-      Logger.debug("working on nodes => #{nodes}")
-
-      nodes.each do | node |
-        folder = File.join(cwd, 'docker', node)
+      nodes = find_blueprint_nodes
+      if nodes.length > 0
+        nodes.each do | node |
+          docker_data[:node] = node
+          folder = File.join(cwd, 'docker', docker_data[:blueprint_name], node)
+          FileUtils.mkdir_p folder unless File.directory?(folder)
+          FileUtils.cp_r("#{File.join($RT_GEM_HOME,
+                                      'template', 'bp',
+                                      'docker', '.')}",
+                         folder,
+                         :verbose => true)
+          # convert the folder/Dockerfile.node.erb to folder/Dockerfile.node
+          process_dockerfile(File.join(folder, 'Dockerfile.node.erb'),
+                             File.join(folder, "Dockerfile.#{node}"),
+                             docker_data)
+          FileUtils.rm(File.join(folder, 'Dockerfile.node.erb'))
+        end
+      else
+        Logger.warning('blueprint detected but no nodes found.')
+        folder = File.join(cwd, 'docker', blueprint_name)
         FileUtils.mkdir_p folder unless File.directory?(folder)
         FileUtils.cp_r("#{File.join($RT_GEM_HOME,
-                                    'test', 'bpnoop',
-                                    'docker', 'review', '.')}",
+                                    'template', 'bpnoop',
+                                    'docker', '.')}",
                        folder,
                        :verbose => true)
       end
-      FileUtils.cp_r("#{File.join($RT_GEM_HOME,
-                                  'test', 'bpnoop', 'Rakefile')}",
-                     cwd,
-                     :verbose => true)
+
+      process_rake(File.join($RT_GEM_HOME, 'template', 'bpnoop', 'Rakefile'),
+                   cwd)
+
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'Vagrantfile')}",
                      cwd,
-                     :verbose => true)
+                     :verbose => true) unless File.exist?(
+                                              File.join(cwd, 'Vagrantfile'))
     end
   end
 end
+
 include ForjDocker::AppInit
 forj_initialize

@@ -67,7 +67,7 @@ module ForjDocker
           --------------------------
           Executing from    : #{$RT_GEM_HOME}
           Running version   : #{$RT_VERSION}
-          Look for examples : find '#{$RT_GEM_HOME}/test/bpnoop/.'
+          Look for examples : find '#{$RT_GEM_HOME}/template/bpnoop/.'
 
           forj-docker command line details:
           --------------------------
@@ -82,17 +82,23 @@ module ForjDocker
       #
       desc 'version', 'get GEM version of forj.'
       def version
-        return unless Gem.loaded_specs['forj-docker']
+        unless Gem.loaded_specs['forj-docker']
+          Logging.warning('Running from source, gem is not loaded')
+          return
+        end
         gem_version = Gem.loaded_specs['forj-docker'].version.to_s
         Logging.debug(format("Running cli command '%s'", gem_version))
-        puts gem_version
+        Logging.message(gem_version)
       end
 
       #
       # command: init
       # thor manage the init command
       #
-      desc 'init', 'setup a working example in the current directory.'
+      desc 'init', 'setup a working example in the current directory.' \
+                   ' If a forj blueprint can be found in the current ' \
+                   ' directory, then we can build the docker work '    \
+                   ' area located in the docker folder.'
       def init
         if exist_blueprint?
           ForjDocker::AppInit.init_blueprint
