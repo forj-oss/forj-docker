@@ -45,7 +45,7 @@ end
 
 describe service('vboxdrv'),
          :if => (SUPPORTED_OSFAMS.include?(os[:family].downcase) &&
-                 !package('virtualbox-4.3').version.nil?),
+                 !package('virtualbox-4.\*').version.nil?),
          :check => true do
   it { should be_enabled   }
 end
