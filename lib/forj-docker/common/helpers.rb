@@ -54,6 +54,25 @@ module Helpers
     fail msg
   end
 
+  def validate_file_andfail(fspec, msg = nil)
+    return if File.exist?(fspec)
+    msg = format("'%s' does not exist. Please correct.", fspec) if msg.nil?
+    Logging.fatal(1, msg) if $FORJ_LOGGER
+    fail msg
+  end
+
+  def validate_file_andwarn(fspec, msg = nil)
+    return if File.exist?(fspec)
+    msg = format("'%s' does not exist.", fspec) if msg.nil?
+    Logging.warning(msg) if $FORJ_LOGGER
+  end
+
+  def validate_nofile_andwarn(fspec, msg = nil)
+    return unless File.exist?(fspec)
+    msg = format("'%s' already exist.", fspec) if msg.nil?
+    Logging.warning(msg) if $FORJ_LOGGER
+  end
+
   def ensure_dir_exists(path)
     return if dir_exists?(path)
     FileUtils.mkpath(path) unless File.directory?(path)

@@ -18,6 +18,7 @@
 begin
   require 'yaml'
   require 'forj-docker/common/log' # Load default loggers
+  require 'forj-docker/common/json_helper'
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
@@ -26,6 +27,7 @@ rescue LoadError
   require 'rubygems'
   require 'yaml'
   require 'forj-docker/common/log' # Load default loggers
+  require 'forj-docker/common/json_helper'
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
@@ -65,6 +67,14 @@ module ForjDocker
       ensure_dir_exists($FORJ_TEMP)
 
       $FORJ_LOGGER     = ForjLog.new
+    end
+
+    #
+    # process options
+    #
+    def process_options(options = [])
+      Logging.setlevel(Logger::INFO)  if options[:verbose]
+      Logging.setlevel(Logger::DEBUG) if options[:debug]
     end
 
     #

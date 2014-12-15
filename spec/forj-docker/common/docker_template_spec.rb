@@ -16,7 +16,8 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'spec_helper'
 require 'rubygems'
 
-describe 'template/bp/docker/Dockerfile.node.erb', :default => true do
+describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
+         :default => true do
   @dest_dockerfile = ''
   @docker_file_matchers = nil
   before :all do

@@ -48,9 +48,22 @@ Ideally, here are some of the commands we would have:
 ## General users getting started
 Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
 * Install ruby 1.9 for your OS.  Currently we're targeting support for execution within docker, vagrant, or bare using ubuntu 14.04.
+```shell
+  sudo apt-get -y update
+  sudo apt-get install ruby1.9.1            \
+                       ruby1.9.1-dev        \
+                       rubygems1.9.1        \
+                       build-essential      \
+                       libopenssl-ruby1.9.1 \
+                       libssl-dev           \
+                       zlib1g-dev           \
+                       libxml2-dev          \
+                       libxslt-dev          \
+                       git -y
+```
 * Install forj-docker gem.
 ```shell
-  sudo -i ruby -S gem install forj-docker
+  sudo -i ruby1.9.1 -S gem install forj-docker
   # Create a root folder for your blueprint project
   mkdir -p ~/forj/myblueprint
   cd ~/forj/myblueprint
@@ -63,11 +76,7 @@ We'll use bundler and rake for ruby.
 
 ### Develop with ruby 1.9+ on ubuntu
 We highly recommend developing on ubuntu using an editor like atom or vi.
-Install these base ruby packages to build and develop gems.
-```shell
-sudo apt-get -y update
-sudo apt-get install ruby1.9.1 ruby1.9.1-dev rubygems1.9.1 build-essential libopenssl-ruby1.9.1 libssl-dev zlib1g-dev libxml2-dev libxslt-dev git -y
-```
+Install ruby 1.9 packages to build and develop gems.
 
 ### Install rake tools
 * Install with default ruby
@@ -80,15 +89,41 @@ sudo apt-get install ruby1.9.1 ruby1.9.1-dev rubygems1.9.1 build-essential libop
   sudo -E gem1.9.1 install bundler --no-rdoc --no-ri
   ruby1.9.1 -S bundle install --gemfile Gemfile
 ```
-### Install vagrant for your OS otherwise run bare with the command: ```rake 'configure[bare]'```
+
+### forj-docker rake task run modes.
+When developing in forj-docker project, the root Rakefile supports different rake task run modes.   These are designed to help speed up development and test.
+* running in build mode.  By default this is the configured run mode, and will only build the forj-docker gem.  No additional docker rake task will be availalbe.  Setup with command:
+```shell
+  rake runbuild
+```
+* running in dev mode.  This runmode will make available additional task that can be used to do things such as spawn a working docker host system using vagrant for development.   Setup with command:
+```shell
+  rake rundev
+```
+
+### Configure docker host environment.
+Currently we allow for docker host environments to be run on bare system (locally), or inside a vagrant virtualbox environment.   This can be configured after using ```rake rundev``` or after installing a Rakefile with the forj-docker task (```forj-docker init```).
+* Run docker on a bare system:
+```shell
+  rake 'configure[bare]'
+```
+* Run docker inisde a vagrant virtualbox machine (ie; for windows):
+```shell
+  rake 'configure[vagrant]'
+```
+
+The default run mode will be bare.
+
 ### Start the dev vm with commad:
+You can develop or setup an environment to run docker with forj-docker rake task.  We will leverage puppet to setup and install docker on the local host.
+
 ```shell
   rake rundev
   rake dev
 ```
 
 ## Building forj-docker gem
-* build the project gem file
+* How to build the gem for this project.
 ```shell
  rake runbuild
  rake clean
@@ -102,7 +137,7 @@ sudo apt-get install ruby1.9.1 ruby1.9.1-dev rubygems1.9.1 build-essential libop
  forj-docker
 ```
 
-* publish the project
+* publish the project (TODO)
 ```shell
  rake release
 ```
@@ -178,6 +213,7 @@ To get help run: ```dockerup -h```
   rake clean should call docker_clean.sh so that all the docker images configured
   by DOCKER_WORKAREA are removed from the host machine.
 * publish the forj-docker gem as a part for review.forj.io process for publishing step.
+* create a release task for forj-docker, and add that to review.forj.io with release notes changes.
 
 ## DONE
 * forj-docker is now a gem, and forj-docker init is the first command to install rake task for custom projects.

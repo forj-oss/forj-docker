@@ -156,7 +156,7 @@ module Logging
   end
 
   def setlevel(level)
-    $FORJ_LOGGER.setlevel(level)
+    $FORJ_LOGGER.set_level(level)
   end
 
   def state(message)

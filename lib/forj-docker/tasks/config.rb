@@ -34,7 +34,7 @@ end
 def getconfig_folder
   config_dir = getforj_datadir
   config_dir = File.expand_path(config_dir)
-  Dir.mkdir(config_dir) unless File.directory?(config_dir)
+  FileUtils.mkdir_p(config_dir) unless File.exist?(config_dir)
   config_dir
 end
 
