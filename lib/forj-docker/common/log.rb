@@ -21,7 +21,7 @@ require 'logger'
 require 'ansi'
 require 'ansi/logger'
 
-require 'common/helpers.rb'
+require 'forj-docker/common/helpers.rb'
 include Helpers
 
 #

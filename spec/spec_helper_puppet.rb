@@ -12,13 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-require 'serverspec'
-set :backend, :exec
-
-$LOAD_PATH << File.join(File.expand_path(File.dirname(__FILE__)),
-                        '..',
-                        'lib')
-require 'forj-docker/common/docker_template'
+require 'puppetlabs_spec_helper/module_spec_helper'
+require 'puppet_facts'
+require 'hiera'
+include PuppetFacts
 
 #
 # configure rspec
@@ -27,8 +24,3 @@ RSpec.configure do |c|
   c.formatter = :documentation
   c.filter_run :default => true
 end
-
-#
-# make sure fixtures folder exist
-#
-FileUtils.mkdir_p('spec/fixtures') unless File.exist?('spec/fixtures')

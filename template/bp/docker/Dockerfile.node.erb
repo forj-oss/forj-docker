@@ -17,11 +17,11 @@
 # DOCKER-NAME <%=@repo_name%>/<%=@blueprint_name%>:<%=@node%>
 # DOCKER-VERSION <%=@VERSION%>
 # build a puppet based image
-FROM  forj/ubuntu:precise
-MAINTAINER forj.io, cdkdev@groups.hp.com
+FROM  <%=@base_image%>
+MAINTAINER <%=@maintainer_name%>, <%=@maintainer_email%>
 
-WORKDIR /opt/workspace
-ADD . /opt/workspace
+WORKDIR <%=@workspace_dir%>
+ADD . <%=@workspace_dir%>
 
 # setup so we can have a property that specifies the PROXY env when we docker_up it.
 # Workaround set "nil" till we can find a way to unset ENV's
@@ -52,9 +52,13 @@ RUN set -x -v; echo "docker operations for review"; lsb_release -a ; \
 
 # bash /opt/git/forj-oss/maestro/hiera/hiera.sh
 
+# custom docker commands
+<%=@custom_commands%>
+
+
 VOLUME [ "/data" ]
 
-EXPOSE 22 80 443
+EXPOSE <%=@expose_ports%>
 
 # TODO: test with entry points to learn how this works.
 # ENTRYPOINT [ "/bin/bash", "-c", "/etc/runit.sh" ]

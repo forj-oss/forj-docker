@@ -53,4 +53,9 @@ module Helpers
     Logging.fatal(1, msg) if $FORJ_LOGGER
     fail msg
   end
+
+  def ensure_dir_exists(path)
+    return if dir_exists?(path)
+    FileUtils.mkpath(path) unless File.directory?(path)
+  end
 end

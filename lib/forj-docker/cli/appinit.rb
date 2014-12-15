@@ -17,18 +17,18 @@
 # Base Logging system started and loaded.
 begin
   require 'yaml'
-  require 'erb'
   require 'forj-docker/common/log' # Load default loggers
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
+  require 'forj-docker/common/docker_template'
   include Logging
 rescue LoadError
   require 'rubygems'
   require 'yaml'
-  require 'erb'
   require 'forj-docker/common/log' # Load default loggers
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
+  require 'forj-docker/common/docker_template'
 end
 
 module ForjDocker
@@ -65,11 +65,6 @@ module ForjDocker
       ensure_dir_exists($FORJ_TEMP)
 
       $FORJ_LOGGER     = ForjLog.new
-    end
-
-    def ensure_dir_exists(path)
-      return if dir_exists?(path)
-      FileUtils.mkpath(path) unless File.directory?(path)
     end
 
     #
@@ -155,23 +150,6 @@ module ForjDocker
     end
 
     #
-    # process docker file erb
-    #
-    def process_dockerfile(fdocker_erb, fdocker_dest, vals = {})
-      erb = ERB.new(File.read(fdocker_erb))
-      erb.def_method(ErbData, 'render', fdocker_erb)
-      begin
-        File.open(fdocker_dest, 'w') do |fw|
-          fw.write ErbData.new(vals).render
-          fw.close
-        end
-      rescue StandardError => e
-        Logging.error(format('failed to process dockerfile for %s : %s',
-                             vals[:node], e.message))
-      end
-    end
-
-    #
     # Rakefile processing
     #
     def process_rake(fsrc, fdest)
@@ -212,13 +190,14 @@ module ForjDocker
     # init_blueprint
     # initialize the current folder based on blueprint layout
     #
-    def init_blueprint(docker_data = {})
-      docker_data = docker_data.merge(
-        :blueprint_name => find_blueprint_name,
-        :repo_name => 'forj',
-        :VERSION => '0.0.0'
-      )
-      cwd = File.expand_path('.')
+    def init_blueprint(docker_data = {}, cwd = File.expand_path('.'))
+      docker_data = {
+        :VERSION          => '1.0.1',
+        :repo_name        => 'repo',
+        :blueprint_name   => find_blueprint_name,
+        :maintainer_name  => 'forj.io',
+        :maintainer_email => 'cdkdev@groups.hp.com'
+      }.merge(docker_data)
       nodes = find_blueprint_nodes
       if nodes.length > 0
         nodes.each do | node |
@@ -231,10 +210,11 @@ module ForjDocker
                          folder,
                          :verbose => true)
           # convert the folder/Dockerfile.node.erb to folder/Dockerfile.node
-          process_dockerfile(File.join(folder, 'Dockerfile.node.erb'),
-                             File.join(folder, "Dockerfile.#{node}"),
-                             docker_data)
-          FileUtils.rm(File.join(folder, 'Dockerfile.node.erb'))
+          DockerTemplate.new.process_dockerfile(
+            File.join(folder, 'Dockerfile.node.erb'),
+            File.join(folder, "Dockerfile.#{node}"),
+            docker_data.merge(:node => node)
+          )
         end
       else
         Logger.warning('blueprint detected but no nodes found.')

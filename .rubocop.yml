@@ -22,6 +22,7 @@ AllCops:
     - 'docker/**/*'
     - 'bin/scripts/**/*'
     - 'git/**/*'
+    - 'tmp/**/*'
 #Documentation:
 #  Enabled: false
 #Metrics/LineLength:
