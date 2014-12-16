@@ -12,9 +12,19 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+# Test DockerTempate
+#
+# *Test*
+# * test DockerTemplate class
+#
+spec_dir = File.join(File.expand_path(File.dirname(__FILE__)), '..')
+$LOAD_PATH << spec_dir
 require 'spec_helper'
 require 'rubygems'
+
+$LOAD_PATH << File.join(spec_dir, '..', 'lib')
+require 'forj-docker/common/log'
+require 'forj-docker/common/docker_template'
 
 describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
          :default => true do

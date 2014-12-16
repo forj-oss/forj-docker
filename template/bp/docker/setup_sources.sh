@@ -21,8 +21,8 @@ if [ -z "${PROJECT_HOME}" ] ; then
   exit 1
 fi
 SCRIPT_NAME=$0
-SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
-SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
+SCRIPT_DIR="$(dirname "${SCRIPT_NAME}")"
+SCRIPT_FULL_DIR="$(cd "${SCRIPT_DIR}";pwd)"
 _CWD=$(pwd)
 # setup so all commands are relative to the Dockerfile
 cd "${SCRIPT_FULL_DIR}"

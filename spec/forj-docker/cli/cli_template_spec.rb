@@ -12,9 +12,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
-require 'spec_helper'
+# Test forj-docker template cli
+#
+# *Test*
+# * template standard test
+# * test with --debug
+# * test with --verbose
+spec_dir = File.join(File.expand_path(File.dirname(__FILE__)), '..', '..')
+$LOAD_PATH << spec_dir
 require 'rubygems'
+require 'spec_helper'
+
+$LOAD_PATH << File.join(spec_dir, '..', 'lib')
+require 'forj-docker/common/log'
+require 'forj-docker/common/docker_template'
+require 'forj-docker/common/blueprint'
 
 #
 # spec defaults

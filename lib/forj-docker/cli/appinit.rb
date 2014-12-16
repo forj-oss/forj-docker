@@ -22,6 +22,7 @@ begin
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
+  require 'forj-docker/common/blueprint'
   include Logging
 rescue LoadError
   require 'rubygems'
@@ -31,6 +32,7 @@ rescue LoadError
   require 'forj-docker/common/specinfra_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
+  require 'forj-docker/common/blueprint'
 end
 
 module ForjDocker
@@ -78,22 +80,6 @@ module ForjDocker
     end
 
     #
-    # exist_blueprint?
-    # check to see if we have a blueprint config file
-    #
-    def exist_blueprint?
-      cwd = File.expand_path('.')
-      Logging.debug(format("checking for blueprints '%s'",
-                           cwd))
-      return false unless File.directory?(File.join(cwd, 'forj'))
-      bps = Dir.entries(File.join(cwd, 'forj'))
-            .select { |f| !File.directory? f }
-            .select { |f| f =~ /.*-layout.yaml/ }
-      Logging.debug(format("found files '%s'", bps))
-      true
-    end
-
-    #
     # init_vanilla
     # initialize the current folder with the vanilla examples
     #
@@ -108,55 +94,6 @@ module ForjDocker
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'Vagrantfile')}",
                      cwd,
                      :verbose => true)
-    end
-
-    #
-    # find all blueprint files
-    #
-    def find_blueprints
-      cwd = File.expand_path('.')
-      Dir.entries(File.join(cwd, 'forj'))
-        .select { |f| !File.directory? f }
-        .select { |f| f =~ /.*-layout.yaml/ }
-    end
-
-    #
-    # blueprint_nodes
-    #
-    def find_blueprint_nodes
-      nodes = []
-      cwd = File.expand_path('.')
-      find_blueprints.each do | bps_file |
-        blueprint = YAML.load_file(File.join(cwd,
-                                             'forj',
-                                             bps_file))
-        begin
-          nodes << blueprint['blueprint-deploy']['servers']
-            .map { |n| n['name'] }
-        rescue e
-          Logger.error(e)
-        end
-      end
-      nodes.flatten.uniq
-    end
-
-    #
-    # blueprint_name
-    #
-    def find_blueprint_name
-      blueprint_name = 'none'
-      cwd = File.expand_path('.')
-      find_blueprints.each do | bps_file |
-        blueprint = YAML.load_file(File.join(cwd,
-                                             'forj',
-                                             bps_file))
-        begin
-          blueprint_name = blueprint['blueprint-deploy']['layout']
-        rescue e
-          Logger.error(e)
-        end
-      end
-      blueprint_name
     end
 
     #
@@ -196,39 +133,38 @@ module ForjDocker
       end
     end
 
+    # generate a docker file based on blueprint config for every node.
     #
-    # init_blueprint
-    # initialize the current folder based on blueprint layout
     #
-    def init_blueprint(docker_data = {}, cwd = File.expand_path('.'))
-      docker_data = {
-        :VERSION          => '1.0.1',
-        :repo_name        => 'repo',
-        :blueprint_name   => find_blueprint_name,
-        :maintainer_name  => 'forj.io',
-        :maintainer_email => 'cdkdev@groups.hp.com'
-      }.merge(docker_data)
-      nodes = find_blueprint_nodes
-      if nodes.length > 0
-        nodes.each do | node |
-          docker_data[:node] = node
-          folder = File.join(cwd, 'docker', docker_data[:blueprint_name], node)
-          FileUtils.mkdir_p folder unless File.directory?(folder)
-          FileUtils.cp_r("#{File.join($RT_GEM_HOME,
-                                      'template', 'bp',
-                                      'docker', '.')}",
-                         folder,
-                         :verbose => true)
+    def gen_blueprint_docker(blueprint_props = {}, cwd = File.expand_path('.'))
+      if blueprint_props[:nodes].length > 0
+        blueprint_props[:nodes].each do | node |
+          blueprint_props[:node] = node
+          folder = File.join(cwd, 'docker', blueprint_props[:name], node)
+          unless File.exist?(File.join(folder, "Dockerfile.#{node}.erb"))
+            FileUtils.mkdir_p folder unless File.directory?(folder)
+            FileUtils.cp_r("#{File.join($RT_GEM_HOME,
+                                        'template', 'bp',
+                                        'docker', '.')}",
+                           folder,
+                           :verbose => true)
+            FileUtils.cp_r(File.join(folder, 'Dockerfile.node.erb'),
+                           File.join(folder, "Dockerfile.#{node}.erb"),
+                           :verbose => true)
+            # cleanup the node.erb file
+            FileUtils.rm(File.join(folder, 'Dockerfile.node.erb'),
+                         :force => true)
+          end
           # convert the folder/Dockerfile.node.erb to folder/Dockerfile.node
           DockerTemplate.new.process_dockerfile(
-            File.join(folder, 'Dockerfile.node.erb'),
+            File.join(folder, "Dockerfile.#{node}.erb"),
             File.join(folder, "Dockerfile.#{node}"),
-            docker_data.merge(:node => node)
+            blueprint_props.merge(:node => node)
           )
         end
       else
         Logger.warning('blueprint detected but no nodes found.')
-        folder = File.join(cwd, 'docker', blueprint_name)
+        folder = File.join(cwd, 'docker', blueprint_props[:name])
         FileUtils.mkdir_p folder unless File.directory?(folder)
         FileUtils.cp_r("#{File.join($RT_GEM_HOME,
                                     'template', 'bpnoop',
@@ -236,6 +172,24 @@ module ForjDocker
                        folder,
                        :verbose => true)
       end
+    end
+
+    # initialize the current folder based on blueprint layout
+    #
+    def init_blueprint(docker_data = {},
+                       cwd = File.expand_path('.'))
+      docker_data = {
+        :work_dir         => File.join(cwd, 'forj'),
+        :repo_name        => 'forj',
+        :VERSION          => '1.0.1',
+        :maintainer_name  => 'forj.io',
+        :maintainer_email => 'cdkdev@groups.hp.com'
+      }.merge(docker_data)
+      @blueprint = Blueprint.new docker_data
+      @blueprint.setup
+      # VERSION is all caps here, make lowercase version the same.
+      @blueprint.properties[:version] = @blueprint.properties[:VERSION]
+      gen_blueprint_docker @blueprint.properties, cwd
 
       process_rake(File.join($RT_GEM_HOME, 'template', 'bpnoop', 'Rakefile'),
                    cwd)

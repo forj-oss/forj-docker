@@ -26,7 +26,7 @@ module ForjDocker
   module Cli
     #
     #  cli forj-docker
-    class ForjDockerThor < Thor
+    class ForjDockerThor < Thor  # rubocop:disable ClassLength
       class_option :debug,   :aliases => '-d', :desc => 'Set debug mode'
       class_option :verbose, :aliases => '-v', :desc => 'Set verbose mode'
 
@@ -94,7 +94,7 @@ module ForjDocker
                    ' directory, then we can build the docker work '    \
                    ' area located in the docker folder.'
       def init
-        if exist_blueprint?
+        if Blueprint.new.exist_blueprint?
           ForjDocker::AppInit.init_blueprint
         else
           ForjDocker::AppInit.init_vanilla
@@ -112,10 +112,16 @@ module ForjDocker
       desc 'template <erb file> <destination>',
            'convert a Dockerfile.node.erb to Dockerfile.node.'
       long_desc <<-LONGDESC
-      This command should will be used durring build time for converting a
+      This command will be used durring build time for converting a
       Dockerfile erb template to a real Dockerfile. The configuration for
       the template will have some defaults, as specified for the class
       DockerTemplates, see spec/classes/common/docker_template_spec.rb.
+
+      This command also works with blueprint specifications for forj.  If
+      a blueprint is found, we will use the first found blueprint layout
+      to initiate default settings that can also be used in the dockerfiles.
+      To specifify alternative blueprint layout file, see --layout_name
+      option.
 
       forj-docker will be enhanced for introducing new values with command:
       forj-docker set <param> <value>
@@ -131,6 +137,11 @@ module ForjDocker
                     :desc    => 'json string containing values for erb.',
                     :default => '{}'
 
+      method_option :layout_name,
+                    :aliases => '-l',
+                    :desc    => 'specify an alternative layout name.',
+                    :default => 'undef'
+
       def template(erb_file = nil, dockerfile = nil)
         process_options options
 
@@ -145,10 +156,18 @@ module ForjDocker
         validate_nofile_andwarn dockerfile
         Logging.debug "options => #{options}"
         Logging.debug "config_json => #{options[:config_json]}"
+
+        docker_properties = options[:config_json].to_data
+        # Lets load blueprint properties if they exist.
+        blueprint = Blueprint.new
+        if blueprint.exist_blueprint?
+          blueprint.setup options[:layout_name]
+          docker_properties = blueprint.properties.merge(docker_properties)
+        end
         DockerTemplate.new.process_dockerfile(
           File.expand_path(erb_file),
           File.expand_path(dockerfile),
-          options[:config_json].to_data
+          docker_properties
         )
         Logging.message(format('template processed ... %s', dockerfile))
       end
