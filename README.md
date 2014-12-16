@@ -114,7 +114,7 @@ Currently we allow for docker host environments to be run on bare system (locall
 
 The default run mode will be bare.
 
-### Start the dev vm with commad:
+### Start the dev vm with command:
 You can develop or setup an environment to run docker with forj-docker rake task.  We will leverage puppet to setup and install docker on the local host.
 
 ```shell
