@@ -16,49 +16,154 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'spec_helper'
 require 'rubygems'
 
+#
+# spec defaults
+module CliSpec
+  # spec defaults
+  module Defaults
+    def docker_template
+      @docker_template = 'template/bp/docker/Dockerfile.node.erb'
+      @docker_template
+    end
+
+    def dest_dockerfile
+      @dest_dockerfile = 'spec/fixtures/Dockerfile.testcli'
+      @dest_dockerfile
+    end
+
+    def docker_file_matchers
+      # list or regular expression matches to check
+      # the Dockerfile.test file for.
+      @docker_file_matchers = [
+        /^# DOCKER-VERSION 0.0.1/,
+        /^# DOCKER-NAME norepo\/none\:default/,
+        /^FROM  forj\/ubuntu\:precise/,
+        /^MAINTAINER your name, youremail@yourdomain.com/,
+        %r{^WORKDIR /opt/workspace},
+        %r{^ADD . /opt/workspace},
+        /^EXPOSE 22 80 443/,
+        %r{^RUN whoami > /tmp/test}
+      ]
+      @docker_file_matchers
+    end
+
+    def forj_script
+      @forj_script = <<-EOS
+      require 'forj-docker'
+      ForjDocker::Cli::ForjDockerThor.start
+      EOS
+      @forj_script
+    end
+  end
+end
+
+include CliSpec::Defaults
+
 describe 'test forj-docker template template/bp/docker/Dockerfile.node.erb',
          :default => true do
-  @dest_dockerfile = ''
-  @docker_file_matchers = nil
   before :all do
-    @docker_template = 'template/bp/docker/Dockerfile.node.erb'
-    @dest_dockerfile = 'spec/fixtures/Dockerfile.testcli'
+    File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
+
     @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
-    @forj_script = <<-EOS
-    require 'forj-docker'
-    ForjDocker::Cli::ForjDockerThor.start
-    EOS
     #
     # test the forj-docker template command using lib loadpath
     #
     @sh = <<-EOS
-    ruby1.9.1 -I lib -e "#{@forj_script}" template #{@docker_template} \
-                                          #{@dest_dockerfile} \
+    ruby1.9.1 -I lib -e "#{forj_script}" template #{docker_template} \
+                                          #{dest_dockerfile} \
                                           -c '#{@json_string}'
     EOS
     puts 'running command :'
     puts @sh
 
-    # list or regular expression matches to check the Dockerfile.test file for.
-    @docker_file_matchers = [
-      /^# DOCKER-VERSION 0.0.1/,
-      /^# DOCKER-NAME norepo\/none\:default/,
-      /^FROM  forj\/ubuntu\:precise/,
-      /^MAINTAINER your name, youremail@yourdomain.com/,
-      %r{^WORKDIR /opt/workspace},
-      %r{^ADD . /opt/workspace},
-      /^EXPOSE 22 80 443/,
-      %r{^RUN whoami > /tmp/test}
-    ]
     @command_res = command(@sh)
+    # force execution
+    puts "exit => #{@command_res.exit_status}"
+    @docker_processed = File.open(dest_dockerfile).read.to_s
   end
+
+  #
+  # the default should work without errors
+  #
   it 'exit_status' do
     expect(@command_res.exit_status).to eq 0
   end
+
+  #
+  # we should get a processed file
+  #
   it 'should find expression in dockerfile' do
-    @docker_processed = File.open(@dest_dockerfile).read.to_s
-    @docker_file_matchers.each do |m|
-      puts "working on => #{m}"
+    docker_file_matchers.each do |m|
+      expect(@docker_processed).to match(m)
+    end
+  end
+end
+
+describe 'test cli --debug', :default => true do
+  before :all do
+    File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
+    @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
+    @sh = <<-EOS
+    ruby1.9.1 -I lib -e "#{forj_script}" template #{docker_template} \
+                                          #{dest_dockerfile} \
+                                          -c '#{@json_string}' --debug
+    EOS
+    puts 'running command :'
+    puts @sh
+
+    @command_res = command(@sh)
+    # force execution
+    puts "exit => #{@command_res.exit_status}"
+    @docker_processed = File.open(dest_dockerfile).read.to_s
+  end
+  #
+  # the default should work without errors
+  #
+  it 'exit_status' do
+    expect(@command_res.exit_status).to eq 0
+  end
+
+  #
+  # if we run it again, it should work with debug options
+  #
+  it 'should execute forj-docker templates with --debug' do
+    expect(@command_res.exit_status).to eq 0
+    docker_file_matchers.each do |m|
+      expect(@docker_processed).to match(m)
+    end
+  end
+end
+
+describe 'test cli --verbose', :default => true do
+  before :all do
+    File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
+    @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
+    @sh = <<-EOS
+    ruby1.9.1 -I lib -e "#{forj_script}" template #{docker_template} \
+                                          #{dest_dockerfile} \
+                                          -c '#{@json_string}' --verbose
+    EOS
+    puts 'running command :'
+    puts @sh
+
+    @command_res = command(@sh)
+    # force execution
+    puts "exit => #{@command_res.exit_status}"
+    @docker_processed = File.open(dest_dockerfile).read.to_s
+  end
+  #
+  # the default should work without errors
+  #
+  it 'exit_status' do
+    expect(@command_res.exit_status).to eq 0
+  end
+
+  #
+  # if we run it again, it should work with debug options
+  #
+  it 'should execute forj-docker templates with --verbose' do
+    expect(@command_res.exit_status).to eq 0
+    docker_file_matchers.each do |m|
       expect(@docker_processed).to match(m)
     end
   end
