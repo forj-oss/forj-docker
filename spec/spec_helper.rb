@@ -27,3 +27,14 @@ end
 # make sure fixtures folder exist
 #
 FileUtils.mkdir_p('spec/fixtures') unless File.exist?('spec/fixtures')
+
+#
+# make sure we're using lorj
+spec_dir = File.expand_path(File.dirname(__FILE__))
+$LOAD_PATH << File.join(spec_dir, '..', 'lib')
+require 'forj-docker/common/helpers'
+include Helpers
+require 'lorj'
+PrcLib.data_path  = File.expand_path(File.join(gethome_path, '.config',
+                                               'forj-docker'))
+PrcLib.app_name = 'forj-docker-undertest'

@@ -15,25 +15,30 @@
 #    limitations under the License.
 
 # Base Logging system started and loaded.
+# require 'byebug'
 begin
   require 'yaml'
-  require 'forj-docker/common/log' # Load default loggers
-  require 'forj-docker/common/json_helper'
+  require 'lorj'
   require 'forj-docker/common/specinfra_helper'
+  require 'forj-docker/common/json_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
   require 'forj-docker/common/blueprint'
-  include Logging
+  require 'forj-docker/common/settings'
+  require 'forj-docker/common/helpers'
 rescue LoadError
   require 'rubygems'
   require 'yaml'
-  require 'forj-docker/common/log' # Load default loggers
-  require 'forj-docker/common/json_helper'
+  require 'lorj'
   require 'forj-docker/common/specinfra_helper'
+  require 'forj-docker/common/json_helper'
   require 'forj-docker/common/erb_data'
   require 'forj-docker/common/docker_template'
   require 'forj-docker/common/blueprint'
+  require 'forj-docker/common/settings'
+  require 'forj-docker/common/helpers'
 end
+include Helpers
 
 module ForjDocker
   #
@@ -56,6 +61,11 @@ module ForjDocker
       $FORJ_DATA_PATH  = File.expand_path(File.join(gethome_path,
                                                     '.config',
                                                     'forj-docker'))
+      PrcLib.data_path = $FORJ_DATA_PATH
+      PrcLib.app_name = 'forj-docker'
+      # PrcLib.log_file is built as <PrcLib.data_path>/<PrcLib.app_name>
+      # by default
+
       $FORJ_CREDS_PATH = File.expand_path(File.join(gethome_path,
                                                     '.cache',
                                                     'forj-docker'))
@@ -67,17 +77,23 @@ module ForjDocker
       ensure_dir_exists($FORJ_DATA_PATH)
       ensure_dir_exists($FORJ_CREDS_PATH)
       ensure_dir_exists($FORJ_TEMP)
-
-      $FORJ_LOGGER     = ForjLog.new
+      PrcLib.debug('forj_initialize is complete')
     end
 
     #
-    # process options
+    # exist_blueprint?
+    # check to see if we have a blueprint config file
     #
-    def process_options(options = [])
-      Logging.setlevel(Logger::INFO)  if options[:verbose]
-      Logging.setlevel(Logger::DEBUG) if options[:debug]
-      Logging.debug("current options => #{options}")
+    def exist_blueprint?
+      cwd = File.expand_path('.')
+      PrcLib.debug(format("checking for blueprints '%s'",
+                          cwd))
+      return false unless File.directory?(File.join(cwd, 'forj'))
+      bps = Dir.entries(File.join(cwd, 'forj'))
+            .select { |f| !File.directory? f }
+            .select { |f| f =~ /.*-layout.yaml/ }
+      PrcLib.debug(format("found files '%s'", bps))
+      true
     end
 
     #
@@ -86,13 +102,13 @@ module ForjDocker
     #
     def init_vanilla(options = { :force => false })
       cwd = File.expand_path('.')
-      Logging.debug(format("Running init vanilla command for folder '%s'",
-                           cwd))
-      Logging.message 'initialize a vanilla configuration for docker'
-      Logging.message "  working directory location : #{cwd}"
+      PrcLib.debug(format("Running init vanilla command for folder '%s'",
+                          cwd))
+      PrcLib.message 'initialize a vanilla configuration for docker'
+      PrcLib.message "  working directory location : #{cwd}"
       if dir_exists?(File.join(cwd, 'forj')) && (options[:force] != true)
-        Logging.error("We found a blueprint folder!\n" \
-                      "    Can't continue unless you use --force option\n\n")
+        PrcLib.error("We found a blueprint folder!\n" \
+                     "    Can't continue unless you use --force option\n\n")
         return
       end
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'template', 'bpnoop', '.')}",
@@ -170,7 +186,7 @@ module ForjDocker
           )
         end
       else
-        Logger.warning('blueprint detected but no nodes found.')
+        PrcLib.warning('blueprint detected but no nodes found.')
         folder = File.join(cwd, 'docker', blueprint_props[:name])
         FileUtils.mkdir_p folder unless File.directory?(folder)
         FileUtils.cp_r("#{File.join($RT_GEM_HOME,

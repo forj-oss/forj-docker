@@ -61,8 +61,7 @@ module Helpers
                        !File.executable?(path)
     msg = format('%s is not a valid directory.' + \
                  ' Check permissions and fix it.', path)
-    return msg unless $FORJ_LOGGER
-    Logging.fatal(1, msg)
+    PrcLib.fatal(1, msg)
     true
   end
 
@@ -75,7 +74,7 @@ module Helpers
   def validate_directory(path)
     return if File.directory?(path)
     msg = format("'%s' is not a directory. Please fix it.", path)
-    Logging.fatal(1, msg) if $FORJ_LOGGER
+    PrcLib.fatal(1, msg)
     fail msg
   end
 
@@ -89,7 +88,7 @@ module Helpers
   def validate_file_andfail(fspec, msg = nil)
     return if File.exist?(fspec)
     msg = format("'%s' does not exist. Please correct.", fspec) if msg.nil?
-    Logging.fatal(1, msg) if $FORJ_LOGGER
+    PrcLib.fatal(1, msg)
     fail msg
   end
 
@@ -103,7 +102,7 @@ module Helpers
   def validate_file_andwarn(fspec, msg = nil)
     return if File.exist?(fspec)
     msg = format("'%s' does not exist.", fspec) if msg.nil?
-    Logging.warning(msg) if $FORJ_LOGGER
+    PrcLib.warning(msg)
   end
 
   # Validate that no file exist and warn when it does exist.  Don't
@@ -116,7 +115,7 @@ module Helpers
   def validate_nofile_andwarn(fspec, msg = nil)
     return unless File.exist?(fspec)
     msg = format("'%s' already exist.", fspec) if msg.nil?
-    Logging.warning(msg) if $FORJ_LOGGER
+    PrcLib.warning(msg)
   end
 
   # Check if a directory exist, when it doesn't create the directory.
@@ -136,7 +135,7 @@ module Helpers
   # - fspec - the name of the file.
   #
   def create_file(contents = '', fspec = nil)
-    Logging.debug(format('create file -> %s', fspec)) if $FORJ_LOGGER
+    PrcLib.debug(format('create file -> %s', fspec))
     return if fspec.nil?
     begin
       File.open(fspec, 'w') do |fw|
@@ -144,8 +143,8 @@ module Helpers
         fw.close
       end
     rescue StandardError => e
-      Logging.warning(format('issues with creating file %s : %s',
-                             fspec, e.message)) if $FORJ_LOGGER
+      PrcLib.warning(format('issues with creating file %s : %s',
+                            fspec, e.message))
     end
   end
 
@@ -154,7 +153,7 @@ module Helpers
   # *Arguments*
   # - fspec - name of the file to remove
   def remove_file(fspec = nil)
-    Logging.debug(format('remove file -> %s', fspec)) if $FORJ_LOGGER
+    PrcLib.debug(format('remove file -> %s', fspec))
     return if fspec.nil?
     File.delete(fspec) if File.exist?(fspec)
   end

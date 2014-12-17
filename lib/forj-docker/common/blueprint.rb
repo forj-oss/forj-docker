@@ -17,13 +17,12 @@
 
 begin
   require 'yaml'
-  require 'forj-docker/common/log'
+  require 'lorj'
 rescue LoadError
   require 'rubygems'
   require 'yaml'
-  require 'forj-docker/common/log'
+  require 'lorj'
 end
-include Logging
 
 # Evaluate a blueprint folder and load it's properties.
 #
@@ -93,8 +92,8 @@ class Blueprint # rubocop:disable ClassLength
     begin
       return blueprint['blueprint-deploy']['blueprint']
     rescue StandardError => e
-      Logging.error(format('failed to get blueprint from %s : %s',
-                           layout_file, e.message)) if $FORJ_LOGGER
+      PrcLib.error(format('failed to get blueprint from %s : %s',
+                          layout_file, e.message))
     end
   end
 
@@ -126,8 +125,8 @@ class Blueprint # rubocop:disable ClassLength
   # This method will require for the core properties to be set first.
   #
   def find_blueprint_nodes(layout_name = @properties[:layout_name])
-    Logging.debug(format('working on finding nodes for %s',
-                         layout_name)) if $FORJ_LOGGER
+    PrcLib.debug(format('working on finding nodes for %s',
+                        layout_name))
     nodes = []
     search_dir = File.expand_path(@properties[:work_dir])
     return if layout_name == 'undef' || !(dir_exists? search_dir)
@@ -138,8 +137,8 @@ class Blueprint # rubocop:disable ClassLength
     begin
       nodes << blueprint['blueprint-deploy']['servers'].map { |n| n['name'] }
     rescue StandardError => e
-      Logging.error(format('failed to process dockerfile for %s : %s',
-                           nodes, e.message))
+      PrcLib.error(format('failed to process dockerfile for %s : %s',
+                          nodes, e.message))
     end
     @properties[:nodes] = nodes.flatten.uniq
   end
@@ -148,13 +147,12 @@ class Blueprint # rubocop:disable ClassLength
   #
   def validate_blueprint_config(layout_name = 'undef', search_dir)
     if layout_name == 'undef' || !(dir_exists? search_dir)
-      Logging.error("Blueprint folder #{search_dir} not found!") if $FORJ_LOGGER
+      PrcLib.error("Blueprint folder #{search_dir} not found!")
       return false
     end
     unless find_files(/#{layout_name}-layout.yaml/, search_dir,
                       :recursive => false).length > 0
-      Logging.warning('Missing layout for' \
-                      " blueprint in #{search_dir}") if $FORJ_LOGGER
+      PrcLib.warning("Missing layout for blueprint in #{search_dir}")
       return false
     end
     true
@@ -189,8 +187,7 @@ class Blueprint # rubocop:disable ClassLength
                                  search_dir,
                                  :recursive => false)
     unless master_file_arr.length > 0
-      Logging.warning('Missing layout for blueprint' \
-                      " in #{search_dir}") if $FORJ_LOGGER
+      PrcLib.warning("Missing layout for blueprint in #{search_dir}")
       return
     end
     @properties[:master_file] = File.join(@properties[:work_dir],
@@ -228,8 +225,7 @@ class Blueprint # rubocop:disable ClassLength
   # validate that the work_dir has a set of blueprint files.
   #
   def exist_blueprint?
-    Logging.debug(format("checking for blueprints '%s'",
-                         @properties[:work_dir])) if $FORJ_LOGGER
+    PrcLib.debug(format("checking for blueprints '%s'", @properties[:work_dir]))
     return false unless File.directory?(@properties[:work_dir])
     (findfirst_blueprint_name != 'undef')
   end

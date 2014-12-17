@@ -43,8 +43,7 @@ Style/FileName:
 
 # this project defines these globals
 Style/GlobalVars:
-  AllowedVariables: ['$FORJ_LOGGER',
-                     '$RT_GEM_BIN',
+  AllowedVariables: ['$RT_GEM_BIN',
                      '$RT_VERSION_SPEC',
                      '$FORJ_CREDS_PATH',
                      '$FORJ_TEMP',

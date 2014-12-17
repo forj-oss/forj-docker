@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 
 # (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
@@ -14,21 +13,20 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-require 'json'
-require 'lorj'
-#
-# Helper functions
-#
-require 'json'
-::String.class_eval do
-  def to_data
-    obj = {}
-    PrcLib.debug "String to_data => #{self}"
-    begin
-      obj = JSON.parse(self)
-    rescue JSON::ParserError => e
-      PrcLib.error "failed to convert: #{e.message}"
+
+module ForjDocker
+  # Common settings
+  module Settings
+    # Defines common thor settings (debug/verbose)
+
+    def self.common_options(options)
+      PrcLib.set_level(Logger::INFO) if options[:verbose]
+      PrcLib.set_level(Logger::DEBUG) if options[:debug]
+      unless options[:libforj_debug].nil?
+        PrcLib.core_level = options[:libforj_debug].to_i
+        PrcLib.set_level(Logger::DEBUG)
+      end
+      PrcLib.debug("current options => #{options}")
     end
-    obj
   end
 end

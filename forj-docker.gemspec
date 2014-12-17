@@ -65,4 +65,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'rake', '~> 10.4.0'
   s.add_runtime_dependency 'rspec', '~> 3.1.0'
   s.add_runtime_dependency 'serverspec', '~> 2.7.0'
+  s.add_runtime_dependency 'lorj', '~> 0.1.0'
 end

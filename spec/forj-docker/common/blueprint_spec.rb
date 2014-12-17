@@ -24,7 +24,6 @@ require 'spec_helper'
 require 'rubygems'
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/log'
 require 'forj-docker/common/blueprint'
 
 describe 'Blueprint empty class', :default => true do
@@ -176,7 +175,9 @@ MASTER
     blueprint_name = 'undef'
     begin
       blueprint_name = @blueprint.blueprint_from_layout @layout_file
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -189,7 +190,9 @@ MASTER
     begin
       valid = @blueprint.validate_blueprint_config(@spec_bp_name,
                                                    @spec_work_dir)
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -200,7 +203,9 @@ MASTER
     error_raised = false
     begin
       @blueprint.find_blueprint_config
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -217,7 +222,9 @@ MASTER
       @blueprint.properties[:work_dir] = @spec_work_dir
       puts "props => #{@blueprint.properties}"
       @blueprint.find_blueprint_config @spec_bp_name
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -228,7 +235,9 @@ MASTER
     error_raised = false
     begin
       @blueprint.find_blueprint_nodes @spec_bp_name
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -240,7 +249,9 @@ MASTER
     error_raised = false
     begin
       blueprint_name = @blueprint.findfirst_blueprint_name
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -252,7 +263,9 @@ MASTER
     begin
       @blueprint = Blueprint.new :work_dir => 'spec/fixtures/not_exist'
       blueprint_name = @blueprint.findfirst_blueprint_name
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -269,7 +282,9 @@ MASTER
     error_raised = false
     begin
       bp_found = Blueprint.new(:work_dir => @spec_work_dir).exist_blueprint?
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -280,7 +295,9 @@ MASTER
     error_raised = false
     begin
       bp_found = Blueprint.new.exist_blueprint?
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false

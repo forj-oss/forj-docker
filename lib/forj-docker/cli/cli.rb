@@ -29,6 +29,11 @@ module ForjDocker
     class ForjDockerThor < Thor  # rubocop:disable ClassLength
       class_option :debug,   :aliases => '-d', :desc => 'Set debug mode'
       class_option :verbose, :aliases => '-v', :desc => 'Set verbose mode'
+      # class_option :config,  :aliases => '-c', :desc => 'Path to a different
+      #                forj config file. By default, use ~/.forj/config.yaml'
+      # class_option :libforj_debug,
+      #              :desc => 'Set lib-forj debug level verbosity.' + \
+      #                'verbosity. 1 to 5. Default is one.'
 
       # command: version
       # thor manage the help command.
@@ -76,21 +81,21 @@ module ForjDocker
       #
       desc 'version', 'get GEM version of forj.'
       def version
-        process_options options
+        Settings.common_options(options)
         unless Gem.loaded_specs['forj-docker']
-          Logging.warning('Running from source, gem is not loaded')
+          PrcLib.warning('Running from source, gem is not loaded')
           return
         end
         gem_version = Gem.loaded_specs['forj-docker'].version.to_s
-        Logging.debug(format("Running cli command '%s'", gem_version))
-        Logging.message(gem_version)
+        PrcLib.debug(format("Running cli command '%s'", gem_version))
+        PrcLib.message(gem_version)
       end
 
       #
       # command: init
       # thor manage the init command
       #
-      desc 'init', 'setup a working example in the current directory.'
+      desc 'init [options]', 'setup a working example in the current directory.'
       long_desc <<-LONGDESC
       If a forj blueprint can be found in the current directory,
       then we can build the docker work area located in the docker folder.
@@ -100,7 +105,7 @@ LONGDESC
                     :desc    => 'If files are found they will be overwritten.',
                     :default => false
       def init
-        process_options options
+        Settings.common_options(options)
         docker_data = {} # TODO: need to implment getting settings
         if Blueprint.new.exist_blueprint?
           ForjDocker::AppInit.init_blueprint options, docker_data
@@ -110,8 +115,8 @@ LONGDESC
         # init should configure the default to be bare sense
         # this should be a docker system
         system("rake \"configure[bare]\"")
-        puts 'init complete'
-        Logging.debug 'init complete'
+        PrcLib.message 'init complete'
+        PrcLib.debug 'init complete'
       end
 
       #
@@ -151,19 +156,19 @@ LONGDESC
                     :default => 'undef'
 
       def template(erb_file = nil, dockerfile = nil)
-        process_options options
+        Settings.common_options(options)
 
-        Logging.fatal(1, 'check forj-docker help template.'\
-                          '  An erb input file is required.') if erb_file.nil?
-        Logging.fatal(1, 'check forj-docker help template.  '\
-                          'Destination docker file' \
-                          'required.') if dockerfile.nil?
-        Logging.debug(format('using input file => %s', erb_file))
-        Logging.debug(format('using output file => %s', dockerfile))
+        PrcLib.fatal(1, 'check forj-docker help template.'\
+                        '  An erb input file is required.') if erb_file.nil?
+        PrcLib.fatal(1, 'check forj-docker help template.  '\
+                        'Destination docker file' \
+                        'required.') if dockerfile.nil?
+        PrcLib.debug(format('using input file => %s', erb_file))
+        PrcLib.debug(format('using output file => %s', dockerfile))
         validate_file_andfail erb_file
         validate_nofile_andwarn dockerfile
-        Logging.debug "options => #{options}"
-        Logging.debug "config_json => #{options[:config_json]}"
+        PrcLib.debug "options => #{options}"
+        PrcLib.debug "config_json => #{options[:config_json]}"
 
         docker_properties = options[:config_json].to_data
         # Lets load blueprint properties if they exist.
@@ -177,7 +182,7 @@ LONGDESC
           File.expand_path(dockerfile),
           docker_properties
         )
-        Logging.message(format('template processed ... %s', dockerfile))
+        PrcLib.message(format('template processed ... %s', dockerfile))
       end
     end
   end

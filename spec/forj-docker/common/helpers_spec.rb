@@ -22,8 +22,8 @@ require 'spec_helper'
 require 'rubygems'
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/log'
 require 'forj-docker/common/helpers'
+include Helpers
 
 describe 'Helper file operation functions', :default => true do
   before :all do
@@ -50,13 +50,7 @@ describe 'Helper file operation functions', :default => true do
   end
 
   it 'validate_directory path not exist' do
-    error_raised = false
-    begin
-      validate_directory 'spec/fixtures/dir_not_exist'
-    rescue
-      error_raised = true
-    end
-    expect(error_raised).to be true
+    expect { validate_directory 'spec/fixtures/dir_not_exist' }.to raise_error
   end
 
   it 'validate_file_andwarn fspec not exist' do
@@ -81,7 +75,9 @@ describe 'Helper file operation functions', :default => true do
     error_raised = false
     begin
       create_file 'test file contents', 'spec/fixtures/create_file'
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false
@@ -95,7 +91,9 @@ describe 'Helper file operation functions', :default => true do
     error_raised = false
     begin
       remove_file 'spec/fixtures/remote_file'
-    rescue
+    rescue StandardError => e
+      puts e.message
+      puts e.backtrace
       error_raised = true
     end
     expect(error_raised).to be false

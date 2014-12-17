@@ -17,15 +17,17 @@
 
 begin
   require 'erb'
+  require 'lorj'
   require 'forj-docker/common/erb_data'
-  require 'forj-docker/common/log'
+  require 'forj-docker/common/helpers'
 rescue LoadError
   require 'rubygems'
   require 'erb'
+  require 'lorj'
   require 'forj-docker/common/erb_data'
-  require 'forj-docker/common/log'
+  require 'forj-docker/common/helpers'
 end
-include Logging
+include Helpers
 #
 # class for managing Dockerfiles with erb templates
 #
@@ -58,8 +60,8 @@ class DockerTemplate
         fw.close
       end
     rescue StandardError => e
-      Logging.error(format('failed to process dockerfile for %s : %s',
-                           vals[:node], e.message))
+      PrcLib.error(format('failed to process dockerfile for %s : %s',
+                          vals[:node], e.message))
     end
   end
 end

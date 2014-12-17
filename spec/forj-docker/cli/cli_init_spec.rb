@@ -26,7 +26,6 @@ require 'lib/mocks/clispec'
 include CliSpec::InitDefaults
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/log'
 
 # TODO: need to fix
 describe 'init an empty folder template', :default => false do

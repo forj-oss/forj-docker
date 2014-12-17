@@ -22,6 +22,7 @@ require 'cli/cli'
 #
 module ForjDocker
   puts 'Running forj-docker cli ...'
-  Logging.debug(format("Running forj-docker cli version '%s'",
-                       $RT_VERSION))
+
+  PrcLib.debug(format("Running forj-docker cli version '%s'",
+                      $RT_VERSION))
 end

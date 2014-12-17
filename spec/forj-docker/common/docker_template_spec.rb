@@ -23,7 +23,6 @@ require 'spec_helper'
 require 'rubygems'
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/log'
 require 'forj-docker/common/docker_template'
 
 describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',

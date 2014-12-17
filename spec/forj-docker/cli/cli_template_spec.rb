@@ -24,7 +24,6 @@ require 'rubygems'
 require 'spec_helper'
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/log'
 require 'forj-docker/common/docker_template'
 require 'forj-docker/common/blueprint'
 
