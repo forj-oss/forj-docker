@@ -100,15 +100,15 @@ namespace :bare do
   end
 
   #
-  # TODO: needs to implment a registry server install for docker.
   # implement this using a default docker container.
   # The container config should lib in config/default/registry.
   # name it forj/docker:registry
   # should expose a data folder with mount points at /opt/docker/data
+  # for Docker registry details see your cloned docker-registry/Dockerfile
   #
   desc 'TODO: build the docker registry container'
   task :registry_build do
-    puts 'implement a registry container build'
+    sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_reg_setup.sh")
   end
 
   #
