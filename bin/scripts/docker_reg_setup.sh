@@ -13,7 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 #
-# <docker_install.sh> <dockeruser>
+
 SCRIPT_NAME=$0
 SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
 SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
@@ -28,6 +28,8 @@ done
 unset i
 
 # clone Docker registry container
+# note: use case: fork your own docker registry repo and make/control changes to the image files
+#       (i.e. Dockerfile, config/* , script, etc...)
 git clone https://github.com/docker/docker-registry.git
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute git clone of docker registry" 2
 # build the image
