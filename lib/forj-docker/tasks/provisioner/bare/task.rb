@@ -106,7 +106,7 @@ namespace :bare do
   # should expose a data folder with mount points at /opt/docker/data
   # for Docker registry details see your cloned docker-registry/Dockerfile
   #
-  desc 'TODO: build the docker registry container'
+  desc 'build(local) the docker registry container'
   task :registry_build do
     sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_reg_setup.sh")
   end
