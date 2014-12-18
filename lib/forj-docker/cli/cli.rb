@@ -76,6 +76,7 @@ module ForjDocker
       #
       desc 'version', 'get GEM version of forj.'
       def version
+        process_options options
         unless Gem.loaded_specs['forj-docker']
           Logging.warning('Running from source, gem is not loaded')
           return
@@ -89,15 +90,22 @@ module ForjDocker
       # command: init
       # thor manage the init command
       #
-      desc 'init', 'setup a working example in the current directory.' \
-                   ' If a forj blueprint can be found in the current ' \
-                   ' directory, then we can build the docker work '    \
-                   ' area located in the docker folder.'
+      desc 'init', 'setup a working example in the current directory.'
+      long_desc <<-LONGDESC
+      If a forj blueprint can be found in the current directory,
+      then we can build the docker work area located in the docker folder.
+LONGDESC
+      method_option :force,
+                    :aliases => '-f',
+                    :desc    => 'If files are found they will be overwritten.',
+                    :default => false
       def init
+        process_options options
+        docker_data = {} # TODO: need to implment getting settings
         if Blueprint.new.exist_blueprint?
-          ForjDocker::AppInit.init_blueprint
+          ForjDocker::AppInit.init_blueprint options, docker_data
         else
-          ForjDocker::AppInit.init_vanilla
+          ForjDocker::AppInit.init_vanilla options
         end
         # init should configure the default to be bare sense
         # this should be a docker system

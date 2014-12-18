@@ -161,10 +161,18 @@ module Helpers
 
   # use a regular expression to find files
   #
-  def find_files(regex, root_dir = File.expand_path('.'))
-    folders = Dir.glob(File.join(root_dir, '**', '*'))
-              .select { |f| !File.directory? f }
-              .select { |f| !regex.match(f).nil? }
+  def find_files(regex, root_dir = File.expand_path('.'),
+                 options = { :recursive => true })
+    folders = []
+    if options[:recursive]
+      folders = Dir.glob(File.join(root_dir, '**', '*'))
+                .select { |f| !File.directory? f }
+                .select { |f| !regex.match(f).nil? }
+    else
+      folders = Dir.entries(root_dir)
+                .select { |f| !File.directory? f }
+                .select { |f| !regex.match(f).nil? }
+    end
     folders
   end
 end

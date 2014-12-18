@@ -77,17 +77,24 @@ module ForjDocker
     def process_options(options = [])
       Logging.setlevel(Logger::INFO)  if options[:verbose]
       Logging.setlevel(Logger::DEBUG) if options[:debug]
+      Logging.debug("current options => #{options}")
     end
 
     #
     # init_vanilla
     # initialize the current folder with the vanilla examples
     #
-    def init_vanilla
+    def init_vanilla(options = { :force => false })
       cwd = File.expand_path('.')
       Logging.debug(format("Running init vanilla command for folder '%s'",
                            cwd))
-      puts "init is creating sample here: #{cwd}"
+      Logging.message 'initialize a vanilla configuration for docker'
+      Logging.message "  working directory location : #{cwd}"
+      if dir_exists?(File.join(cwd, 'forj')) && (options[:force] != true)
+        Logging.error("We found a blueprint folder!\n" \
+                      "    Can't continue unless you use --force option\n\n")
+        return
+      end
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'template', 'bpnoop', '.')}",
                      cwd,
                      :verbose => true)
@@ -176,7 +183,13 @@ module ForjDocker
 
     # initialize the current folder based on blueprint layout
     #
-    def init_blueprint(docker_data = {},
+    # *Arguments*
+    # _options - will include things like :force but still need
+    #            to think about how we manage this inside the imlementation.
+    # docker_data - should be created from settings configured in lorg set/get
+    # cwd         - the current work directory where ./forj and ./docker
+    #               will exist.
+    def init_blueprint(_options = {}, docker_data = {},
                        cwd = File.expand_path('.'))
       docker_data = {
         :work_dir         => File.join(cwd, 'forj'),

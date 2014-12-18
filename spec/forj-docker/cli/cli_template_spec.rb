@@ -71,7 +71,8 @@ end
 
 include CliSpec::Defaults
 
-describe 'test forj-docker template template/bp/docker/Dockerfile.node.erb',
+describe 'cli_template_spec: forj-docker template' \
+         ' template/bp/docker/Dockerfile.node.erb',
          :default => true do
   before :all do
     File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
@@ -111,7 +112,7 @@ describe 'test forj-docker template template/bp/docker/Dockerfile.node.erb',
   end
 end
 
-describe 'test cli --debug', :default => true do
+describe 'cli_template_spec: cli --debug', :default => true do
   before :all do
     File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
     @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
@@ -146,7 +147,7 @@ describe 'test cli --debug', :default => true do
   end
 end
 
-describe 'test cli --verbose', :default => true do
+describe 'cli_template_spec: cli --verbose', :default => true do
   before :all do
     File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
     @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
@@ -173,7 +174,7 @@ describe 'test cli --verbose', :default => true do
   #
   # if we run it again, it should work with debug options
   #
-  it 'should execute forj-docker templates with --verbose' do
+  it 'cli_template_spec: should execute forj-docker templates with --verbose' do
     expect(@command_res.exit_status).to eq 0
     docker_file_matchers.each do |m|
       expect(@docker_processed).to match(m)

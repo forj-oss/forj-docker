@@ -151,7 +151,15 @@ MASTER
   end
 
   it 'setup should not load non-layout blueprint' do
-    expect { @blueprint.setup 'noname' }.not_to raise_error
+    error_raised = false
+    begin
+      @blueprint.setup 'noname'
+    rescue StandardError => e
+      puts e.backtrace
+      puts e.message
+      error_raised = true
+    end
+    expect(error_raised).to be false
     expect(@blueprint.properties[:layout_name]).to eq('undef')
     expect(@blueprint.properties[:name]).to eq('undef')
   end
@@ -173,6 +181,19 @@ MASTER
     end
     expect(error_raised).to be false
     expect(blueprint_name).to eq(@spec_bp_name)
+  end
+
+  it 'validate_blueprint_config should find layout file.' do
+    error_raised = false
+    valid = false
+    begin
+      valid = @blueprint.validate_blueprint_config(@spec_bp_name,
+                                                   @spec_work_dir)
+    rescue
+      error_raised = true
+    end
+    expect(error_raised).to be false
+    expect(valid).to be true
   end
 
   it 'find_blueprint_config should have blueprint properties not set' do

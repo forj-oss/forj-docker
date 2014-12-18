@@ -144,6 +144,22 @@ class Blueprint # rubocop:disable ClassLength
     @properties[:nodes] = nodes.flatten.uniq
   end
 
+  # Validate blueprint configuration
+  #
+  def validate_blueprint_config(layout_name = 'undef', search_dir)
+    if layout_name == 'undef' || !(dir_exists? search_dir)
+      Logging.error("Blueprint folder #{search_dir} not found!") if $FORJ_LOGGER
+      return false
+    end
+    unless find_files(/#{layout_name}-layout.yaml/, search_dir,
+                      :recursive => false).length > 0
+      Logging.warning('Missing layout for' \
+                      " blueprint in #{search_dir}") if $FORJ_LOGGER
+      return false
+    end
+    true
+  end
+
   # Find blueprint files
   #
   # *Overview*
@@ -156,31 +172,29 @@ class Blueprint # rubocop:disable ClassLength
   # * layout_name - optional name to search for a layout file.
   #
   def find_blueprint_config(layout_name = @properties[:layout_name])
-    Logging.debug(format('working on find_blueprint_config for %s',
-                         layout_name))  if $FORJ_LOGGER
     search_dir = File.expand_path(@properties[:work_dir])
-    return if layout_name == 'undef' || !(dir_exists? search_dir)
+    return unless validate_blueprint_config layout_name, search_dir
 
     # first find the layout file that will be used to build with.
     # This is considered the default deploy file.
-    layout_file_arr = Dir.entries(search_dir)
-                      .select { |f| !File.directory? f }
-                      .select { |f| f =~ /#{layout_name}-layout.yaml/ }
-
+    layout_file_arr = find_files(/#{layout_name}-layout.yaml/, search_dir,
+                                 :recursive => false)
     # setup the core_properties needed to find
-    return unless layout_file_arr.length > 0
-    layout_file = File.join(@properties[:work_dir], layout_file_arr[0])
-    setcore_properties layout_file, layout_name
+    @properties[:layout_file] = File.join(@properties[:work_dir],
+                                          layout_file_arr[0])
+    setcore_properties @properties[:layout_file], layout_name
 
     # use the layout file to find the master
-    master_file_arr = Dir.entries(search_dir)
-                      .select { |f| !File.directory? f }
-                      .select { |f| f =~ /#{@properties[:name]}-master.yaml/ }
-    return unless master_file_arr.length > 0
-    master_file = File.join(@properties[:work_dir], master_file_arr[0])
-
-    @properties[:layout_file] = layout_file
-    @properties[:master_file] = master_file
+    master_file_arr = find_files(/#{@properties[:name]}-master.yaml/,
+                                 search_dir,
+                                 :recursive => false)
+    unless master_file_arr.length > 0
+      Logging.warning('Missing layout for blueprint' \
+                      " in #{search_dir}") if $FORJ_LOGGER
+      return
+    end
+    @properties[:master_file] = File.join(@properties[:work_dir],
+                                          master_file_arr[0])
   end
 
   # find first blueprint name available
