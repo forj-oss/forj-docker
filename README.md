@@ -90,13 +90,15 @@ Install ruby 1.9 packages to build and develop gems.
   ruby1.9.1 -S bundle install --gemfile Gemfile
 ```
 
-### forj-docker rake task run modes.
+### forj-docker run modes.
 When developing in forj-docker project, the root Rakefile supports different rake task run modes.   These are designed to help speed up development and test.
-* running in build mode.  By default this is the configured run mode, and will only build the forj-docker gem.  No additional docker rake task will be availalbe.  Setup with command:
+* **forj-docker gem build mode**:  By default this is the configured run mode, and will only build the forj-docker gem.  No additional docker rake task will be availalbe.  Setup with command:
 ```shell
   rake runbuild
 ```
-* running in dev mode.  This runmode will make available additional task that can be used to do things such as spawn a working docker host system using vagrant for development.   Setup with command:
+* **running in container mode**.  This mode will make available additional task that can be used to do things such as spawn a working docker host system using vagrant for development. If you
+are doing rake task work, this is the proper run mode.
+Setup with command:
 ```shell
   rake rundev
 ```
@@ -200,10 +202,6 @@ To get help run: ```dockerup -h```
   and initiate the startup.
 * we need to implement the version tagging on docker_prepare.sh
   I would like container images we build to have version numbers.
-* we need a docker_install_registry.sh script to install a private registry.
-  garether plugin has a nice way to setup and deploy a private registry.
-  There should be a build target and script that can use this plugin to
-  do that for us.
 * thoughts about giving dockerup the ability to transfer meta.js to docker image using --env settings??
   One of the main functions being offered by cloud-init was the ability to
   communicate metadata configured by forj cli.   We'll need the same to help
@@ -222,6 +220,9 @@ To get help run: ```dockerup -h```
   rake build and dev targets for vagrant provisioner will now do this automatically.
   On bare systems you can simply run src/docker_install.sh on the system you want to dockerize.
   We use garethr plugin for the heavy lifting.
-
+* we need a docker_install_registry.sh script to install a private registry.
+  garether plugin has a nice way to setup and deploy a private registry.
+  There should be a build target and script that can use this plugin to
+  do that for us.
 #License
 forj-docker is licensed under the Apache License, Version 2.0.  See LICENSE for full license text.
