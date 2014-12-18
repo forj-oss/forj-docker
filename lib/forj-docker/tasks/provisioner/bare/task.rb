@@ -114,8 +114,8 @@ namespace :bare do
   #
   # TODO: implements running a docker registry server
   #
-  desc 'TODO: start and run the docker registry container'
+  desc 'start and run the docker registry container (local)'
   task :registry do
-    puts 'implement the start of forj/docker:registry'
+    sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_reg_up.sh")
   end
 end
