@@ -38,3 +38,11 @@ require 'lorj'
 PrcLib.data_path  = File.expand_path(File.join(gethome_path, '.config',
                                                'forj-docker'))
 PrcLib.app_name = 'forj-docker-undertest'
+
+# check if we show more messages to debug failed specs.
+#
+def spec_debug
+  return (ENV['SPEC_DEBUG'] == '1') if !ENV['SPEC_DEBUG'].nil? ||
+                                       ENV['SPEC_DEBUG'] != ''
+  false
+end

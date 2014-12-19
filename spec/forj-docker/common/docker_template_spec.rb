@@ -60,7 +60,7 @@ describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
   end
   it 'should find expression in dockerfile' do
     @docker_file_matchers.each do |m|
-      puts "working on => #{m}"
+      puts "working on => #{m}" if spec_debug
       expect(@docker_processed).to match(m)
     end
   end

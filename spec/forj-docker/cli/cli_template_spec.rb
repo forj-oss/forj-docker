@@ -27,48 +27,8 @@ $LOAD_PATH << File.join(spec_dir, '..', 'lib')
 require 'forj-docker/common/docker_template'
 require 'forj-docker/common/blueprint'
 
-#
-# spec defaults
-module CliSpec
-  # spec defaults
-  module Defaults
-    def docker_template
-      @docker_template = 'template/bp/docker/Dockerfile.node.erb'
-      @docker_template
-    end
-
-    def dest_dockerfile
-      @dest_dockerfile = 'spec/fixtures/Dockerfile.testcli'
-      @dest_dockerfile
-    end
-
-    def docker_file_matchers
-      # list or regular expression matches to check
-      # the Dockerfile.test file for.
-      @docker_file_matchers = [
-        /^# DOCKER-VERSION 0.0.1/,
-        /^# DOCKER-NAME norepo\/none\:default/,
-        /^FROM  forj\/ubuntu\:precise/,
-        /^MAINTAINER your name, youremail@yourdomain.com/,
-        %r{^WORKDIR /opt/workspace},
-        %r{^ADD . /opt/workspace},
-        /^EXPOSE 22 80 443/,
-        %r{^RUN whoami > /tmp/test}
-      ]
-      @docker_file_matchers
-    end
-
-    def forj_script
-      @forj_script = <<-EOS
-      require 'forj-docker'
-      ForjDocker::Cli::ForjDockerThor.start
-      EOS
-      @forj_script
-    end
-  end
-end
-
-include CliSpec::Defaults
+require 'lib/mocks/clispec'
+include CliSpec::DefaultsTemplate
 
 describe 'cli_template_spec: forj-docker template' \
          ' template/bp/docker/Dockerfile.node.erb',
@@ -85,12 +45,13 @@ describe 'cli_template_spec: forj-docker template' \
                                           #{dest_dockerfile} \
                                           -c '#{@json_string}'
     EOS
-    puts 'running command :'
-    puts @sh
+    puts 'running command :' if spec_debug
+    puts @sh if spec_debug
 
     @command_res = command(@sh)
     # force execution
-    puts "exit => #{@command_res.exit_status}"
+    exit_status = @command_res.exit_status
+    puts "exit => #{exit_status}" if spec_debug
     @docker_processed = File.open(dest_dockerfile).read.to_s
   end
 
@@ -120,12 +81,13 @@ describe 'cli_template_spec: cli --debug', :default => true do
                                           #{dest_dockerfile} \
                                           -c '#{@json_string}' --debug
     EOS
-    puts 'running command :'
-    puts @sh
+    puts 'running command :' if spec_debug
+    puts @sh if spec_debug
 
     @command_res = command(@sh)
     # force execution
-    puts "exit => #{@command_res.exit_status}"
+    exit_status = @command_res.exit_status
+    puts "exit => #{exit_status}" if spec_debug
     @docker_processed = File.open(dest_dockerfile).read.to_s
   end
   #
@@ -155,12 +117,13 @@ describe 'cli_template_spec: cli --verbose', :default => true do
                                           #{dest_dockerfile} \
                                           -c '#{@json_string}' --verbose
     EOS
-    puts 'running command :'
-    puts @sh
+    puts 'running command :' if spec_debug
+    puts @sh if spec_debug
 
     @command_res = command(@sh)
     # force execution
-    puts "exit => #{@command_res.exit_status}"
+    exit_status = @command_res.exit_status
+    puts "exit => #{exit_status}" if spec_debug
     @docker_processed = File.open(dest_dockerfile).read.to_s
   end
   #
