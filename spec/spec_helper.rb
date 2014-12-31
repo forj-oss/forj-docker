@@ -21,23 +21,33 @@ set :backend, :exec
 RSpec.configure do |c|
   c.formatter = :documentation
   c.filter_run :default => true
+  c.before(:all, &:setup_spec_helper)
+  c.after(:all,  &:cleanup_spec_helper)
 end
 
-#
-# make sure fixtures folder exist
-#
-FileUtils.mkdir_p('spec/fixtures') unless File.exist?('spec/fixtures')
+public
 
-#
-# make sure we're using lorj
-spec_dir = File.expand_path(File.dirname(__FILE__))
-$LOAD_PATH << File.join(spec_dir, '..', 'lib')
-require 'forj-docker/common/helpers'
-include Helpers
-require 'lorj'
-PrcLib.data_path  = File.expand_path(File.join(gethome_path, '.config',
-                                               'forj-docker'))
-PrcLib.app_name = 'forj-docker-undertest'
+def setup_spec_helper
+  #
+  # make sure fixtures folder exist
+  #
+  FileUtils.mkdir_p('spec/fixtures') unless File.exist?('spec/fixtures')
+
+  #
+  # make sure we're using lorj
+  spec_dir = File.expand_path(File.dirname(__FILE__))
+  $LOAD_PATH << File.join(spec_dir, '..', 'lib')
+  require 'forj-docker/common/helpers'
+  include Helpers
+  require 'lorj'
+  PrcLib.data_path  = File.expand_path(File.join('spec',
+                                                 'fixtures',
+                                                 '.config',
+                                                 'forj-docker'))
+  PrcLib.app_name = 'forj-docker-undertest'
+  PrcLib.set_level Logger::DEBUG
+  # PrcLib.log_file
+end
 
 # check if we show more messages to debug failed specs.
 #
@@ -45,4 +55,8 @@ def spec_debug
   return (ENV['SPEC_DEBUG'] == '1') if !ENV['SPEC_DEBUG'].nil? ||
                                        ENV['SPEC_DEBUG'] != ''
   false
+end
+
+def cleanup_spec_helper
+  puts 'all done'
 end
