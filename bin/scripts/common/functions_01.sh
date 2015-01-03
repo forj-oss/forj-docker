@@ -17,7 +17,7 @@ export DEBUG=${DEBUG:-0}
 export SCRIPT_TEMP=$(mktemp -d)
 export AS_ROOT=${AS_ROOT:-0}
 
-[ $DEBUG -eq 1 ] && set -x -v
+[ "${DEBUG}" -eq 1 ] && set -x -v
 trap 'rm -rf $SCRIPT_TEMP' EXIT
 
 #

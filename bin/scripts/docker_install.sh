@@ -15,14 +15,14 @@
 #
 # <docker_install.sh> <dockeruser>
 SCRIPT_NAME=$0
-SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
-SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
+SCRIPT_DIR="$(dirname "${SCRIPT_NAME}")"
+SCRIPT_FULL_DIR="$(cd "${SCRIPT_DIR}";pwd)"
 #
 # source all common script functions
 #
 for i in ${SCRIPT_FULL_DIR}/common/*.sh; do
-    if [ -r $i ]; then
-      . $i
+    if [ -r "${i}" ]; then
+      . "${i}"
     fi
 done
 unset i
@@ -31,12 +31,12 @@ unset i
 # grant access
 #
 function DOCKER_GRANT_ACCESS {
-  if [ -z $1 ] ; then
+  if [ -z "${1}" ] ; then
     CURRENT_USER=$(facter id)
   else
     CURRENT_USER=$1
   fi
-  [ -z $CURRENT_USER ] && ERROR_EXIT ${LINENO} "failed to get current user with facter id" 2
+  [ -z "${CURRENT_USER}" ] && ERROR_EXIT ${LINENO} "failed to get current user with facter id" 2
   DO_SUDO puppet apply $PUPPET_DEBUG \
   -e "user {'${CURRENT_USER}': ensure => present, gid => 'docker' }"
 }
@@ -55,7 +55,7 @@ puppet --version
 MODULE_LIST=$(DO_SUDO puppet module list)
 MODULE_NAME="garethr-docker"
 MODULE_VERSION="latest"
-if ! echo $MODULE_LIST | grep "${MODULE_NAME} ([^v]*v${MODULE_VERSION}" >/dev/null 2>&1
+if ! echo "${MODULE_LIST}" | grep "${MODULE_NAME} ([^v]*v${MODULE_VERSION}" >/dev/null 2>&1
   then
   # Attempt module upgrade. If that fails try installing the module.
   _VERSION_OPT=''
@@ -81,7 +81,7 @@ if [ "$(facter osfamily)" = "RedHat" ] && [ "$(facter operatingsystemrelease)" =
     DO_SUDO wget public-yum.oracle.com/public-yum-ol6.repo
     DO_SUDO wget public-yum.oracle.com/RPM-GPG-KEY-oracle-ol6 -O /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
     DO_SUDO yum update device-mapper -y
-    cd ${_CWD}
+    cd "${_CWD}"
 fi
 #
 # install docker

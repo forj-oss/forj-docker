@@ -15,23 +15,27 @@
 #
 
 SCRIPT_NAME=$0
-SCRIPT_DIR="$(dirname $SCRIPT_NAME)"
-SCRIPT_FULL_DIR="$(cd $SCRIPT_DIR;pwd)"
+SCRIPT_DIR="$(dirname "${SCRIPT_NAME}")"
+SCRIPT_FULL_DIR="$(cd "${SCRIPT_DIR}";pwd)"
 #
 # source all common script functions
 #
 for i in ${SCRIPT_FULL_DIR}/common/*.sh; do
-    if [ -r $i ]; then
-      . $i
+    if [ -r "${i}" ]; then
+      . "${i}"
     fi
 done
 unset i
 
+_REG_CWD="$(pwd)"
 # clone Docker registry container
 # note: use case: fork your own docker registry repo and make/control changes to the image files
 #       (i.e. Dockerfile, config/* , script, etc...)
-git clone https://github.com/docker/docker-registry.git
+GIT_CLONE https://github.com/docker/docker-registry.git "$(pwd)/docker-registry"
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute git clone of docker registry" 2
 # build the image
-docker build -rm -t forj/docker:registry .
+cd docker-registry
+docker build --rm -t forj/docker:registry .
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute docker registry build" 2
+
+cd "${_REG_CWD}"
