@@ -58,7 +58,7 @@ module ForjDocker
           2. Build it
           `$ rake build`
 
-          2. run it
+          3. run it
           `$ rake runit`
           `$ docker ps`
 

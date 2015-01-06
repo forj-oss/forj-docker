@@ -3,15 +3,21 @@ We are experimenting with docker.  This project will use maestro and redstone to
 
 This project offers us a way to deliver as a gem a new feature to a host operating system that can be incorporated into the existing blueprint layout.  From the blueprint layout you can then in theory execute container based commands designed to work with the blueprint.   Further we can create a provisioner for the forj cli that also interacts with these commands.
 
-Ideally, here are some of the commands we would have:
+The project helps us consolidate and integrate other opensource projects that are supporting docker in order to have a full end-to-end solution for building and operating docker based eco systems of applications.
 
-##For building and developing images:
+## Concepts and Features
+* `docker work area` is set of folders that contain Dockerfiles*.  These dockerfile will have some metadata stored as comments in the header that can be used for building, publishing and running docker containers.  We will likely update this as docker orchestration matures or we adopt another orchestrator (like kuberneties).
+* The docker work area can contain docker files that have an `erb` extension.  Key value pairs can be defined with the forj-docker cli for Dockerfile transformation.
+* The forj-docker CLI can be used to initialize and setup a docker work area for an existing blueprint or empty blueprint folder structure. All docker files will live under a folder named `docker`.
+* When mapping blueprint files, we will use 1 container for each node described in a blueprint.
+
+## Rake commands for building and developing docker images:
 
   ```rake dev```   - stand up an environment with docker (we'll use vagrant or bare systems). This installs docker as well.
 
   ```rake build``` - for the provided Rakefile, look for the docker folder to assign a DOCKER_WORKAREA and build all dockerfiles found in this subfolders of this workarea.  Images are stored locally in the host machine.
 
-## For managing docker images
+## Rake commands for managing docker images
 
   ```rake registry``` - create a system that will host published images.  
 
@@ -19,56 +25,58 @@ Ideally, here are some of the commands we would have:
 
   ```rake push``` - in conjunction with a security file managed by ```rake configure```,and as provided by the Rakefile, publish the docker workarea containers that have been built.  If the containers, don't exist, error and ask for a ```rake build``` execution.
 
-##For running a cluster of nodes/containers on a given host
+## Rake commands for operating docker images in a docker work area
   ```rake runit``` - for the provided Rakefile, find the blueprint config and run the containers for this image.  If the containers are not found locally, we will atempt to pull them.
 
+## Installation
+  Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
+  * Install ruby 1.9 for your OS.  Currently we're targeting support for execution within docker, vagrant, or bare using ubuntu 14.04.
+  ```shell
+  sudo apt-get -y update
+  sudo apt-get install ruby1.9.1            \
+      ruby1.9.1-dev        \
+      rubygems1.9.1        \
+      build-essential      \
+      libopenssl-ruby1.9.1 \
+      libssl-dev           \
+      zlib1g-dev           \
+      libxml2-dev          \
+      libxslt-dev          \
+      ncurses-dev          \
+      git -y
+  ```
+  * Install forj-docker gem.
+  ```shell
+  sudo -i ruby1.9.1 -S gem install forj-docker
+  ```
 
-## Node descriptions
-* maestro - provies a ui that allows you to navigate to each node.
-* review  - provides an scm service for git
-* ci      - provides a jenkins build service
-* util    - provides for utility services like paste and logstash
+## Usage
+  * Create a root folder for your blueprint project
+  ```shell
+  mkdir -p ~/forj/myblueprint
+  cd ~/forj/myblueprint
+  forj-docker init
+  ```
+  * Get help for the rake commands you can run:
+  ```shell
+  rake -T
 
-##Status for this work is experimental.
+  and
 
-* setup a vm for docker images ```rake dev``` then ```rake build```
-
-* install the gem ```gem install forj-docker``` then ```forj-docker init``` inside an empty folder. After that you can use ```rake build``` in this new folder and develop your docker files.  Later we'll add ```rake runit``` to the rake task that we'll support from the gem.  Use ```rake dev``` to install docker.  Use ```rake check``` to verify your installation.
-
-* prepare all your docker images
-   ```rake build```
-* Test your images with dockerup, it remembers your sessions!
+  forj-docker help
+  ```
+  * build the docker images in your docker work area:
+  ```shell
+  rake build
+  ```
+  * Test your images with dockerup, it remembers your sessions!
+  ```shell
    rake connect
 
    or
 
    dockerup -a review -t forj/redstone:review -n review.42.localhost
-
-
-## General users getting started
-Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
-* Install ruby 1.9 for your OS.  Currently we're targeting support for execution within docker, vagrant, or bare using ubuntu 14.04.
-```shell
-  sudo apt-get -y update
-  sudo apt-get install ruby1.9.1            \
-                       ruby1.9.1-dev        \
-                       rubygems1.9.1        \
-                       build-essential      \
-                       libopenssl-ruby1.9.1 \
-                       libssl-dev           \
-                       zlib1g-dev           \
-                       libxml2-dev          \
-                       libxslt-dev          \
-                       git -y
-```
-* Install forj-docker gem.
-```shell
-  sudo -i ruby1.9.1 -S gem install forj-docker
-  # Create a root folder for your blueprint project
-  mkdir -p ~/forj/myblueprint
-  cd ~/forj/myblueprint
-  forj-docker init
-```
+   ```
 
 ## Developer getting started
 If you plan to build this gem or install it within a docker or vagrant container, you'll need some ruby build tools.
