@@ -31,7 +31,7 @@ The project helps us consolidate and integrate other opensource projects that ar
 ## Installation
   Want to use forj-docker to start your own blueprint for docker?  No problem, lets do it.
   * Install ruby 1.9 for your OS.  Currently we're targeting support for execution within docker, vagrant, or bare using ubuntu 14.04.
-  ```shell
+```shell
   sudo apt-get -y update
   sudo apt-get install ruby1.9.1            \
       ruby1.9.1-dev        \
@@ -44,39 +44,39 @@ The project helps us consolidate and integrate other opensource projects that ar
       libxslt-dev          \
       ncurses-dev          \
       git -y
-  ```
+```
   * Install forj-docker gem.
-  ```shell
+```shell
   sudo -i ruby1.9.1 -S gem install forj-docker
-  ```
+```
 
 ## Usage
   * Create a root folder for your blueprint project
-  ```shell
+```shell
   mkdir -p ~/forj/myblueprint
   cd ~/forj/myblueprint
   forj-docker init
-  ```
+```
   * Get help for the rake commands you can run:
-  ```shell
+```shell
   rake -T
 
   and
 
   forj-docker help
-  ```
+```
   * build the docker images in your docker work area:
-  ```shell
+```shell
   rake build
-  ```
+```
   * Test your images with dockerup, it remembers your sessions!
-  ```shell
+```shell
    rake connect
 
    or
 
    dockerup -a review -t forj/redstone:review -n review.42.localhost
-   ```
+ ```
 
 ## Developer getting started
 If you plan to build this gem or install it within a docker or vagrant container, you'll need some ruby build tools.
@@ -179,6 +179,7 @@ You can develop or setup an environment to run docker with forj-docker rake task
   # note PUPPET_MODULES is already setup by Docker image
   # lets setup the hiera data.
 ```  
+
  TODO investigate long execution times, factors??
 ```shell
     puppet apply --modulepath=$PUPPET_MODULES \
