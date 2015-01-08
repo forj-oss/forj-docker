@@ -54,7 +54,7 @@ puppet --version
 
 MODULE_LIST=$(DO_SUDO puppet module list)
 MODULE_NAME="garethr-docker"
-MODULE_VERSION="latest"
+MODULE_VERSION="${PUPPET_DOCKER_VERSION:-2.2.0}"
 if ! echo "${MODULE_LIST}" | grep "${MODULE_NAME} ([^v]*v${MODULE_VERSION}" >/dev/null 2>&1
   then
   # Attempt module upgrade. If that fails try installing the module.
@@ -86,15 +86,17 @@ fi
 #
 # install docker
 #
-
+DOCKER_VERSION=${DOCKER_VERSION:-1.4.1}
 [ ! -z "${http_proxy}" ] && proxy_str="proxy => '${http_proxy}',  no_proxy => '${no_proxy}',"
+version_str="version => '${DOCKER_VERSION}', "
 echo "running command : puppet apply --modulepath=/etc/puppet/modules
 --debug --verbose
 -e class{'docker':
+${version_str}
 ${proxy_str}
 }"
 DO_SUDO puppet apply --modulepath=/etc/puppet/modules \
-    --debug --verbose -e "class{'docker': ${proxy_str} }"
+    --debug --verbose -e "class{'docker': ${version_str} ${proxy_str} }"
 docker --version
 
 #

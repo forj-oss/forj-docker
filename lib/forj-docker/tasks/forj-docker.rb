@@ -108,16 +108,16 @@ end
 #
 # registry_build
 #
-desc 'TODO: build the docker registry container -' \
+desc 'build the docker registry container -' \
      " #{PROVISIONER}:registry_build"
 task :registry_build do
   Rake::Task["#{PROVISIONER}:registry_build"].invoke
 end
 
 #
-# TODO: implements running a docker registry server
+# implements running a docker registry server
 #
-desc 'TODO: start and run the docker registry container'
+desc 'start and run the docker registry container'
 task :registry do
-  puts 'implement the start of forj/docker:registry'
+  Rake::Task["#{PROVISIONER}:registry"].invoke
 end

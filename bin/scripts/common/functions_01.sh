@@ -36,6 +36,12 @@ function ERROR_EXIT {
 }
 trap 'ERROR_EXIT ${LINENO}' ERR
 
+# echo a warning message
+function WARN {
+  _line="$1"
+  _errm="$2"
+  echo "WARNING (${_line}): ${_errm}" 1>&2
+}
 #
 # run a sudo command if the script is not run as root
 # otherwise run the command, assume we're root

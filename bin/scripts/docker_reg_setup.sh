@@ -31,11 +31,19 @@ _REG_CWD="$(pwd)"
 # clone Docker registry container
 # note: use case: fork your own docker registry repo and make/control changes to the image files
 #       (i.e. Dockerfile, config/* , script, etc...)
-GIT_CLONE https://github.com/docker/docker-registry.git "$(pwd)/docker-registry"
+# TODO: restore after pull accepted GIT_CLONE https://github.com/docker/docker-registry.git "$(pwd)/docker-registry"
+GIT_CLONE https://github.com/wenlock/docker-registry.git "$(pwd)/docker-registry"
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute git clone of docker registry" 2
 # build the image
 cd docker-registry
+if [ ! -z "$HTTP_PROXY" ]; then
+    echo "Using proxy $HTTP_PROXY"
+    sed -n -i '/export PROXY=.*/!p' contrib/build_env.sh
+    echo "export PROXY=$HTTP_PROXY" >> contrib/build_env.sh
+fi
 docker build --rm -t forj/docker:registry .
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute docker registry build" 2
 
 cd "${_REG_CWD}"
+
+exit 0

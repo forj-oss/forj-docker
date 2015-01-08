@@ -39,8 +39,6 @@ namespace :vagrant do
     when :build
       puts 'Build all the docker images in vagrant'
       sh('vagrant up')
-      # TODO: need to think about this in gem state,
-      # should we copy the bin/scripts/** to the docker image instead?
       sh("vagrant ssh \\
           --command 'bash -c \\
           \"export DOCKER_WORKAREA=/vagrant/docker;\\
@@ -103,22 +101,28 @@ namespace :vagrant do
   end
 
   #
-  # TODO: needs to implment a registry server install for docker.
-  # implement this using a default docker container.
-  # The container config should lib in config/default/registry.
-  # name it forj/docker:registry
-  # should expose a data folder with mount points at /opt/docker/data
+  # build the registry container on vagrant
   #
   desc 'TODO: build the docker registry container'
   task :registry_build do
-    puts 'implement a registry container build'
+    puts 'building a registry container build'
+    sh('vagrant up')
+    sh("vagrant ssh \\
+        --command 'bash -c \\
+        \"export DOCKER_WORKAREA=/vagrant/docker-registry;\\
+        /vagrant/bin/scripts/docker_reg_setup.sh\"'")
   end
 
   #
-  # TODO: implements running a docker registry server
+  # start the registry container on vagrant
   #
   desc 'TODO: start and run the docker registry container'
   task :registry do
-    puts 'implement the start of forj/docker:registry'
+    puts 'starting the registry container'
+    sh('vagrant up')
+    sh("vagrant ssh \\
+        --command 'bash -c \\
+        \"export DOCKER_WORKAREA=/vagrant/docker-registry;\\
+        /vagrant/bin/scripts/docker_reg_up.sh\"'")
   end
 end
