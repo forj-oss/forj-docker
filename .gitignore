@@ -15,4 +15,5 @@ Gemfile.lock
 spec/fixtures
 spec/fixtures/*
 bpname/**
+docker-registry
 docker-registry/**

@@ -143,3 +143,36 @@ describe 'cli_template_spec: cli --verbose', :default => true do
     end
   end
 end
+
+describe 'cli_template_spec: should fail command forj-docker template' \
+         ' template/bp/docker/Dockerfile.badpath.erb',
+         :default => true do
+  before :all do
+    bad_docker_template = 'template/bp/docker/Dockerfile.badpath.erb'
+    File.delete(dest_dockerfile) if File.exist?(dest_dockerfile)
+
+    @json_string = '{"custom_commands":"RUN whoami > /tmp/test"}'
+    #
+    # test the forj-docker template command using lib loadpath
+    #
+    @sh = <<-EOS
+    ruby1.9.1 -I lib -e "#{forj_script}" template #{bad_docker_template} \
+    #{dest_dockerfile} \
+    -c '#{@json_string}'
+    EOS
+    puts 'running command :' if spec_debug
+    puts @sh if spec_debug
+
+    @command_res = command(@sh)
+    # force execution
+    exit_status = @command_res.exit_status
+    puts "exit => #{exit_status}" if spec_debug
+  end
+
+  #
+  # the default should work without errors
+  #
+  it 'exit_status' do
+    expect(@command_res.exit_status).not_to eq 0
+  end
+end

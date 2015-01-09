@@ -32,16 +32,10 @@ Gem::Specification.new do |s|
   s.license     = 'Apache License, Version 2.0.'
   s.post_install_message = 'Go to docs.forj.io for more
                                information on how to use forj cli'
-  s.required_ruby_version = '>= 1.8.5'
+  s.required_ruby_version = '>= 1.9.1'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
-  # TODO: need to think about this some more.
-  #      for now we'll use the scripts from
-  #      /var/lib/gems/<version>/gems/forj-doker-<version>/bin folder.
-  # s.executables   = `git ls-files -- bin/*`.split("\n").map {
-  #                    |f| f.gsub(/^bin[\/|\\]/, '')
-  # }
   s.executables   = `git ls-files -- bin/forj-docker`.split("\n").map {
                        |f| f.gsub(/^bin[\/|\\]/, '')
   }

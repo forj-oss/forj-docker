@@ -11,16 +11,28 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-# load relative libs
-$LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),
-                                                   'forj-docker')))
-require 'cli/appinit'
-require 'cli/cli'
 
+# Test hash_helper
 #
-# forj-docker cli entry point
-#
-module ForjDocker
-  PrcLib.debug(format("Running forj-docker cli version '%s'",
-                      $RT_VERSION))
+# *Test*
+spec_dir = File.join(File.expand_path(File.dirname(__FILE__)), '..')
+$LOAD_PATH << spec_dir
+require 'spec_helper'
+require 'rubygems'
+
+$LOAD_PATH << File.join(spec_dir, '..', 'lib')
+require 'forj-docker/common/hash_helper'
+
+describe 'hash_helper symoblize_keys', :default => true do
+  hash = nil
+  before :all do
+    hash = { 'a' => { 'b' => 'c' }, 'd' => 'e', Object.new => 'g' }
+  end
+
+  it ' hash should be symbolized' do
+    expect { hash = hash.sym_keys }.not_to raise_error
+    expect(hash.key? :a).to be true
+    expect(hash[:a].key? :b).to be true
+    expect(hash.key? :d).to be true
+  end
 end

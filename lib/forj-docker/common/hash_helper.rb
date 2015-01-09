@@ -14,20 +14,23 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-require 'json'
-require 'lorj'
+
 #
 # Helper functions
 #
-::String.class_eval do
-  def to_data
-    obj = {}
-    PrcLib.debug "String to_data => #{self}"
-    begin
-      obj = JSON.parse(self)
-    rescue JSON::ParserError => e
-      PrcLib.error "failed to convert: #{e.message}"
-    end
-    obj
+
+::Hash.class_eval do
+  def sym_keys
+    s2s =
+          lambda do |h|
+            if h.is_a?(Hash)
+              Hash[h.map do |k, v|
+                [k.respond_to?(:to_sym) ? k.to_sym : k, s2s[v]]
+              end]
+            else
+              h
+            end
+          end
+    s2s[self]
   end
 end

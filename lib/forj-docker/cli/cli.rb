@@ -35,6 +35,12 @@ module ForjDocker
       #              :desc => 'Set lib-forj debug level verbosity.' + \
       #                'verbosity. 1 to 5. Default is one.'
 
+      # error when task not found.
+      def self.exit_on_failure?
+        PrcLib.error('command failure with thor')
+        true
+      end
+
       # command: version
       # thor manage the help command.
       #
@@ -81,14 +87,8 @@ module ForjDocker
       #
       desc 'version', 'get GEM version of forj.'
       def version
-        Settings.common_options(options)
-        unless Gem.loaded_specs['forj-docker']
-          PrcLib.warning('Running from source, gem is not loaded')
-          return
-        end
-        gem_version = Gem.loaded_specs['forj-docker'].version.to_s
-        PrcLib.debug(format("Running cli command '%s'", gem_version))
-        PrcLib.message(gem_version)
+        require 'cli/commands/version'
+        ForjDocker::Commands::Version.new(options).start
       end
 
       #
@@ -105,18 +105,8 @@ LONGDESC
                     :desc    => 'If files are found they will be overwritten.',
                     :default => false
       def init
-        Settings.common_options(options)
-        docker_data = {} # TODO: need to implment getting settings
-        if Blueprint.new.exist_blueprint?
-          ForjDocker::AppInit.init_blueprint options, docker_data
-        else
-          ForjDocker::AppInit.init_vanilla options
-        end
-        # init should configure the default to be bare sense
-        # this should be a docker system
-        system("rake \"configure[bare]\"")
-        PrcLib.message 'init complete'
-        PrcLib.debug 'init complete'
+        require 'cli/commands/init'
+        ForjDocker::Commands::Init.new(options).start
       end
 
       #
@@ -156,33 +146,11 @@ LONGDESC
                     :default => 'undef'
 
       def template(erb_file = nil, dockerfile = nil)
-        Settings.common_options(options)
-
-        PrcLib.fatal(1, 'check forj-docker help template.'\
-                        '  An erb input file is required.') if erb_file.nil?
-        PrcLib.fatal(1, 'check forj-docker help template.  '\
-                        'Destination docker file' \
-                        'required.') if dockerfile.nil?
-        PrcLib.debug(format('using input file => %s', erb_file))
-        PrcLib.debug(format('using output file => %s', dockerfile))
-        validate_file_andfail erb_file
-        validate_nofile_andwarn dockerfile
-        PrcLib.debug "options => #{options}"
-        PrcLib.debug "config_json => #{options[:config_json]}"
-
-        docker_properties = options[:config_json].to_data
-        # Lets load blueprint properties if they exist.
-        blueprint = Blueprint.new
-        if blueprint.exist_blueprint?
-          blueprint.setup options[:layout_name]
-          docker_properties = blueprint.properties.merge(docker_properties)
-        end
-        DockerTemplate.new.process_dockerfile(
-          File.expand_path(erb_file),
-          File.expand_path(dockerfile),
-          docker_properties
-        )
-        PrcLib.message(format('template processed ... %s', dockerfile))
+        require 'cli/commands/template'
+        ForjDocker::Commands::Template.new(erb_file,
+                                           dockerfile,
+                                           options
+                                          ).start
       end
     end
   end

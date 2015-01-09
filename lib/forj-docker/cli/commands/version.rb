@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 
 # (c) Copyright 2014 Hewlett-Packard Development Company, L.P.
@@ -14,20 +13,31 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-require 'json'
-require 'lorj'
-#
-# Helper functions
-#
-::String.class_eval do
-  def to_data
-    obj = {}
-    PrcLib.debug "String to_data => #{self}"
-    begin
-      obj = JSON.parse(self)
-    rescue JSON::ParserError => e
-      PrcLib.error "failed to convert: #{e.message}"
+require 'cli/commands/base'
+
+module ForjDocker
+  module Commands
+    #
+    # command: version
+    class Version < ForjDocker::Commands::Base
+      def initialize(options = {}, conf = {})
+        super(options, conf)
+      end
+
+      def start
+        super
+        unless Gem.loaded_specs['forj-docker']
+          PrcLib.warning('Running from source, gem is not loaded')
+          return
+        end
+        gem_version = Gem.loaded_specs['forj-docker'].version.to_s
+        PrcLib.debug(format("Running cli command '%s'", gem_version))
+        PrcLib.message(gem_version)
+      end
+
+      def check_args
+        super
+      end
     end
-    obj
   end
 end

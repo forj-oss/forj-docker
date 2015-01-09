@@ -15,6 +15,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+mocks_dir = File.expand_path(File.dirname(__FILE__))
+$LOAD_PATH << File.join(mocks_dir, '..', '..' 'lib')
+require 'forj-docker/common/helpers'
 # spec defaults
 module CliSpec
   # common defaults
@@ -86,6 +89,7 @@ module CliSpec
       @master
     end
 
+    include Helpers
     def spec_blueprint_setup
       # remove the layout and master file if they exist
       remove_file spec_layout_file
