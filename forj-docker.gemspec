@@ -21,7 +21,8 @@ less_than_one_nine = ruby_conf['MAJOR'].to_i == 1 && ruby_conf['MINOR'].to_i < 9
 
 Gem::Specification.new do |s|
   s.name        = 'forj-docker'
-  s.version     = `cat VERSION`
+  s.version     = `cat VERSION`.gsub("\n", '') + \
+    '.' + `git log --oneline |wc -l`.gsub("\n", '')
   s.authors     = ['forj team']
   s.email       = %w(forj@forj.io)
   s.homepage    = 'https://github.com/forj-oss/forj-docker'

@@ -13,7 +13,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 VERSION_FILE = File.join(File.expand_path(File.join(__FILE__, '..')), 'VERSION')
-GEM_VERSION = (File.exist?(VERSION_FILE)) ? `cat "#{VERSION_FILE}"` : '0.0.1'
+COMMIT_NUM = `git log --oneline |wc -l`
+if File.exist?(VERSION_FILE)
+  GEM_VERSION = `cat "#{VERSION_FILE}"` + ".#{COMMIT_NUM}"
+else
+  GEM_VERSION = "0.0.#{COMMIT_NUM}"
+end
+
 gem_name_script = <<GEM_NAME_SCRIPT
     cat *.gemspec | \
     grep 's.name' | \
