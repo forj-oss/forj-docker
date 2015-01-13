@@ -22,12 +22,13 @@ rescue LoadError
   require 'thor'
 end
 require 'cli/sub_commands/configure'
+require 'cli/sub_commands/template'
 
 module ForjDocker
   module Cli
     #
     #  cli forj-docker
-    class ForjDockerThor < Thor  # rubocop:disable ClassLength
+    class ForjDockerThor < Thor
       class_option :debug,   :aliases => '-d', :desc => 'Set debug mode'
       class_option :verbose, :aliases => '-v', :desc => 'Set verbose mode'
       # class_option :config,  :aliases => '-c', :desc => 'Path to a different
@@ -110,49 +111,9 @@ LONGDESC
         ForjDocker::Commands::Init.new(options).start
       end
 
-      #
-      # command: template <erb file> <destination>
-      #
-      desc 'template <erb file> <destination>',
-           'convert a Dockerfile.node.erb to Dockerfile.node.'
-      long_desc <<-LONGDESC
-      This command will be used durring build time for converting a
-      Dockerfile erb template to a real Dockerfile. The configuration for
-      the template will have some defaults, as specified for the class
-      DockerTemplates, see spec/classes/common/docker_template_spec.rb.
-
-      This command also works with blueprint specifications for forj.  If
-      a blueprint is found, we will use the first found blueprint layout
-      to initiate default settings that can also be used in the dockerfiles.
-      To specifify alternative blueprint layout file, see --layout_name
-      option.
-
-      forj-docker will be enhanced for introducing new values with command:
-      forj-docker set <param> <value>
-
-      Example:
-
-      forj-docker template template/bp/docker/Dockerfile.node.erb \
-                  tmp/Dockerfile.testnode
-      LONGDESC
-
-      method_option :config_json,
-                    :aliases => '-c',
-                    :desc    => 'json string containing values for erb.',
-                    :default => '{}'
-
-      method_option :layout_name,
-                    :aliases => '-l',
-                    :desc    => 'specify an alternative layout name.',
-                    :default => 'undef'
-
-      def template(erb_file = nil, dockerfile = nil)
-        require 'cli/commands/template'
-        ForjDocker::Commands::Template.new(erb_file,
-                                           dockerfile,
-                                           options
-                                          ).start
-      end
+      # These are implemented as sub-commands so
+      # we can keep cli simple and understandable.
+      ForjDocker::Cli::SubCommands::Template.register_to(self)
       ForjDocker::Cli::SubCommands::Configure.register_to(self)
     end
   end
