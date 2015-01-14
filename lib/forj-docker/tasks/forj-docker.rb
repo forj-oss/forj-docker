@@ -88,24 +88,6 @@ task :runit => [:check] do
 end
 
 #
-# pull
-#
-desc 'TODO: do a docker registry pull for the docker workarea -' \
-     " #{PROVISIONER}:pull"
-task :pull do
-  Rake::Task["#{PROVISIONER}:pull"].invoke
-end
-
-#
-# push
-#
-desc 'TODO: do a docker registry push for the docker workarea -' \
-     " #{PROVISIONER}:push"
-task :push do
-  Rake::Task["#{PROVISIONER}:push"].invoke
-end
-
-#
 # registry_build
 #
 desc 'build the docker registry container -' \
@@ -120,4 +102,12 @@ end
 desc 'start and run the docker registry container'
 task :registry do
   Rake::Task["#{PROVISIONER}:registry"].invoke
+end
+
+desc 'manage docker workarea containers, see "containers[help]"'
+task :containers, [:action] do |_t, args|
+  require 'config'
+  args = { :action => :help }.merge(args)
+  puts "calling provisioner ==> #{PROVISIONER}"
+  Rake::Task["#{PROVISIONER}:containers"].invoke(args[:action])
 end

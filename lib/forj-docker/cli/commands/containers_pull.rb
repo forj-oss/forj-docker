@@ -18,8 +18,8 @@ require 'forj-docker/cli/commands/base'
 module ForjDocker
   module Commands
     #
-    # command: configure set key=value key=value ...
-    class ConfigureSet < ForjDocker::Commands::Base
+    # command: configure get section::key
+    class ContainersPull < ForjDocker::Commands::Base
       attr_accessor :params
 
       def initialize(params, options = {}, conf = {})
@@ -31,8 +31,14 @@ module ForjDocker
         super
         PrcLib.debug "config name #{@conf.sConfigName}"
         PrcLib.debug("@params => #{@params}")
-        Settings.config_show_all(@conf) if @params.length == 0
-        Settings.config_set(@conf, @params) if @params.length > 0
+        PrcLib.debug("@params.length => #{@params.length}")
+        PrcLib.message('to be implemented.')
+        # find the docker workarea
+        # should support options value :work_area
+        # should determine a list of images to pull
+        # alternatively we could produce a list from config, thoughts??
+        # should pull images
+        true
       end
 
       def check_args

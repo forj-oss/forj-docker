@@ -18,8 +18,8 @@ require 'forj-docker/cli/commands/base'
 module ForjDocker
   module Commands
     #
-    # command: configure set key=value key=value ...
-    class ConfigureSet < ForjDocker::Commands::Base
+    # command: configure get section::key
+    class ContainersPush < ForjDocker::Commands::Base
       attr_accessor :params
 
       def initialize(params, options = {}, conf = {})
@@ -31,8 +31,14 @@ module ForjDocker
         super
         PrcLib.debug "config name #{@conf.sConfigName}"
         PrcLib.debug("@params => #{@params}")
-        Settings.config_show_all(@conf) if @params.length == 0
-        Settings.config_set(@conf, @params) if @params.length > 0
+        PrcLib.debug("@params.length => #{@params.length}")
+        PrcLib.message('to be implemented.')
+        # should support an option :test that skips the real push
+        # find the docker workarea
+        # should support options value :work_area
+        # should find all Dockerfile.node*
+        # should look for built images and tags
+        true
       end
 
       def check_args

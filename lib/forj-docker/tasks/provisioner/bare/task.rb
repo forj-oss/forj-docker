@@ -81,25 +81,6 @@ namespace :bare do
   end
 
   #
-  # TODO: needs to implement a pull from docker registry
-  # implement configure option to prompt and setup
-  # a default docker registry with credentials config and url.
-  #
-  desc 'TODO: do a docker registry pull for the docker workarea'
-  task :pull do
-    puts 'not implemented.'
-  end
-
-  #
-  # TODO: needs to implment a push from docker registry
-  # implement configure option to prompt and setup
-  # a default docker registry with credentials config and url.
-  desc 'TODO: do a docker registry push for the docker workarea'
-  task :push do
-    puts 'not implemented'
-  end
-
-  #
   # implement this using a default docker container.
   # The container config should lib in config/default/registry.
   # name it forj/docker:registry
@@ -112,10 +93,40 @@ namespace :bare do
   end
 
   #
-  # TODO: implements running a docker registry server
+  # implements running a docker registry server
   #
   desc 'start and run the docker registry container (local)'
   task :registry do
     sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_reg_up.sh")
+  end
+
+  desc 'manage containers publishing, for help run task "containers[help]"'
+  task :containers, [:action] do | _t, args|
+    args = { :action => :help }.merge(args)
+    puts "running containers action ==> #{args}"
+    case args[:action].to_sym
+    when :help
+      puts "These actions can be performed on docker work areas for containers:
+      rake 'containers[pull]':   pull all containers defined by work area.
+      rake 'containers[push]':   push all containers defined by work area.
+      rake 'containers[list]':   list all containers in a defined work area.
+      rake 'containers[help]':   this help text."
+    when :pull
+      puts 'TODO: needs implementation'
+      # cli/commands/containers
+      # also available as :
+      # forj-docker containers pull
+    when :push
+      puts 'TODO: needs implementation'
+      # TODO: this will be implmented with forj-docker commands api
+      # cli/commands/containers
+      # forj-docker containers push
+    when :list
+      puts 'TODO: needs implementation'
+      require 'forj-docker/cli/commands/containers_list'
+    else
+      puts 'You gave me #{args[:action]} - I have no idea what to do with that.'
+      puts 'Check help with containers[help]'
+    end
   end
 end

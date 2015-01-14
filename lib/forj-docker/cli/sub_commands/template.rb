@@ -21,7 +21,7 @@ rescue LoadError
   require 'rubygems'
   require 'thor'
 end
-require 'cli/sub_commands/subtemplate'
+require 'forj-docker/cli/sub_commands/subtemplate'
 
 module ForjDocker
   module Cli
@@ -67,7 +67,7 @@ module ForjDocker
         desc 'template <erb file> <destination>',
              'Convert a Dockerfile.node.erb to Dockerfile.node.'
         def template(erb_file = nil, dockerfile = nil)
-          require 'cli/commands/template'
+          require 'forj-docker/cli/commands/template'
           ForjDocker::Commands::Template.new(erb_file,
                                              dockerfile,
                                              options).start

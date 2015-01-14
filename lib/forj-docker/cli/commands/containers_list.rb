@@ -18,8 +18,9 @@ require 'forj-docker/cli/commands/base'
 module ForjDocker
   module Commands
     #
-    # command: configure set key=value key=value ...
-    class ConfigureSet < ForjDocker::Commands::Base
+    # command: containers list
+    # list all the containers in a given work area
+    class ContainersList < ForjDocker::Commands::Base
       attr_accessor :params
 
       def initialize(params, options = {}, conf = {})
@@ -31,8 +32,11 @@ module ForjDocker
         super
         PrcLib.debug "config name #{@conf.sConfigName}"
         PrcLib.debug("@params => #{@params}")
-        Settings.config_show_all(@conf) if @params.length == 0
-        Settings.config_set(@conf, @params) if @params.length > 0
+        # look for the docker work area
+        # find all valid docker files under ./docker
+        # get the name, release and maintainer of each docker images
+        # return a hash aray of the work area
+        true
       end
 
       def check_args

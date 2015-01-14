@@ -21,7 +21,7 @@ rescue LoadError
   require 'rubygems'
   require 'thor'
 end
-require 'cli/sub_commands/subtemplate'
+require 'forj-docker/cli/sub_commands/subtemplate'
 
 module ForjDocker
   module Cli
@@ -56,7 +56,7 @@ module ForjDocker
       forj-docker configure get registry_url
 LONGDESC
         def get(*params)
-          require 'cli/commands/configure_get'
+          require 'forj-docker/cli/commands/configure_get'
           ForjDocker::Commands::ConfigureGet.new(params, options).start
         end
 
@@ -72,7 +72,7 @@ LONGDESC
       registry_url - will provide an alternate docker registry setting.
         LONGDESC
         def set(*params)
-          require 'cli/commands/configure_set'
+          require 'forj-docker/cli/commands/configure_set'
           ForjDocker::Commands::ConfigureSet.new(params, options).start
         end
         # FYI: we can make a task default with this command

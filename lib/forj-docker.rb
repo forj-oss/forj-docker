@@ -12,10 +12,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 # load relative libs
-$LOAD_PATH << File.join(File.expand_path(File.join(File.dirname(__FILE__),
-                                                   'forj-docker')))
-require 'cli/appinit'
-require 'cli/cli'
+require 'forj-docker/cli/appinit'
+require 'forj-docker/cli/cli'
 
 #
 # forj-docker cli entry point

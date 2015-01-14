@@ -21,8 +21,8 @@ rescue LoadError
   require 'rubygems'
   require 'thor'
 end
-require 'cli/sub_commands/configure'
-require 'cli/sub_commands/template'
+require 'forj-docker/cli/sub_commands/configure'
+require 'forj-docker/cli/sub_commands/template'
 
 module ForjDocker
   module Cli
@@ -89,7 +89,7 @@ Welcome to forj-docker !!!
       #
       desc 'version', 'get GEM version of forj.'
       def version
-        require 'cli/commands/version'
+        require 'forj-docker/cli/commands/version'
         ForjDocker::Commands::Version.new(options).start
       end
 
@@ -107,7 +107,7 @@ LONGDESC
                     :desc    => 'If files are found they will be overwritten.',
                     :default => false
       def init
-        require 'cli/commands/init'
+        require 'forj-docker/cli/commands/init'
         ForjDocker::Commands::Init.new(options).start
       end
 
