@@ -21,6 +21,7 @@ rescue LoadError
   require 'rubygems'
   require 'thor'
 end
+require 'cli/sub_commands/configure'
 
 module ForjDocker
   module Cli
@@ -51,31 +52,31 @@ module ForjDocker
           self.class.task_help(shell, task)
         else
           puts <<-LONGDESC
-          Welcome to forj-docker !!!
-          ----------------------------------
+Welcome to forj-docker !!!
+----------------------------------
 
-          forj-docker usage and setup can be found on https://docs.forj.io.
-          but here are some shortcuts to get you started!
+    forj-docker usage and setup can be found on https://docs.forj.io.
+    but here are some shortcuts to get you started!
 
-          1. setup a new project, make sure you start in an empty folder.
-          `$ mkdir bpname`
-          `$ forj-docker init`
+    1. setup a new project, make sure you start in an empty folder.
+    `$ mkdir bpname`
+    `$ forj-docker init`
 
-          2. Build it
-          `$ rake build`
+    2. Build it
+    `$ rake build`
 
-          3. run it
-          `$ rake runit`
-          `$ docker ps`
+    3. run it
+    `$ rake runit`
+    `$ docker ps`
 
-          forj-docker info:
-          --------------------------
-          Executing from    : #{$RT_GEM_HOME}
-          Running version   : #{$RT_VERSION}
-          Look for examples : find '#{$RT_GEM_HOME}/template/bpnoop/.'
+    forj-docker info:
+    --------------------------
+    Executing from    : #{$RT_GEM_HOME}
+    Running version   : #{$RT_VERSION}
+    Look for examples : find '#{$RT_GEM_HOME}/template/bpnoop/.'
 
-          forj-docker command line details:
-          --------------------------
+    forj-docker command line details:
+    --------------------------
           LONGDESC
           self.class.help(shell, subcommand)
         end
@@ -152,6 +153,7 @@ LONGDESC
                                            options
                                           ).start
       end
+      ForjDocker::Cli::SubCommands::Configure.register_to(self)
     end
   end
 end

@@ -23,12 +23,10 @@ module ForjDocker
       attr_accessor :conf
       attr_accessor :docker_properties
 
-      def initialize(options = {}, conf = {})
+      def initialize(options = {}, _conf = {})
         @options    = options
-        # TODO: this is configuration from forj-docker configure command
-        #       we should merge in defaults and settings. provided here as
-        #       a method to override.
-        @conf       = conf
+        # TODO: figure out how we can merge conf with @conf
+        @conf       = Lorj::Config.new
         @docker_properties = {}
         Settings.common_options(@options)
         check_args

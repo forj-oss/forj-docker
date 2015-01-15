@@ -47,6 +47,13 @@ def setup_spec_helper
   PrcLib.app_name = 'forj-docker-undertest'
   PrcLib.set_level Logger::DEBUG
   # PrcLib.log_file
+
+  $RT_GEM_HOME = File.expand_path(File.join(__FILE__,
+                                            '..',  # spec
+                                            '..')) # /
+  $RT_GEM_BIN = File.join($RT_GEM_HOME, 'bin')
+  $RT_VERSION_SPEC = File.join($RT_GEM_HOME, 'VERSION')
+  PrcLib.app_defaults = File.join($RT_GEM_HOME, 'forj-docker')
 end
 
 # check if we show more messages to debug failed specs.

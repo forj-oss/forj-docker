@@ -28,5 +28,107 @@ module ForjDocker
       end
       PrcLib.debug("current options => #{options}")
     end
+
+    # configuration set
+    def self.config_set(conf, *p)
+      b_dirty = false
+
+      p.flatten!
+      p.each do | key_val |
+        key_to_set, key_value = key_match(key_val)
+        PrcLib.message("#{key_to_set} #{key_value}")
+        unless config_setting_exist?(conf, key_to_set)
+          PrcLib.warning(format("key '%s' configuration does not exist." + \
+                                '  Check command settings. ',
+                                key_to_set))
+        end
+
+        # We assume no runtime has been set before.
+        old_value = conf[key_to_set]
+
+        bef = format("'%s' (%s)", old_value, conf.exist?(key_to_set))
+
+        config_set_local(conf, key_to_set, key_value)
+
+        new_value = conf[key_to_set]
+
+        aft = format("'%s' (%s)", new_value, conf.exist?(key_to_set))
+
+        if bef == aft
+          PrcLib.message format('%-15s: No update', key_to_set.to_s)
+          next
+        end
+        b_dirty = true
+        PrcLib.message format('%s: %s => %s',
+                              key_to_set, bef,
+                              ANSI.bold(aft))
+      end
+      conf.saveConfig if b_dirty
+    end
+
+    # local set
+    def self.config_set_local(conf, key, value)
+      key     = key.to_sym     if key.class     == String
+      if value != ''
+        conf.localSet(key, value)
+      else
+        conf.localDel(key)
+      end
+      conf
+    end
+
+    # key match
+    def self.key_match(key_val)
+      mkey_val = key_val.match(/^(.*) *= *(.*)$/)
+
+      PrcLib.fatal(1, 'Syntax error. Please set your value like:' + \
+                      " 'key=value' and retry.") unless mkey_val
+
+      key_to_set = mkey_val[1]
+      key_value  = mkey_val[2]
+
+      key_to_set = key_to_set.to_sym if key_to_set.class == String
+
+      [key_to_set, key_value]
+    end
+
+    # show all settigns
+    def self.config_show_all(conf)
+      PrcLib.message 'List of available forj-docker default settings:'
+      PrcLib.message format("%-15s %-12s :\n------------------------------",
+                            'section name',
+                            'key')
+      conf.meta_each do | section, found_key, hValue |
+        next if Lorj.rhGet(hValue, :readonly)
+        description = Lorj.rhGet(hValue, :desc)
+        PrcLib.message format('%-15s %-12s : %s',
+                              section,
+                              found_key,
+                              description)
+      end
+      PrcLib.message "\nUse `forj-docker configure" + \
+        ' section::key=value` to set one. '
+    end
+
+    # get default value
+    # TODO: @chrisssss when we don't know section,
+    #       how can we find the default value?
+    def self.get_default(conf, find_section, find_key)
+      find_section = find_section.to_sym if find_section.class == String
+      find_key     = find_key.to_sym     if find_key.class     == String
+      conf.meta_each do | section, key, hValue |
+        next unless section == find_section
+        next unless key == find_key
+        return Lorj.rhGet(hValue, :default_value)
+      end
+
+      nil
+    end
+
+    # key exist
+    # TODO: resolve why we don't need _conf
+    def self.config_setting_exist?(_conf, find_key)
+      !Lorj::Default.get_meta_section(find_key).nil?
+    end
   end
 end

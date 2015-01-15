@@ -65,6 +65,7 @@ module ForjDocker
                                                     'forj-docker'))
       PrcLib.data_path = $FORJ_DATA_PATH
       PrcLib.app_name = 'forj-docker'
+      PrcLib.app_defaults = File.join($RT_GEM_HOME, 'forj-docker')
       # PrcLib.log_file is built as <PrcLib.data_path>/<PrcLib.app_name>
       # by default
 

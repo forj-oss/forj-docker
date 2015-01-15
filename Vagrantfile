@@ -169,4 +169,21 @@ SCRIPT
 
    config.vm.provision "shell", inline: $script
 
+  $script_gem = <<SCRIPT_GEM
+  sudo apt-get install ruby1.9.1            \
+  ruby1.9.1-dev        \
+  rubygems1.9.1        \
+  build-essential      \
+  libopenssl-ruby1.9.1 \
+  libssl-dev           \
+  zlib1g-dev           \
+  libxml2-dev          \
+  libxslt-dev          \
+  ncurses-dev          \
+  git -y
+  sudo -E gem1.9.1 install bundler --no-rdoc --no-ri
+  cd /vagrant
+  ruby1.9.1 -S bundle install --gemfile Gemfile
+SCRIPT_GEM
+   config.vm.provision "shell", inline: $script_gem
 end
