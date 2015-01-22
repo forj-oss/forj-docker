@@ -21,8 +21,9 @@ rescue LoadError
   require 'rubygems'
   require 'thor'
 end
-require 'forj-docker/cli/sub_commands/configure'
 require 'forj-docker/cli/sub_commands/template'
+require 'forj-docker/cli/sub_commands/configure'
+require 'forj-docker/cli/sub_commands/containers'
 
 module ForjDocker
   module Cli
@@ -115,6 +116,7 @@ LONGDESC
       # we can keep cli simple and understandable.
       ForjDocker::Cli::SubCommands::Template.register_to(self)
       ForjDocker::Cli::SubCommands::Configure.register_to(self)
+      ForjDocker::Cli::SubCommands::Containers.register_to(self)
     end
   end
 end

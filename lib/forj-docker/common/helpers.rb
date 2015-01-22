@@ -174,4 +174,15 @@ module Helpers
     end
     folders
   end
+
+  # filter list of files and exclude in return array
+  #
+  def filter_files(exclude_regex, file_list)
+    new_list = []
+    file_list.each do |f|
+      PrcLib.debug "f => #{f}"
+      new_list << f unless exclude_regex.match(f)
+    end
+    new_list
+  end
 end

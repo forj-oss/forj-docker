@@ -16,30 +16,13 @@
 
 # Base Logging system started and loaded.
 # require 'byebug'
-begin
-  require 'yaml'
-  require 'lorj'
-  require 'forj-docker/common/specinfra_helper'
-  require 'forj-docker/common/hash_helper'
-  require 'forj-docker/common/json_helper'
-  require 'forj-docker/common/erb_data'
-  require 'forj-docker/common/docker_template'
-  require 'forj-docker/common/blueprint'
-  require 'forj-docker/common/settings'
-  require 'forj-docker/common/helpers'
-rescue LoadError
-  require 'rubygems'
-  require 'yaml'
-  require 'lorj'
-  require 'forj-docker/common/specinfra_helper'
-  require 'forj-docker/common/hash_helper'
-  require 'forj-docker/common/json_helper'
-  require 'forj-docker/common/erb_data'
-  require 'forj-docker/common/docker_template'
-  require 'forj-docker/common/blueprint'
-  require 'forj-docker/common/settings'
-  require 'forj-docker/common/helpers'
-end
+require 'forj-docker/common/hash_helper'
+require 'forj-docker/common/json_helper'
+require 'forj-docker/common/erb_data'
+require 'forj-docker/common/docker_template'
+require 'forj-docker/common/blueprint'
+require 'forj-docker/common/settings'
+require 'forj-docker/common/helpers'
 include Helpers
 
 module ForjDocker
@@ -55,10 +38,7 @@ module ForjDocker
                                                 '..'))
       $RT_GEM_BIN = File.join($RT_GEM_HOME, 'bin')
       $RT_VERSION_SPEC = File.join($RT_GEM_HOME, 'VERSION')
-      sh = <<-EOS
-      cat '#{$RT_VERSION_SPEC}'
-      EOS
-      $RT_VERSION = command(sh).stdout.to_s
+      $RT_VERSION = File.open($RT_VERSION_SPEC).read.gsub!(/\r\n?/, '')
 
       $FORJ_DATA_PATH  = File.expand_path(File.join(gethome_path,
                                                     '.config',

@@ -17,12 +17,14 @@ $LOAD_PATH << File.join(File.dirname(__FILE__))
 require 'config'
 require 'provisioners'
 require 'helper'
+require 'lorj'
+require 'forj-docker/cli/appinit'
 
 desc 'configure the provisioner for this rake project [bare|vagrant]'
 task :configure, [:provisioner] do |_t, args|
   args = { :provisioner => getcurrent_provisioner }.merge(args)
   setcurrent_provisioner(args[:provisioner])
-  puts "configured provisioner ==> #{getcurrent_provisioner}"
+  PrcLib.message "configured provisioner ==> #{getcurrent_provisioner}"
 end
 
 #
@@ -108,6 +110,6 @@ desc 'manage docker workarea containers, see "containers[help]"'
 task :containers, [:action] do |_t, args|
   require 'config'
   args = { :action => :help }.merge(args)
-  puts "calling provisioner ==> #{PROVISIONER}"
+  PrcLib.message "calling provisioner ==> #{PROVISIONER}"
   Rake::Task["#{PROVISIONER}:containers"].invoke(args[:action])
 end

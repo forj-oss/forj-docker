@@ -12,6 +12,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 # load relative libs
+begin
+  require 'yaml'
+  require 'lorj'
+rescue LoadError
+  require 'rubygems'
+  require 'yaml'
+  require 'lorj'
+end
+require 'forj-docker/common/specinfra_helper'
 require 'forj-docker/cli/appinit'
 require 'forj-docker/cli/cli'
 

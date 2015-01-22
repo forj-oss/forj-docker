@@ -113,4 +113,24 @@ describe 'Helper file operation functions', :default => true do
       .not_to raise_error
     expect(find_files(/Dockerfile.*/, 'spec/fixtures/folder1').length).to eq 3
   end
+
+  it 'filter_files excludes files' do
+    command('rm -rf spec/fixtures/folder1').exit_status
+    expect(command('mkdir -p spec/fixtures/folder1/sub1').exit_status).to eq 0
+    expect(command('mkdir -p spec/fixtures/folder1/sub2').exit_status).to eq 0
+    expect(command('touch spec/fixtures/folder1/sub2/Dockerfile1').exit_status)
+      .to eq 0
+    expect(command('touch spec/fixtures/folder1/sub2/Dockerfile2').exit_status)
+      .to eq 0
+    expect(command('touch spec/fixtures/folder1/sub1/Dockerfile1').exit_status)
+      .to eq 0
+    the_files = []
+    expect { the_files = find_files(/Dockerfile.*/, 'spec/fixtures/folder1') }
+      .not_to raise_error
+    PrcLib.debug "the_files => #{the_files}"
+    expect { the_files = filter_files(/.*Dockerfile1$/, the_files) }
+      .not_to raise_error
+    PrcLib.debug "the_files => #{the_files}"
+    expect(the_files.length).to eq 1
+  end
 end

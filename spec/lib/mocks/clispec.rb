@@ -114,6 +114,35 @@ module CliSpec
       files << 'spec/fixtures/init_empty/docker/review/setup_sources.sh'
       files
     end
+
+    def spec_vanilla_init(work_dir = 'spec/fixtures/vanilla_init')
+      @sh = <<-EOS
+      set -x -v
+      [ ! -d "#{work_dir}" ] && mkdir -p "#{work_dir}"
+      _cwd=$(pwd)
+      FORJ_DOCKER_LIB=$(pwd)/lib
+      cd "#{work_dir}"
+      if [ $? -eq 0 ]; then
+        ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" init
+        s=$?
+      fi
+      cd $_cwd
+      return $s
+      EOS
+
+      @command_res = command(@sh)
+      # force execution
+      FileUtils.rm_rf work_dir if File.exist?(work_dir)
+      PrcLib.debug "exit => #{@command_res.exit_status}"
+      if spec_debug
+        puts 'running command :'
+        puts @sh
+        puts "stdout => #{@command_res.stdout}"
+        puts "stderr => #{@command_res.stderr}"
+        puts 'setup complete'
+      end
+      File.join(work_dir, 'docker')
+    end
   end
   # testing data for cli_template_spec
   module DefaultsTemplate

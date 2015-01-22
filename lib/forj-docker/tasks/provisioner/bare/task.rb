@@ -20,23 +20,27 @@ namespace :bare do
   desc 'bare::provision build steps'
   task :provision, [:action] do | _t, args |
     args = { :action => :dev }.merge(args)
-    puts "running bare action ==> #{args}"
+    PrcLib.message "running bare action ==> #{args}"
     case args[:action].to_sym
     when :help
-      puts "These are the supported options for vagrant task:
-      rake 'bare[clean]'  : perform any local clean operations.
-      rake 'bare[dev]'    : no-op.
-      rake 'bare[build]'  : prepare the docker containers found.
-      rake 'bare[connect]': no-op."
+      help_message = <<-MESSAGE
+      These are the supported options for vagrant task:
+
+        rake 'bare[clean]'  : perform any local clean operations.
+        rake 'bare[dev]'    : no-op.
+        rake 'bare[build]'  : prepare the docker containers found.
+        rake 'bare[connect]': no-op.
+      MESSAGE
+      PrcLib.message help_message
     when :clean
-      puts 'Cleanup for docker bulid steps'
+      PrcLib.message 'Cleanup for docker bulid steps'
       sh("find #{DOCKER_WORKAREA} -name 'Dockerfile' -type l|xargs -i rm -f {}")
       sh("find #{DOCKER_WORKAREA} -name 'build' -type d|xargs -i rm -fr {}")
       CLEAN.include('git/*', 'src/git/*')
     when :dev
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_install.sh")
     when :build
-      puts 'Build all the docker images locally'
+      PrcLib.message 'Build all the docker images locally'
       ENV['DOCKER_WORKAREA'] = DOCKER_WORKAREA
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_prepare.sh")
     when :connect
@@ -46,7 +50,10 @@ namespace :bare do
       sh("bash #{FORJ_DOCKER_BIN}/scripts/docker_up.sh \
          -t 'forj/redstone:review' -a dev -n devcontainer.localhost")
     else
-      puts "You gave me #{args[:action]} - I have no idea what to do with that."
+      error_message = <<-MESSAGE
+      You gave me #{args[:action]} - I have no idea what to do with that.
+      MESSAGE
+      PrcLib.error error_message
     end
   end
 
@@ -58,7 +65,7 @@ namespace :bare do
     args = (!args.nil?) ? { :ignore => false }.merge(args) :
                           { :ignore => false }
     if args[:ignore] != true
-      puts 'Verifying bare...'
+      PrcLib.message 'Verifying bare...'
       RSpec::Core::RakeTask.new(:check_spec) do |ct|
         ct.pattern = File.join(FORJ_DOCKER_SPEC,
                                '{check_docker}',
@@ -68,7 +75,7 @@ namespace :bare do
       end
       Rake::Task[:check_spec].invoke
     else
-      puts 'Ignoring checks'
+      PrcLib.warning 'Ignoring checks'
     end
   end
 
@@ -77,7 +84,7 @@ namespace :bare do
   #
   desc 'runit for each docker workarea'
   task :runit do
-    puts 'does nothing atm'
+    PrcLib.warning 'does nothing atm'
   end
 
   #
@@ -103,30 +110,48 @@ namespace :bare do
   desc 'manage containers publishing, for help run task "containers[help]"'
   task :containers, [:action] do | _t, args|
     args = { :action => :help }.merge(args)
-    puts "running containers action ==> #{args}"
+    PrcLib.message "running containers action ==> #{args}"
+
     case args[:action].to_sym
     when :help
-      puts "These actions can be performed on docker work areas for containers:
+      help_message = <<-MESSAGE
+      These actions can be performed on docker work areas for containers:
+
       rake 'containers[pull]':   pull all containers defined by work area.
       rake 'containers[push]':   push all containers defined by work area.
       rake 'containers[list]':   list all containers in a defined work area.
-      rake 'containers[help]':   this help text."
+      rake 'containers[help]':   this help text.
+      MESSAGE
+      PrcLib.message help_message
     when :pull
-      puts 'TODO: needs implementation'
+      PrcLib.message 'TODO: needs implementation'
       # cli/commands/containers
       # also available as :
       # forj-docker containers pull
     when :push
-      puts 'TODO: needs implementation'
+      PrcLib.message 'TODO: needs implementation'
       # TODO: this will be implmented with forj-docker commands api
       # cli/commands/containers
       # forj-docker containers push
     when :list
-      puts 'TODO: needs implementation'
       require 'forj-docker/cli/commands/containers_list'
+      debug_opts = { :debug   => FORJ_DOCKER_DEBUG,
+                     :verbose => FORJ_DOCKER_DEBUG,
+                     :quiet   => !FORJ_DOCKER_DEBUG }
+      # params containers alternate docker-work area
+      # options containers debug and verbose flags
+      options = { :docker_workarea => DOCKER_WORKAREA,
+                  :quiet => true }.merge debug_opts
+      docker_data = ForjDocker::Commands::ContainersList.new([], options).start
+      docker_data[:containers].each do |d|
+        PrcLib.message d[:repo_name]
+      end
     else
-      puts 'You gave me #{args[:action]} - I have no idea what to do with that.'
-      puts 'Check help with containers[help]'
+      error_message = <<-MESSAGE
+      You gave me #{args[:action]} - I have no idea what to do with that.
+         Check help with containers[help]
+      MESSAGE
+      PrcLib.error error_message
     end
   end
 end

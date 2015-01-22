@@ -29,7 +29,11 @@ rescue LoadError
 end
 include Helpers
 #
-# class for managing Dockerfiles with erb templates
+# class for managing Dockerfiles
+# features include:
+# - process dockerfiles with erb templates
+# - get a default docker_workarea directory
+# - default Dockerfile meta data properties
 #
 class DockerTemplate
   attr_accessor :properties
@@ -43,7 +47,8 @@ class DockerTemplate
       :maintainer_email => 'youremail@yourdomain.com',
       :base_image       => 'forj/ubuntu:precise',
       :workspace_dir    => '/opt/workspace',
-      :expose_ports     => '22 80 443'
+      :expose_ports     => '22 80 443',
+      :file_name        => nil
     }.merge(def_properties)
   end
 
@@ -63,5 +68,57 @@ class DockerTemplate
       PrcLib.error(format('failed to process dockerfile for %s : %s',
                           vals[:node], e.message))
     end
+  end
+
+  #
+  # get the default workarea, current directory + docker
+  #
+  def default_workarea
+    current_dir = File.expand_path('.')
+    workarea = File.join(current_dir, 'docker')
+    workarea = nil unless File.exist? workarea
+    PrcLib.debug "workarea => #{workarea}"
+    workarea
+  end
+
+  #
+  # match token
+  def match_token(token, line, options = {})
+    options = { :exp => '(.*)',
+                :field => 1
+             }.merge options
+    meta_token = Regexp.new("#{token}\s#{options[:exp]}")
+    return line.match(meta_token)[options[:field]] if line.match(meta_token)
+    nil
+  end
+
+  #
+  # get metadata from dockerfile
+  #
+  def dockerfile_metadata(file = nil)
+    meta_data = @properties.merge(
+                  :repo_name  => nil,
+                  :image_name => nil,
+                  :file_name  => nil,
+                  :VERSION    => nil,
+                  :maintainer_name  => nil,
+                  :maintainer_email => nil
+                )
+    return meta_data unless File.exist?(file)
+    meta_data[:file_name] = File.expand_path(file)
+    File.open(file, 'r').each do |line|
+      [{ :property => :VERSION,         :token => '.*#\sDOCKER-VERSION' },
+       { :property => :maintainer_name, :token => '^MAINTAINER',
+         :exp => '(.*),\s(.*)', :field => 1 },
+       { :property => :maintainer_email, :token => '^MAINTAINER',
+         :exp => '(.*),\s(.*)', :field => 2 },
+       { :property => :image_name,      :token => '.*#\sDOCKER-NAME',
+         :exp => '(.*)/(.*)', :field => 2 },
+       { :property => :repo_name,  :token => '.*#\sDOCKER-NAME' }].each do | p |
+        match_val = match_token(p[:token], line, p)
+        meta_data[p[:property]] = match_val unless match_val.nil?
+      end
+    end
+    meta_data
   end
 end

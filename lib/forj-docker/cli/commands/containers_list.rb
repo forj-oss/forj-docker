@@ -13,7 +13,9 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+require 'json'
 require 'forj-docker/cli/commands/base'
+require 'forj-docker/common/docker_template'
 
 module ForjDocker
   module Commands
@@ -22,25 +24,45 @@ module ForjDocker
     # list all the containers in a given work area
     class ContainersList < ForjDocker::Commands::Base
       attr_accessor :params
+      attr_accessor :docker_files
+      attr_accessor :docker_workarea
 
       def initialize(params, options = {}, conf = {})
+        @docker_workarea = options[:docker_workarea]
         super(options, conf)
         @params = params
+        # get a list of files from the work area
+        # find "docker" -type f \
+        # -name 'Dockerfile.*' ! -name '*.erb' ! -name '*.node'
+        # get the name, release and maintainer of each docker images
+        # populate @docker_files
+        PrcLib.debug "docker_workarea => #{@docker_workarea}"
+        @docker_files = find_files(/Dockerfile.*/, @docker_workarea)
+        @docker_files = filter_files(/.*Dockerfile.*.erb$/, @docker_files)
+        @docker_files = filter_files(/.*Dockerfile.*.node$/, @docker_files)
       end
 
       def start
         super
         PrcLib.debug "config name #{@conf.sConfigName}"
         PrcLib.debug("@params => #{@params}")
-        # look for the docker work area
-        # find all valid docker files under ./docker
-        # get the name, release and maintainer of each docker images
-        # return a hash aray of the work area
-        true
+        # return JSON output of @docker_files
+        PrcLib.debug "#{@docker_files}"
+        containers_data = { :containers => [] }
+        dt = DockerTemplate.new
+        @docker_files.each do | df |
+          containers_data[:containers] << dt.dockerfile_metadata(df)
+        end
+        PrcLib.message containers_data.to_json unless @options[:quiet]
+        containers_data
       end
 
       def check_args
         super
+        PrcLib.fatal(1, 'check docker work area option.  '\
+        "no 'docker' folder found, #{@docker_workarea}." \
+        '  use --docker_workarea option or fix path.') if @docker_workarea.nil?
+        validate_file_andfail @docker_workarea
       end
     end
   end

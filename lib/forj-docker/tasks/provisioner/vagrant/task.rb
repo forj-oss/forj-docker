@@ -22,32 +22,39 @@ namespace :vagrant do
     puts "running vagrant action ==> #{args}"
     case args[:action].to_sym
     when :help
-      puts "These are the supported options for vagrant task:
-      rake 'vagrant[clean]':   clean this machine.
-      rake 'vagrant[dev]':     create a dev environment.
-      rake 'vagrant[build]':   build any docker image in the vm.
-      rake 'vagrant[connect]': connect to the vagrant machine."
+      help_message = <<-MESSAGE
+      These are the supported options for vagrant task:
+
+        rake 'vagrant[clean]':   clean this machine.
+        rake 'vagrant[dev]':     create a dev environment.
+        rake 'vagrant[build]':   build any docker image in the vm.
+        rake 'vagrant[connect]': connect to the vagrant machine.
+      MESSAGE
+      PrcLib.message help_message
     when :clean
-      puts 'Destroy this vagrant environment'
+      PrcLib.message 'Destroy this vagrant environment'
       sh('vagrant destroy -f')
     when :dev
       Rake::Task['check'].execute
-      puts 'Vagrant setup dev environment and connect'
+      PrcLib.message 'Vagrant setup dev environment and connect'
       sh('vagrant up --no-provision')
       sh('vagrant provision')
       sh('vagrant ssh')
     when :build
-      puts 'Build all the docker images in vagrant'
+      PrcLib.message 'Build all the docker images in vagrant'
       sh('vagrant up')
       sh("vagrant ssh \\
           --command 'bash -c \\
           \"export DOCKER_WORKAREA=/vagrant/docker;\\
           /vagrant/bin/scripts/docker_prepare.sh\"'")
     when :connect
-      puts 'Vagrant perform connection to box'
+      PrcLib.message 'Vagrant perform connection to box'
       sh('vagrant ssh')
     else
-      puts 'You gave me #{args[:action]} - I have no idea what to do with that.'
+      error_message = <<-MESSAGE
+      You gave me #{args[:action]} - I have no idea what to do with that.
+      MESSAGE
+      PrcLib.error error_message
     end
   end
 
@@ -59,7 +66,7 @@ namespace :vagrant do
     args = (!args.nil?) ? { :ignore => false }.merge(args) :
                           { :ignore => false }
     if args[:ignore] != true
-      puts 'Verifying vagrant...'
+      PrcLib.message 'Verifying vagrant...'
       RSpec::Core::RakeTask.new(:check_spec) do |ct|
         ct.pattern = File.join(FORJ_DOCKER_SPEC,
                                '{check_vagrant}',
@@ -69,7 +76,7 @@ namespace :vagrant do
       end
       Rake::Task[:check_spec].invoke
     else
-      puts 'Ignoring checks'
+      PrcLib.warning 'Ignoring checks'
     end
   end
 
@@ -78,7 +85,7 @@ namespace :vagrant do
   #
   desc 'runit for each docker workarea'
   task :runit do
-    puts 'does nothing atm'
+    PrcLib.warning 'does nothing atm'
   end
 
   #
@@ -86,7 +93,7 @@ namespace :vagrant do
   #
   desc 'build the docker registry container'
   task :registry_build do
-    puts 'building a registry container build'
+    PrcLib.message 'building a registry container build'
     sh('vagrant up')
     sh("vagrant ssh \\
         --command 'bash -c \\
@@ -99,7 +106,7 @@ namespace :vagrant do
   #
   desc 'start and run the docker registry container'
   task :registry do
-    puts 'starting the registry container'
+    PrcLib.message 'starting the registry container'
     sh('vagrant up')
     sh("vagrant ssh \\
         --command 'bash -c \\
@@ -110,30 +117,39 @@ namespace :vagrant do
   desc 'manage containers publishing, for help run task "containers[help]"'
   task :containers, [:action] do | _t, args|
     args = { :action => :help }.merge(args)
-    puts "running containers action ==> #{args}"
+    PrcLib.message "running containers action ==> #{args}"
     case args[:action].to_sym
     when :help
-      puts "These actions can be performed on docker work areas for containers:
+      help_message = <<-MESSAGE
+      These actions can be performed on docker work areas for containers:
+
       rake 'containers[pull]':   pull all containers defined by work area.
       rake 'containers[push]':   push all containers defined by work area.
       rake 'containers[list]':   list all containers in a defined work area.
-      rake 'containers[help]':   this help text."
+      rake 'containers[help]':   this help text.
+      MESSAGE
+      PrcLib.message help_message
     when :pull
-      puts 'TODO: needs implementation'
+      PrcLib.warning 'TODO: needs implementation'
       # cli/commands/containers
       # also available as :
       # forj-docker containers pull
     when :push
-      puts 'TODO: needs implementation'
+      PrcLib.warning 'TODO: needs implementation'
       # TODO: this will be implmented with forj-docker commands api
       # cli/commands/containers
       # forj-docker containers push
     when :list
-      puts 'TODO: needs implementation'
-      require 'forj-docker/cli/commands/containers_list'
+      PrcLib.warning 'TODO: needs implementation'
+      # needs forj-docker containers list implemented
+      # connect to the remote container in the /vagrant folder
+      # execute the command forj-docker conatiners list
     else
-      puts 'You gave me #{args[:action]} - I have no idea what to do with that.'
-      puts 'Check help with containers[help]'
+      error_message = <<-MESSAGE
+      You gave me #{args[:action]} - I have no idea what to do with that.
+      Check help with containers[help]
+      MESSAGE
+      PrcLib.error error_message
     end
   end
 end

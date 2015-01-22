@@ -29,12 +29,14 @@ describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
          :default => true do
   @dest_dockerfile = ''
   @docker_file_matchers = nil
+  @docker_template = nil
   before :all do
     @dest_dockerfile = 'spec/fixtures/Dockerfile.test'
     #
     # test the DockerTemplate class with some set values
     #
-    DockerTemplate.new.process_dockerfile(
+    @docker_template = DockerTemplate.new
+    @docker_template.process_dockerfile(
       'template/bp/docker/Dockerfile.node.erb',
       @dest_dockerfile,
       :VERSION          => '1.0.1',
@@ -63,5 +65,24 @@ describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
       puts "working on => #{m}" if spec_debug
       expect(@docker_processed).to match(m)
     end
+  end
+
+  it 'should find a default docker_workarea' do
+    puts "default_workarea -> #{@docker_template.default_workarea}"
+    expect(@docker_template.default_workarea).not_to be nil
+    Dir.chdir 'spec'
+    expect(DockerTemplate.new.default_workarea).to be nil
+    Dir.chdir '..'
+  end
+
+  it 'should get metadata from dockerfile_metadata' do
+    @docker_metadata = DockerTemplate.new.dockerfile_metadata(@dest_dockerfile)
+    PrcLib.debug "docker_metadata => #{@docker_metadata}"
+    expect(@docker_metadata[:VERSION]).to match(/1.0.1/)
+    expect(@docker_metadata[:repo_name]).to match(/test\/testbp/)
+    expect(@docker_metadata[:image_name]).to match(/testbp:foo/)
+    expect(@docker_metadata[:maintainer_name]).to match(/testco.io/)
+    expect(@docker_metadata[:maintainer_email]).to match(/tester.foo@testco.io/)
+    expect(@docker_metadata[:file_name]).to match(Regexp.new(@dest_dockerfile))
   end
 end

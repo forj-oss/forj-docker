@@ -65,6 +65,16 @@ def setcurrent_provisioner(prov_target)
   write_config(:provisioner, prov_target)
 end
 
+#
+# setup global debug options
+if ENV['FORJ_DOCKER_DEBUG'] != '' && !ENV['FORJ_DOCKER_DEBUG'].nil?
+  FORJ_DOCKER_DEBUG = true
+else
+  FORJ_DOCKER_DEBUG = false
+end
+
+#
+# setup global docker work area options
 PROVISIONER = getcurrent_provisioner
 if ENV['DOCKER_WORKAREA'] != '' && !ENV['DOCKER_WORKAREA'].nil?
   DOCKER_WORKAREA = ENV['DOCKER_WORKAREA']
@@ -72,6 +82,9 @@ else
   DOCKER_WORKAREA = File.join(File.expand_path('.'), 'docker')
 end
 puts "Docker work area => #{DOCKER_WORKAREA}"
+
+#
+# setup bin, spec lib paths
 FORJ_DOCKER_BIN  = File.expand_path(
                    File.join(File.dirname(__FILE__), '..', '..', '..', 'bin'))
 FORJ_DOCKER_SPEC = File.expand_path(

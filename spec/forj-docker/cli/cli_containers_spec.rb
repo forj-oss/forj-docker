@@ -12,11 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-# Test forj-docker init
+# Test forj-docker containers
 #
 # *Test*
-# * init an empty folder template
-# * init a blueprint template
+# * list
 spec_dir = File.join(File.expand_path(File.dirname(__FILE__)), '..', '..')
 $LOAD_PATH << spec_dir
 require 'rubygems'
@@ -27,12 +26,9 @@ include CliSpec::InitDefaults
 
 $LOAD_PATH << File.join(spec_dir, '..', 'lib')
 
-# test vanilla init
-describe 'init an empty folder template', :default => true do
+# test vanilla containers list
+describe 'containers management with forj-docker', :default => true do
   before :all do
-    #
-    # test the forj-docker init
-    #
     @work_dir = 'spec/fixtures/init_empty'
     @sh = <<-EOS
     set -x -v
@@ -41,8 +37,11 @@ describe 'init an empty folder template', :default => true do
     FORJ_DOCKER_LIB=$(pwd)/lib
     cd "#{@work_dir}"
     if [ $? -eq 0 ]; then
-      ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" init
-      s=$?
+        ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" \
+            init
+        ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" \
+            containers list
+        s=$?
     fi
     cd $_cwd
     return $s
@@ -62,34 +61,26 @@ describe 'init an empty folder template', :default => true do
   #
   # the default should work without errors
   #
-  it 'init empty should create docker work_area' do
+  it 'containers list' do
     expect(@command_res.exit_status).to eq 0
-    spec_init_files_empty.each do |init_file|
-      puts "check for -> #{init_file}" if spec_debug
-      files_setup = Dir.glob("#{@work_dir}/**/*", File::FNM_DOTMATCH)
-                    .select { |f| !File.directory? f }
-      expect(files_setup).to include init_file
-    end
   end
 end
 
-# test blueprint init
-describe 'init mock blueprint folder', :default => true do
+# test no docker folder with cli should error
+describe 'containers management with forj-docker', :default => true do
   before :all do
-    # setup a mock bluprint
-    spec_blueprint_setup
-    #
-    # test the forj-docker init
-    #
+    @work_dir = 'spec/fixtures/init_empty'
     @sh = <<-EOS
     set -x -v
-    [ ! -d "#{spec_work_dir}" ] && mkdir -p "#{spec_work_dir}"
+    [ -d "#{@work_dir}" ] && rm -rf "#{@work_dir}"
+    [ ! -d "#{@work_dir}" ] && mkdir -p "#{@work_dir}"
     _cwd=$(pwd)
     FORJ_DOCKER_LIB=$(pwd)/lib
-    cd "#{spec_work_dir}"
+    cd "#{@work_dir}"
     if [ $? -eq 0 ]; then
-      ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" init
-      s=$?
+        ruby1.9.1 -I $FORJ_DOCKER_LIB -e "#{forj_script}" \
+            containers list
+        s=$?
     fi
     cd $_cwd
     return $s
@@ -99,7 +90,7 @@ describe 'init mock blueprint folder', :default => true do
 
     @command_res = command(@sh)
     # force execution
-    FileUtils.rm_rf spec_work_dir if File.exist?(spec_work_dir)
+    FileUtils.rm_rf @work_dir if File.exist?(@work_dir)
     puts "exit => #{@command_res.exit_status}" if spec_debug
     puts "stdout => #{@command_res.stdout}" if spec_debug
     puts "stderr => #{@command_res.stderr}" if spec_debug
@@ -108,14 +99,8 @@ describe 'init mock blueprint folder', :default => true do
 
   #
   # the default should work without errors
-  # TODO: this still needs more work
-  it 'init blueprint should create docker work_area' do
-    expect(@command_res.exit_status).to eq 0
-    # spec_init_files_empty.each do |init_file|
-    #   puts "check for -> #{init_file}" if spec_debug
-    #   files_setup = Dir.glob("#{@work_dir}/**/*", File::FNM_DOTMATCH)
-    #                 .select { |f| !File.directory? f }
-    #   expect(files_setup).to include init_file
-    # end
+  #
+  it 'containers list' do
+    expect(@command_res.exit_status).to eq 1
   end
 end

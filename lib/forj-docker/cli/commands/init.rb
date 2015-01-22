@@ -28,7 +28,14 @@ module ForjDocker
         super
         PrcLib.debug 'In Init start'
         if Blueprint.new.exist_blueprint?
-          ForjDocker::AppInit.init_blueprint @options, @conf
+          # TODO: @chriss, @conf is now Lorj::Config, this means we
+          #   can get meta values from the config, but in what section
+          #   and key should these exist in?   Should we create a special
+          #   section just for docker, or should this come from a forj section?
+          #   We need to talk about this meta config and how where it comes
+          #   from.   For now, we will not use @conf to setup this blueprint.
+          # ForjDocker::AppInit.init_blueprint @options, @conf
+          ForjDocker::AppInit.init_blueprint @options
         else
           ForjDocker::AppInit.init_vanilla @options
         end
