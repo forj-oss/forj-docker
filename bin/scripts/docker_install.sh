@@ -28,20 +28,6 @@ done
 unset i
 
 #
-# grant access
-#
-function DOCKER_GRANT_ACCESS {
-  if [ -z "${1}" ] ; then
-    CURRENT_USER=$(facter id)
-  else
-    CURRENT_USER=$1
-  fi
-  [ -z "${CURRENT_USER}" ] && ERROR_EXIT ${LINENO} "failed to get current user with facter id" 2
-  DO_SUDO puppet apply $PUPPET_DEBUG \
-  -e "user {'${CURRENT_USER}': ensure => present, gid => 'docker' }"
-}
-
-#
 # grab maestro repo and clone
 #
 [ ! -d "${SCRIPT_FULL_DIR}/git" ] && mkdir -p "${SCRIPT_FULL_DIR}/git"

@@ -85,6 +85,7 @@ BUILD_SETTINGS
     chmod a+x build/build_00.sh
 
     # build and check the docker image
+    DOCKER_PROXY_CONF
     sg docker -c "docker build -t '${DOCKER_NAME}' '${DOCKER_HOME}'"
     DOCKER_REPO=$(echo "${DOCKER_NAME}"|awk -F: '{print $1}')
     DOCKER_TAG=$(echo "${DOCKER_NAME}"|awk -F: '{print $2}')

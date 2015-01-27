@@ -41,6 +41,8 @@ if [ ! -z "$HTTP_PROXY" ]; then
     sed -n -i '/export PROXY=.*/!p' contrib/build_env.sh
     echo "export PROXY=$HTTP_PROXY" >> contrib/build_env.sh
 fi
+
+DOCKER_PROXY_CONF
 docker build --rm -t forj/docker:registry .
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute docker registry build" 2
 
