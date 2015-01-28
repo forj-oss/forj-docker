@@ -69,13 +69,12 @@ module ForjDocker
     #
     def exist_blueprint?
       cwd = File.expand_path('.')
-      PrcLib.debug(format("checking for blueprints '%s'",
-                          cwd))
+      PrcLib.debug("checking for blueprints '%s'", cwd)
       return false unless File.directory?(File.join(cwd, 'forj'))
       bps = Dir.entries(File.join(cwd, 'forj'))
             .select { |f| !File.directory? f }
             .select { |f| f =~ /.*-layout.yaml/ }
-      PrcLib.debug(format("found files '%s'", bps))
+      PrcLib.debug("found files '%s'", bps)
       true
     end
 
@@ -85,8 +84,7 @@ module ForjDocker
     #
     def init_vanilla(options = { :force => false })
       cwd = File.expand_path('.')
-      PrcLib.debug(format("Running init vanilla command for folder '%s'",
-                          cwd))
+      PrcLib.debug("Running init vanilla command for folder '%s'", cwd)
       PrcLib.message 'initialize a vanilla configuration for docker'
       PrcLib.message "  working directory location : #{cwd}"
       if dir_exists?(File.join(cwd, 'forj')) && (options[:force] != true)

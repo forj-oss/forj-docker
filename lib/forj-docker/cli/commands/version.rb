@@ -31,7 +31,7 @@ module ForjDocker
           return
         end
         gem_version = Gem.loaded_specs['forj-docker'].version.to_s
-        PrcLib.debug(format("Running cli command '%s'", gem_version))
+        PrcLib.debug("Running cli command '%s'", gem_version)
         PrcLib.message(gem_version)
       end
 

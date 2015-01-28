@@ -46,7 +46,7 @@ module ForjDocker
         # command: get
         # get a configuration value
         #
-        desc 'get [section::key]',
+        desc 'get [key]',
              'get a configuration value'
         long_desc <<-LONGDESC
       get the configuration value for a key.
@@ -61,7 +61,7 @@ LONGDESC
         end
 
         #
-        # command: configure set section::key=value key=value ...
+        # command: configure set key=value key=value ...
         desc 'set [key=name] [...] [options]',
              'configure one or more settings.'
         long_desc <<-LONGDESC

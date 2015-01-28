@@ -45,7 +45,7 @@ def setup_spec_helper
                                                  '.config',
                                                  'forj-docker'))
   PrcLib.app_name = 'forj-docker-undertest'
-  PrcLib.set_level Logger::DEBUG
+  PrcLib.level = Logger::FATAL
   # PrcLib.log_file
 
   $RT_GEM_HOME = File.expand_path(File.join(__FILE__,

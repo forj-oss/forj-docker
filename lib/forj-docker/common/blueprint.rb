@@ -92,8 +92,8 @@ class Blueprint # rubocop:disable ClassLength
     begin
       return blueprint['blueprint-deploy']['blueprint']
     rescue StandardError => e
-      PrcLib.error(format('failed to get blueprint from %s : %s',
-                          layout_file, e.message))
+      PrcLib.error('failed to get blueprint from %s : %s',
+                   layout_file, e.message)
     end
   end
 
@@ -125,8 +125,7 @@ class Blueprint # rubocop:disable ClassLength
   # This method will require for the core properties to be set first.
   #
   def find_blueprint_nodes(layout_name = @properties[:layout_name])
-    PrcLib.debug(format('working on finding nodes for %s',
-                        layout_name))
+    PrcLib.debug('working on finding nodes for %s', layout_name)
     nodes = []
     search_dir = File.expand_path(@properties[:work_dir])
     return if layout_name == 'undef' || !(dir_exists? search_dir)
@@ -137,8 +136,7 @@ class Blueprint # rubocop:disable ClassLength
     begin
       nodes << blueprint['blueprint-deploy']['servers'].map { |n| n['name'] }
     rescue StandardError => e
-      PrcLib.error(format('failed to process dockerfile for %s : %s',
-                          nodes, e.message))
+      PrcLib.error('failed to process dockerfile for %s : %s', nodes, e.message)
     end
     @properties[:nodes] = nodes.flatten.uniq
   end
@@ -225,7 +223,7 @@ class Blueprint # rubocop:disable ClassLength
   # validate that the work_dir has a set of blueprint files.
   #
   def exist_blueprint?
-    PrcLib.debug(format("checking for blueprints '%s'", @properties[:work_dir]))
+    PrcLib.debug("checking for blueprints '%s'", @properties[:work_dir])
     return false unless File.directory?(@properties[:work_dir])
     (findfirst_blueprint_name != 'undef')
   end

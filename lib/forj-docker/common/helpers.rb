@@ -135,7 +135,7 @@ module Helpers
   # - fspec - the name of the file.
   #
   def create_file(contents = '', fspec = nil)
-    PrcLib.debug(format('create file -> %s', fspec))
+    PrcLib.debug('create file -> %s', fspec)
     return if fspec.nil?
     begin
       File.open(fspec, 'w') do |fw|
@@ -143,8 +143,7 @@ module Helpers
         fw.close
       end
     rescue StandardError => e
-      PrcLib.warning(format('issues with creating file %s : %s',
-                            fspec, e.message))
+      PrcLib.warning('issues with creating file %s : %s', fspec, e.message)
     end
   end
 
@@ -153,7 +152,7 @@ module Helpers
   # *Arguments*
   # - fspec - name of the file to remove
   def remove_file(fspec = nil)
-    PrcLib.debug(format('remove file -> %s', fspec))
+    PrcLib.debug('remove file -> %s', fspec)
     return if fspec.nil?
     File.delete(fspec) if File.exist?(fspec)
   end

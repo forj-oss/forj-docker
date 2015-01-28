@@ -29,7 +29,7 @@ module ForjDocker
 
       def start
         super
-        PrcLib.debug "config name #{@conf.sConfigName}"
+        PrcLib.debug "config name #{@conf.config_filename}"
         PrcLib.debug("@params => #{@params}")
         Settings.config_show_all(@conf) if @params.length == 0
         Settings.config_set(@conf, @params) if @params.length > 0

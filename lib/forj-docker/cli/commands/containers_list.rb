@@ -44,7 +44,7 @@ module ForjDocker
 
       def start
         super
-        PrcLib.debug "config name #{@conf.sConfigName}"
+        PrcLib.debug "config name #{@conf.config_filename}"
         PrcLib.debug("@params => #{@params}")
         # return JSON output of @docker_files
         PrcLib.debug "#{@docker_files}"

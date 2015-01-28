@@ -29,15 +29,15 @@ module ForjDocker
 
       def start
         super
-        PrcLib.debug "config name #{@conf.sConfigName}"
+        PrcLib.debug "config name #{@conf.config_filename}"
         PrcLib.debug("@params => #{@params}")
         PrcLib.debug("@params.length => #{@params.length}")
         return if @params.nil?
         return unless @params.length == 1
         key = @params[0]
         PrcLib.debug("key => #{key}")
-        key_value = @conf[key]
-        PrcLib.message format('%s', key_value)
+        key_value = @conf[key.to_sym]
+        PrcLib.message('%s', key_value)
         key_value
       end
 

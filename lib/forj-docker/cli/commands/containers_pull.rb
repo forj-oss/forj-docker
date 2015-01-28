@@ -29,7 +29,7 @@ module ForjDocker
 
       def start
         super
-        PrcLib.debug "config name #{@conf.sConfigName}"
+        PrcLib.debug "config name #{@conf.config_filename}"
         PrcLib.debug("@params => #{@params}")
         PrcLib.debug("@params.length => #{@params.length}")
         PrcLib.message('to be implemented.')

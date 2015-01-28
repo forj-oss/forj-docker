@@ -65,8 +65,8 @@ class DockerTemplate
         fw.close
       end
     rescue StandardError => e
-      PrcLib.error(format('failed to process dockerfile for %s : %s',
-                          vals[:node], e.message))
+      PrcLib.error('failed to process dockerfile for %s : %s',
+                   vals[:node], e.message)
     end
   end
 

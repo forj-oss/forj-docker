@@ -41,7 +41,7 @@ module ForjDocker
         DockerTemplate.new.process_dockerfile(File.expand_path(@erb_file),
                                               File.expand_path(@dockerfile),
                                               @docker_properties)
-        PrcLib.message(format('template processed ... %s', dockerfile))
+        PrcLib.message('template processed ... %s', dockerfile)
       end
 
       def check_args
@@ -51,8 +51,8 @@ module ForjDocker
         PrcLib.fatal(1, 'check forj-docker help template.  '\
         'Destination docker file' \
         'required.') if @dockerfile.nil?
-        PrcLib.debug(format('using input file => %s', @erb_file))
-        PrcLib.debug(format('using output file => %s', @dockerfile))
+        PrcLib.debug('using input file => %s', @erb_file)
+        PrcLib.debug('using output file => %s', @dockerfile)
         validate_file_andfail @erb_file
         validate_nofile_andwarn @dockerfile
       end

@@ -20,11 +20,11 @@ module ForjDocker
     # Defines common thor settings (debug/verbose)
 
     def self.common_options(options)
-      PrcLib.set_level(Logger::INFO) if options[:verbose]
-      PrcLib.set_level(Logger::DEBUG) if options[:debug]
+      PrcLib.level = Logger::INFO if options[:verbose]
+      PrcLib.level = Logger::DEBUG if options[:debug]
       unless options[:libforj_debug].nil?
         PrcLib.core_level = options[:libforj_debug].to_i
-        PrcLib.set_level(Logger::DEBUG)
+        PrcLib.level = Logger::DEBUG
       end
       PrcLib.debug("current options => #{options}")
     end
@@ -38,41 +38,43 @@ module ForjDocker
         key_to_set, key_value = key_match(key_val)
         PrcLib.message("#{key_to_set} #{key_value}")
         unless config_setting_exist?(conf, key_to_set)
-          PrcLib.warning(format("key '%s' configuration does not exist." + \
-                                '  Check command settings. ',
-                                key_to_set))
+          PrcLib.warning("key '%s' configuration does not exist." + \
+                         '  Check command settings. ',
+                         key_to_set)
         end
 
         # We assume no runtime has been set before.
-        old_value = conf[key_to_set]
-
-        bef = format("'%s' (%s)", old_value, conf.exist?(key_to_set))
-
+        bef = _data_state(conf, key_to_set)
         config_set_local(conf, key_to_set, key_value)
-
-        new_value = conf[key_to_set]
-
-        aft = format("'%s' (%s)", new_value, conf.exist?(key_to_set))
+        aft = _data_state(conf, key_to_set)
 
         if bef == aft
-          PrcLib.message format('%-15s: No update', key_to_set.to_s)
+          PrcLib.message '%-15s: No update', key_to_set.to_s
           next
         end
         b_dirty = true
-        PrcLib.message format('%s: %s => %s',
-                              key_to_set, bef,
-                              ANSI.bold(aft))
+        PrcLib.message '%s: %s => %s', key_to_set, bef, ANSI.bold(aft)
       end
-      conf.saveConfig if b_dirty
+      conf.save_local_config if b_dirty
+    end
+
+    # State the current key value.
+    def self._data_state(conf, key_to_set)
+      where = conf.where?(key_to_set)
+      if where
+        format("'%s' (%s)", conf[key_to_set], where[0])
+      else
+        'no value'
+      end
     end
 
     # local set
     def self.config_set_local(conf, key, value)
       key     = key.to_sym     if key.class     == String
       if value != ''
-        conf.localSet(key, value)
+        conf.local_set(key, value)
       else
-        conf.localDel(key)
+        conf.local_del(key)
       end
       conf
     end
@@ -95,40 +97,37 @@ module ForjDocker
     # show all settigns
     def self.config_show_all(conf)
       PrcLib.message 'List of available forj-docker default settings:'
-      PrcLib.message format("%-15s %-12s :\n------------------------------",
-                            'section name',
-                            'key')
+      PrcLib.message "%-15s %-12s :\n------------------------------",
+                     'section name', 'key'
       conf.meta_each do | section, found_key, hValue |
-        next if Lorj.rhGet(hValue, :readonly)
-        description = Lorj.rhGet(hValue, :desc)
-        PrcLib.message format('%-15s %-12s : %s',
-                              section,
-                              found_key,
-                              description)
+        next if hValue.rh_get(:readonly)
+        description = hValue.rh_get(:desc)
+        PrcLib.message '%-15s %-12s : %s', section, found_key, description
       end
       PrcLib.message "\nUse `forj-docker configure" + \
-        ' section::key=value` to set one. '
+        ' key=value` to set one. '
     end
 
     # get default value
     # TODO: @chrisssss when we don't know section,
     #       how can we find the default value?
+    # chrissss: Use
+    # @conf.get(key, :name => 'default')
     def self.get_default(conf, find_section, find_key)
       find_section = find_section.to_sym if find_section.class == String
       find_key     = find_key.to_sym     if find_key.class     == String
       conf.meta_each do | section, key, hValue |
         next unless section == find_section
         next unless key == find_key
-        return Lorj.rhGet(hValue, :default_value)
+        return hValue.rh_get(:default_value)
       end
 
       nil
     end
 
-    # key exist
-    # TODO: resolve why we don't need _conf
-    def self.config_setting_exist?(_conf, find_key)
-      !Lorj::Default.get_meta_section(find_key).nil?
+    # predefined application key exist?
+    def self.config_setting_exist?(conf, find_key)
+      !conf.get_section(find_key).nil?
     end
   end
 end

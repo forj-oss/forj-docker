@@ -28,6 +28,5 @@ require 'forj-docker/cli/cli'
 # forj-docker cli entry point
 #
 module ForjDocker
-  PrcLib.debug(format("Running forj-docker cli version '%s'",
-                      $RT_VERSION))
+  PrcLib.debug("Running forj-docker cli version '%s'", $RT_VERSION)
 end
