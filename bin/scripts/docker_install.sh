@@ -84,7 +84,8 @@ ${proxy_str}
 DO_SUDO puppet apply --modulepath=/etc/puppet/modules \
     --debug --verbose -e "class{'docker': ${version_str} ${proxy_str} }"
 docker --version
-
+DOCKER_PROXY_CONF
+DOCKER_DNS_CONF
 #
 # grant docker access and dockerup alias
 #

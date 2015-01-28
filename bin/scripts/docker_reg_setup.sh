@@ -43,6 +43,7 @@ if [ ! -z "$HTTP_PROXY" ]; then
 fi
 
 DOCKER_PROXY_CONF
+DOCKER_DNS_CONF
 docker build --rm -t forj/docker:registry .
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execute docker registry build" 2
 

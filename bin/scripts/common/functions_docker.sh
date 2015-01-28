@@ -69,3 +69,26 @@ function DOCKER_PROXY_CONF {
       DOCKER_RESTART)
   fi
 }
+
+#
+# docker configure dns settings
+# see workaround: https://robinwinslow.co.uk/2014/08/27/fix-docker-networking/
+function DOCKER_DNS_CONF {
+    NM_TOOL=$(which nm-tool)
+    [ ! -f "${NM_TOOL}" ] && ERROR_EXIT ${LINENO} "nm-tool not found for dns." 2
+  # we will setup local dns first, then google public dns second.
+    LOCAL_DNS=$( "${NM_TOOL}" | grep DNS | \
+                 awk -F: '{print $2}'| \
+                 sed -e 's/^ *//g' -e 's/ *$//g'| \
+                 awk '{print "--dns "$1}' ORS=' ')
+    # external fall back to google dns
+    LOCAL_DNS="${LOCAL_DNS} --dns 8.8.8.8"
+    egrep "^DOCKER_OPTS=\"\\$\\{DOCKER_OPTS\\}\s${LOCAL_DNS}\"" \
+        "$(DOCKER_DEFAULTS)" ||
+        ( echo 'Configure docker dns settings' &&
+          DO_SUDO sed -n -i '/^DOCKER_OPTS=\"\${DOCKER_OPTS}\s--dns.*/!p' \
+              "$(DOCKER_DEFAULTS)" &&
+          DO_SUDO bash -c \
+           "echo \"DOCKER_OPTS=\\\"\\\${DOCKER_OPTS} ${LOCAL_DNS}\\\"\" >> \"$(DOCKER_DEFAULTS)\"" &&
+           DOCKER_RESTART )
+}

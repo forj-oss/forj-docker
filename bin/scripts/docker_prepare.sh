@@ -28,6 +28,7 @@ for i in ${SCRIPT_FULL_DIR}/common/*.sh; do
 done
 unset i
 
+
 #
 # get forj-docker path
 #
@@ -156,5 +157,7 @@ function PROCESS_WORKAREA
   unset i
 }
 
+DOCKER_PROXY_CONF
+DOCKER_DNS_CONF
 PROCESS_TEMPLATES
 PROCESS_WORKAREA

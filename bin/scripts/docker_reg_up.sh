@@ -42,6 +42,9 @@ unset i
 [ -z "$(docker images -a | egrep "^${REPO_NAME}.*${IMAGE}")" ] && \
     ERROR_EXIT ${LINENO} "${IMAGE_TAG} not found, try building it with rake registry_build" 2
 
+DOCKER_PROXY_CONF
+DOCKER_DNS_CONF
+
 if [ -z "$(docker inspect ${CONTAINER_NAME} 2> /dev/null | egrep '.*Running.*true')" ] ; then
 
     echo "Registry data will be stored : ${LOCAL_STORAGE}"
