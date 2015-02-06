@@ -96,14 +96,12 @@ class DockerTemplate
   # get metadata from dockerfile
   #
   def dockerfile_metadata(file = nil)
-    meta_data = @properties.merge(
-                  :repo_name  => nil,
-                  :image_name => nil,
-                  :file_name  => nil,
-                  :VERSION    => nil,
-                  :maintainer_name  => nil,
-                  :maintainer_email => nil
-                )
+    meta_data = @properties.merge(:repo_name  => nil,
+                                  :image_name => nil,
+                                  :file_name  => nil,
+                                  :VERSION    => nil,
+                                  :maintainer_name  => nil,
+                                  :maintainer_email => nil)
     return meta_data unless File.exist?(file)
     meta_data[:file_name] = File.expand_path(file)
     File.open(file, 'r').each do |line|
@@ -114,7 +112,7 @@ class DockerTemplate
          :exp => '(.*),\s(.*)', :field => 2 },
        { :property => :image_name,      :token => '.*#\sDOCKER-NAME',
          :exp => '(.*)/(.*)', :field => 2 },
-       { :property => :repo_name,  :token => '.*#\sDOCKER-NAME' }].each do | p |
+       { :property => :repo_name,  :token => '.*#\sDOCKER-NAME' }].each do |p|
         match_val = match_token(p[:token], line, p)
         meta_data[p[:property]] = match_val unless match_val.nil?
       end

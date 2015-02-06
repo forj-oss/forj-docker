@@ -85,10 +85,19 @@ puts "Docker work area => #{DOCKER_WORKAREA}"
 
 #
 # setup bin, spec lib paths
-FORJ_DOCKER_BIN  = File.expand_path(
-                   File.join(File.dirname(__FILE__), '..', '..', '..', 'bin'))
-FORJ_DOCKER_SPEC = File.expand_path(
-                   File.join(File.dirname(__FILE__), '..', '..', '..', 'spec'))
-FORJ_DOCKER_LIB  = File.expand_path(
-                   File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
+FORJ_DOCKER_BIN  = File.expand_path(File.join(File.dirname(__FILE__),
+                                              '..',
+                                              '..',
+                                              '..',
+                                              'bin'))
+FORJ_DOCKER_SPEC = File.expand_path(File.join(File.dirname(__FILE__),
+                                              '..',
+                                              '..',
+                                              '..',
+                                              'spec'))
+FORJ_DOCKER_LIB  = File.expand_path(File.join(File.dirname(__FILE__),
+                                              '..',
+                                              '..',
+                                              '..',
+                                              'lib'))
 $LOAD_PATH << FORJ_DOCKER_LIB

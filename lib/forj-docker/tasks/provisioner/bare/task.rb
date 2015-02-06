@@ -18,7 +18,7 @@
 require 'rake/clean'
 namespace :bare do
   desc 'bare::provision build steps'
-  task :provision, [:action] do | _t, args |
+  task :provision, [:action] do |_t, args|
     args = { :action => :dev }.merge(args)
     PrcLib.message "running bare action ==> #{args}"
     case args[:action].to_sym
@@ -61,7 +61,7 @@ namespace :bare do
   # we should verify that we can do things with our local bare system
   #
   desc 'basic check for local execution of docker'
-  task :check, [:ignore] do | _t, args|
+  task :check, [:ignore] do |_t, args|
     args = (!args.nil?) ? { :ignore => false }.merge(args) :
                           { :ignore => false }
     if args[:ignore] != true
@@ -108,7 +108,7 @@ namespace :bare do
   end
 
   desc 'manage containers publishing, for help run task "containers[help]"'
-  task :containers, [:action] do | _t, args|
+  task :containers, [:action] do |_t, args|
     args = { :action => :help }.merge(args)
     PrcLib.message "running containers action ==> #{args}"
 

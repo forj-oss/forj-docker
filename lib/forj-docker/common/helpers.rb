@@ -59,7 +59,7 @@ module Helpers
     return true unless !File.readable?(path) ||
                        !File.writable?(path) ||
                        !File.executable?(path)
-    msg = format('%s is not a valid directory.' + \
+    msg = format('%s is not a valid directory.' \
                  ' Check permissions and fix it.', path)
     PrcLib.fatal(1, msg)
     true

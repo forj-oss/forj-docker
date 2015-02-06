@@ -50,7 +50,7 @@ module ForjDocker
         PrcLib.debug "#{@docker_files}"
         containers_data = { :containers => [] }
         dt = DockerTemplate.new
-        @docker_files.each do | df |
+        @docker_files.each do |df|
           containers_data[:containers] << dt.dockerfile_metadata(df)
         end
         PrcLib.message containers_data.to_json unless @options[:quiet]

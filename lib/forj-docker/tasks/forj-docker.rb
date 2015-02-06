@@ -76,7 +76,7 @@ end
 # check
 #
 desc "run checks for: #{PROVISIONER}:check"
-task :check, [:ignore] do | _t, args |
+task :check, [:ignore] do |_t, args|
   args = { :ignore => false }.merge(args)
   Rake::Task["#{PROVISIONER}:check"].invoke(args[:ignore])
 end

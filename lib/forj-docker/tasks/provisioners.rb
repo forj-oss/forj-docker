@@ -21,7 +21,7 @@ include_folders = Dir.entries(File.join(RELATIVE_ROOT_DIR, RELATIVE_INC_FOLDER))
                   .map { |f| RELATIVE_INC_FOLDER + '/' + f }
 
 # find all the task.rb files and require them
-include_folders.each do | inc_folder |
+include_folders.each do |inc_folder|
   Dir.entries(File.join(RELATIVE_ROOT_DIR, inc_folder))
     .select { |f| !File.directory? f }
     .select { |f| f =~ /task.rb/ }

@@ -142,7 +142,7 @@ module ForjDocker
     #
     def gen_blueprint_docker(blueprint_props = {}, cwd = File.expand_path('.'))
       if blueprint_props[:nodes].length > 0
-        blueprint_props[:nodes].each do | node |
+        blueprint_props[:nodes].each do |node|
           blueprint_props[:node] = node
           folder = File.join(cwd, 'docker', blueprint_props[:name], node)
           unless File.exist?(File.join(folder, "Dockerfile.#{node}.erb"))
@@ -204,10 +204,10 @@ module ForjDocker
       process_rake(File.join($RT_GEM_HOME, 'template', 'bpnoop', 'Rakefile'),
                    cwd)
 
+      vagrant_file = File.join(cwd, 'Vagrantfile')
       FileUtils.cp_r("#{File.join($RT_GEM_HOME, 'Vagrantfile')}",
                      cwd,
-                     :verbose => true) unless File.exist?(
-                                              File.join(cwd, 'Vagrantfile'))
+                     :verbose => true) unless File.exist?(vagrant_file)
     end
   end
 end

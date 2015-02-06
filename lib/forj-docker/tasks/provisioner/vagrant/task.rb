@@ -17,7 +17,7 @@
 #
 namespace :vagrant do
   desc 'vagrant::provision build steps'
-  task :provision, [:action] do | _t, args|
+  task :provision, [:action] do |_t, args|
     args = { :action => :dev }.merge(args)
     puts "running vagrant action ==> #{args}"
     case args[:action].to_sym
@@ -62,7 +62,7 @@ namespace :vagrant do
   # we should verify that we can do things with vagrant
   #
   desc 'basic check for docker execution in vagrant'
-  task :check, [:ignore] do  | _t, args |
+  task :check, [:ignore] do  |_t, args|
     args = (!args.nil?) ? { :ignore => false }.merge(args) :
                           { :ignore => false }
     if args[:ignore] != true
@@ -115,7 +115,7 @@ namespace :vagrant do
   end
 
   desc 'manage containers publishing, for help run task "containers[help]"'
-  task :containers, [:action] do | _t, args|
+  task :containers, [:action] do |_t, args|
     args = { :action => :help }.merge(args)
     PrcLib.message "running containers action ==> #{args}"
     case args[:action].to_sym

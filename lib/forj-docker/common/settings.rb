@@ -34,11 +34,11 @@ module ForjDocker
       b_dirty = false
 
       p.flatten!
-      p.each do | key_val |
+      p.each do |key_val|
         key_to_set, key_value = key_match(key_val)
         PrcLib.message("#{key_to_set} #{key_value}")
         unless config_setting_exist?(conf, key_to_set)
-          PrcLib.warning("key '%s' configuration does not exist." + \
+          PrcLib.warning("key '%s' configuration does not exist." \
                          '  Check command settings. ',
                          key_to_set)
         end
@@ -83,7 +83,7 @@ module ForjDocker
     def self.key_match(key_val)
       mkey_val = key_val.match(/^(.*) *= *(.*)$/)
 
-      PrcLib.fatal(1, 'Syntax error. Please set your value like:' + \
+      PrcLib.fatal(1, 'Syntax error. Please set your value like:' \
                       " 'key=value' and retry.") unless mkey_val
 
       key_to_set = mkey_val[1]
@@ -99,12 +99,12 @@ module ForjDocker
       PrcLib.message 'List of available forj-docker default settings:'
       PrcLib.message "%-15s %-12s :\n------------------------------",
                      'section name', 'key'
-      conf.meta_each do | section, found_key, hValue |
+      conf.meta_each do |section, found_key, hValue|
         next if hValue.rh_get(:readonly)
         description = hValue.rh_get(:desc)
         PrcLib.message '%-15s %-12s : %s', section, found_key, description
       end
-      PrcLib.message "\nUse `forj-docker configure" + \
+      PrcLib.message "\nUse `forj-docker configure" \
         ' key=value` to set one. '
     end
 
@@ -116,7 +116,7 @@ module ForjDocker
     def self.get_default(conf, find_section, find_key)
       find_section = find_section.to_sym if find_section.class == String
       find_key     = find_key.to_sym     if find_key.class     == String
-      conf.meta_each do | section, key, hValue |
+      conf.meta_each do |section, key, hValue|
         next unless section == find_section
         next unless key == find_key
         return hValue.rh_get(:default_value)
