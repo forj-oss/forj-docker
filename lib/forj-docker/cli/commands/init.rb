@@ -42,7 +42,7 @@ module ForjDocker
         # init should configure the default to be bare sense
         # this should be a docker system
         rake_include_path = $LOAD_PATH.join File::PATH_SEPARATOR
-        ruby_exec_cmd = "ruby1.9.1 -I #{rake_include_path} -S"
+        ruby_exec_cmd = "#{$RT_RUBY} -I #{rake_include_path} -S"
         rake_exec_cmd = "#{ruby_exec_cmd} rake \"configure[bare]\""
         PrcLib.debug 'Running rake command : '
         PrcLib.debug rake_exec_cmd

@@ -57,6 +57,9 @@ module ForjDocker
                                                     'forj-docker',
                                                     'temp'))
 
+      $RT_RUBY = File.join(RbConfig::CONFIG['bindir'],
+                           RbConfig::CONFIG['ruby_install_name'])
+                 .sub(/.*\s.*/m, '"\&"')
       ensure_dir_exists($FORJ_DATA_PATH)
       ensure_dir_exists($FORJ_CREDS_PATH)
       ensure_dir_exists($FORJ_TEMP)

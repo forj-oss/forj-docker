@@ -49,4 +49,5 @@ Style/GlobalVars:
                      '$FORJ_TEMP',
                      '$FORJ_DATA_PATH',
                      '$RT_VERSION',
-                     '$RT_GEM_HOME']
+                     '$RT_GEM_HOME',
+                     '$RT_RUBY']
