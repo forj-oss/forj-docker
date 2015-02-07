@@ -58,15 +58,17 @@ function DOCKER_PROXY_CONF {
   # check if the local docker config has /etc/default/docker configured
   # for http_proxy
   if [ ! -z "$HTTP_PROXY" ]; then
-      egrep ".*export\shttp_proxy=\"${HTTP_PROXY}\"" "$(DOCKER_DEFAULTS)" ||
-      (DO_SUDO sed -n -i '/.*export\shttp_proxy=.*/!p' "$(DOCKER_DEFAULTS)" &&
-      DO_SUDO bash -c "echo \"export http_proxy=\\\"${HTTP_PROXY}\\\"\" >> \"$(DOCKER_DEFAULTS)\"" &&
-      DOCKER_RESTART)
+      if ! egrep ".*export\shttp_proxy=\"${HTTP_PROXY}\"" "$(DOCKER_DEFAULTS)" ; then
+          DO_SUDO sed -n -i '/.*export\shttp_proxy=.*/!p' "$(DOCKER_DEFAULTS)"
+          DO_SUDO bash -c "echo \"export http_proxy=\\\"${HTTP_PROXY}\\\"\" >> \"$(DOCKER_DEFAULTS)\""
+          DOCKER_RESTART
+      fi
   else
-      egrep ".*export\shttp_proxy=.*" "$(DOCKER_DEFAULTS)" &&
-      (DO_SUDO sed -n -i '/.*export\shttp_proxy=.*/!p' "$(DOCKER_DEFAULTS)" &&
-      echo 'removing proxy conf from docker' &&
-      DOCKER_RESTART)
+      if egrep ".*export\shttp_proxy=.*" "$(DOCKER_DEFAULTS)" ; then
+          DO_SUDO sed -n -i '/.*export\shttp_proxy=.*/!p' "$(DOCKER_DEFAULTS)"
+          echo 'removing proxy conf from docker'
+          DOCKER_RESTART
+      fi
   fi
 }
 
@@ -74,10 +76,16 @@ function DOCKER_PROXY_CONF {
 # docker configure dns settings
 # see workaround: https://robinwinslow.co.uk/2014/08/27/fix-docker-networking/
 function DOCKER_DNS_CONF {
+    # TODO : need redhat implementation
     NM_TOOL=$(which nm-tool)
+    if [ -z "${NM_TOOL}" ]; then
+      echo "WARNING skipping DOCKER_DNS_CONF, cant find nm-tool"
+      echo "try installing ; apt-get install network network-manager"
+      return
+    fi
     [ ! -f "${NM_TOOL}" ] && ERROR_EXIT ${LINENO} "nm-tool not found for dns." 2
   # we will setup local dns first, then google public dns second.
-    LOCAL_DNS=$( "${NM_TOOL}" | grep DNS | \
+    LOCAL_DNS=$( "${NM_TOOL}" 2>&1 |grep -v WARNING | grep DNS | \
                  awk -F: '{print $2}'| \
                  sed -e 's/^ *//g' -e 's/ *$//g'| \
                  awk '{print "--dns "$1}' ORS=' ')
