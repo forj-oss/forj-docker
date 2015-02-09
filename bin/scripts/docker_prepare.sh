@@ -73,7 +73,7 @@ function DOCKER_BUILD {
     fi
 
     # validate we can run docker commands
-    if ! groups | grep docker > /dev/null 2<&1 ; then
+    if ! groups | grep 'docker\|root' > /dev/null 2<&1 ; then
       ERROR_EXIT ${LINENO} "The current user is not a member of the docker group" 2
     fi
     #
