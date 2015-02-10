@@ -30,6 +30,17 @@ describe 'docker version check', :check => true do
   end
 end
 
+describe 'pull busybox test', :check => true do
+  sh = <<-EOS
+    docker run busybox /bin/echo hello
+  EOS
+  subject { command(sh) }
+
+  it 'execute without errors, check kernel on failure' do
+    expect(subject.exit_status).to eq(0)
+  end
+end
+
 describe service('docker'), :check => true do
   it { should be_enabled   }
   it { should be_running   }
