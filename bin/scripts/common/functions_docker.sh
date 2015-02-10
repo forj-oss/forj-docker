@@ -18,9 +18,29 @@
 # shell scripts for interacting with docker cli in bash scripts
 #
 
-# docker default config file
+#
+# determine the linux distribution isntalled
+function is_rhel6 {
+    [ -f /usr/bin/yum ] && \
+        cat /etc/*release | grep -q -e "Red Hat" -e "CentOS" && \
+        cat /etc/*release | grep -q 'release 6'
+}
+
+function is_ubuntu {
+    [ -f /usr/bin/apt-get ]
+}
+
+#
+# determine docker default config file
 function DOCKER_DEFAULTS {
-    echo -n '/etc/default/docker'
+    if is_rhel6; then
+        echo -n '/etc/sysconfig/docker'
+    elif is_ubuntu; then
+        echo -n '/etc/default/docker'
+    else
+        echo "***Can not determine the docker env default location: distribution not recognized"
+        exit 1
+    fi
 }
 
 #
