@@ -50,8 +50,8 @@ describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
     # list or regular expression matches to check the Dockerfile.test file for.
     @docker_file_matchers = [
       /^# DOCKER-VERSION 1.0.1/,
-      /^# DOCKER-NAME test\/testbp\:foo/,
-      /^FROM  forj\/ubuntu\:precise/,
+      %r{^# DOCKER-NAME test/testbp:foo},
+      %r{^FROM  forj/ubuntu:precise},
       /^MAINTAINER testco.io, tester.foo@testco.io/,
       %r{^WORKDIR /opt/workspace},
       %r{^ADD . /opt/workspace},
@@ -79,7 +79,7 @@ describe 'test DockerTemplate class on template/bp/docker/Dockerfile.node.erb',
     @docker_metadata = DockerTemplate.new.dockerfile_metadata(@dest_dockerfile)
     PrcLib.debug "docker_metadata => #{@docker_metadata}"
     expect(@docker_metadata[:VERSION]).to match(/1.0.1/)
-    expect(@docker_metadata[:repo_name]).to match(/test\/testbp/)
+    expect(@docker_metadata[:repo_name]).to match(%r{test/testbp})
     expect(@docker_metadata[:image_name]).to match(/testbp:foo/)
     expect(@docker_metadata[:maintainer_name]).to match(/testco.io/)
     expect(@docker_metadata[:maintainer_email]).to match(/tester.foo@testco.io/)

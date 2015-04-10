@@ -162,8 +162,8 @@ module CliSpec
       # the Dockerfile.test file for.
       @docker_file_matchers = [
         /^# DOCKER-VERSION 0.0.1/,
-        /^# DOCKER-NAME norepo\/none\:default/,
-        /^FROM  forj\/ubuntu\:precise/,
+        %r{^# DOCKER-NAME norepo/none:default},
+        %r{^FROM  forj/ubuntu:precise},
         /^MAINTAINER your name, youremail@yourdomain.com/,
         %r{^WORKDIR /opt/workspace},
         %r{^ADD . /opt/workspace},

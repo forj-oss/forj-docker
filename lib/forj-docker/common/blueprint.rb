@@ -105,11 +105,11 @@ class Blueprint # rubocop:disable ClassLength
   # and name of the blueprint.
   #
   def setcore_properties(layout_file = nil, layout_name = nil)
-    return if layout_file.nil?  ||
+    return if layout_file.nil? ||
               layout_file == '' ||
               !(File.exist? layout_file)
 
-    return if layout_name.nil?  ||
+    return if layout_name.nil? ||
               layout_name == ''
 
     @properties[:layout_name]    = layout_name

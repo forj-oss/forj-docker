@@ -70,7 +70,7 @@ module ForjDocker
 
     # local set
     def self.config_set_local(conf, key, value)
-      key     = key.to_sym     if key.class     == String
+      key = key.to_sym if key.class == String
       if value != ''
         conf.local_set(key, value)
       else
@@ -115,7 +115,7 @@ module ForjDocker
     # @conf.get(key, :name => 'default')
     def self.get_default(conf, find_section, find_key)
       find_section = find_section.to_sym if find_section.class == String
-      find_key     = find_key.to_sym     if find_key.class     == String
+      find_key     = find_key.to_sym     if find_key.class == String
       conf.meta_each do |section, key, hValue|
         next unless section == find_section
         next unless key == find_key
