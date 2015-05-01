@@ -28,6 +28,7 @@ include Helpers
 module ForjDocker
   #
   # initialize
+  # rubocop:disable ModuleLength
   module AppInit
     def forj_initialize
       # Defining Global variables

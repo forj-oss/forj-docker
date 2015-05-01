@@ -34,16 +34,4 @@ group :development, :test do
   gem 'puppet_facts',            :require => false
 end
 
-if facterversion = ENV['FACTER_GEM_VERSION']
-  gem 'facter', facterversion, :require => false
-else
-  gem 'facter', '1.7.6', :require => false
-end
-
-if puppetversion = ENV['PUPPET_GEM_VERSION']
-  gem 'puppet', puppetversion, :require => false
-else
-  gem 'puppet', '2.7.25', :require => false
-end
-
 gemspec

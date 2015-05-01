@@ -62,8 +62,8 @@ namespace :bare do
   #
   desc 'basic check for local execution of docker'
   task :check, [:ignore] do |_t, args|
-    args = (!args.nil?) ? { :ignore => false }.merge(args) :
-                          { :ignore => false }
+    args = { :ignore => false }
+    args = { :ignore => false }.merge(args) unless args.nil?
     if args[:ignore] != true
       PrcLib.message 'Verifying bare...'
       RSpec::Core::RakeTask.new(:check_spec) do |ct|

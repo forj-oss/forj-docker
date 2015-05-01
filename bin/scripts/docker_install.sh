@@ -33,14 +33,14 @@ unset i
 [ ! -d "${SCRIPT_FULL_DIR}/git" ] && mkdir -p "${SCRIPT_FULL_DIR}/git"
 cd "${SCRIPT_FULL_DIR}/git"
 [ ! -d maestro/.git ] && git clone https://review.forj.io/forj-oss/maestro
-DO_SUDO bash maestro/puppet/install_puppet.sh
+DO_SUDO bash -c 'PUPPET_VERSION=3 bash maestro/puppet/install_puppet.sh'
 
 puppet --version
 [ ! $? -eq 0 ] && ERROR_EXIT ${LINENO} "failed to execut puppet --version" 2
 
 MODULE_LIST=$(DO_SUDO puppet module list)
 MODULE_NAME="garethr-docker"
-MODULE_VERSION="${PUPPET_DOCKER_VERSION:-2.2.0}"
+MODULE_VERSION="${PUPPET_DOCKER_VERSION:-4.0.2}"
 if ! echo "${MODULE_LIST}" | grep "${MODULE_NAME} ([^v]*v${MODULE_VERSION}" >/dev/null 2>&1
   then
   # Attempt module upgrade. If that fails try installing the module.
@@ -72,7 +72,7 @@ fi
 #
 # install docker
 #
-DOCKER_VERSION=${DOCKER_VERSION:-1.4.1}
+DOCKER_VERSION=${DOCKER_VERSION:-1.6.0}
 [ ! -z "${http_proxy}" ] && proxy_str="proxy => '${http_proxy}',  no_proxy => '${no_proxy}',"
 version_str="version => '${DOCKER_VERSION}', "
 echo "running command : puppet apply --modulepath=/etc/puppet/modules
@@ -98,6 +98,8 @@ DO_SUDO chmod a+x /etc/profile.d/dockerup.sh
 #
 # pull the default repos
 #
-docker pull ubuntu:precise
-docker pull forj/ubuntu:precise
+docker pull busybox
+# TODO: determine if we need any pulls
+# docker pull ubuntu:precise
+# docker pull forj/ubuntu:precise
 docker pull forj/ubuntu:trusty

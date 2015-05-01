@@ -63,8 +63,8 @@ namespace :vagrant do
   #
   desc 'basic check for docker execution in vagrant'
   task :check, [:ignore] do  |_t, args|
-    args = (!args.nil?) ? { :ignore => false }.merge(args) :
-                          { :ignore => false }
+    args = { :ignore => false }
+    args = { :ignore => false }.merge(args) unless args.nil?
     if args[:ignore] != true
       PrcLib.message 'Verifying vagrant...'
       RSpec::Core::RakeTask.new(:check_spec) do |ct|
