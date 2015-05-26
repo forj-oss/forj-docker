@@ -18,7 +18,7 @@ namespace: cloudslang-docker.main
 imports:
   util: cloudslang-docker.util
   ssh_docker: cloudslang-docker.ssh-docker-host
-
+  ssh_nginx: cloudslang-docker.ssh-docker-nginx
 flow:
   name: build_registry2_container
 
@@ -33,6 +33,7 @@ flow:
         required: false
     - registry_https_proxy:
         required: false
+    - nginx_configs_path
 
   workflow:
     # - test_input_param:
@@ -93,13 +94,37 @@ flow:
           util.print_nav:
             - text: "'Container ''registry2'' is running now, ID: ' + exec_docker_run_registry_container_result"
         navigate:
-          NAV: print_finish
+          NAV: upload_nginx_config
+    - upload_nginx_config:
+        do:
+          util.upload_nginx_config:
+            - host: host_login_url
+            - username: host_login_username
+            - privateKeyFile: host_login_identity_path
+            - configsPath: nginx_configs_path
+        navigate:
+          SUCCESS: link_nginx_auth
+          FAILURE: FAILURE
+    - link_nginx_auth:
+        do:
+          ssh_nginx.ssh_docker_run_nginx_container:
+            - host: host_login_url
+            - username: host_login_username
+            - privateKeyFile: host_login_identity_path
+            - http_proxy: registry_http_proxy
+            - https_proxy: registry_https_proxy
+        publish:
+          - exec_docker_run_registry_container_result: nginx_container_ID
+          - exec_docker_run_registry_container_error_message: nginx_error_message 
+        navigate:
+          RUNNING: print_finish
+          ERROR_RESULT: print_docker_run_registry_container_error_result
     - print_docker_run_registry_container_error_result:
         do:
           util.print_nav:
             - text: "'Registry container failed to run, error message:' + exec_docker_run_registry_container_error_message"
         navigate:
-          NAV: print_finish
+          NAV: FAILURE
     - print_check_registry_running_with_unexpected_error:
         do:
           util.print:

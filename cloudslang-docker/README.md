@@ -7,7 +7,7 @@ The project is completely written by CloudSlang scripts. You can fire up the Clo
 run --f <folder path>/cloudslang-docker/main/build_registry2_container.sl \
     --cp <folder path>/cloudslang-docker/util,<folder path>/cloudslang-docker/ssh-docker-host \
     --i host_login_url=<host IP address>,host_login_username=<username>,host_login_identity_path=<private key path>, \
-        host_registry_port=80,registry_container_base_storage_path=<path in container>,registry_host_local_storage_path=<path in host>,registry_http_proxy=<your proxy>,registry_https_proxy=<your proxy>
+        host_registry_port=80,registry_container_base_storage_path=<path in container>,registry_host_local_storage_path=<path in host>,registry_http_proxy=<your proxy>,registry_https_proxy=<your proxy>,nginx_configs_path=<folder path>/cloudslang-docker/nginx-proxy-config
 ```
 
 ## Done
